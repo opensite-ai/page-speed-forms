@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Full library",
+    "path": "dist/index.js"
+  },
+  {
+    "name": "forms",
+    "path": "dist/index.js",
+    "import": "{ useForms }"
+  }
+]
