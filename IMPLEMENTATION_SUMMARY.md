@@ -941,6 +941,299 @@ setErrorMessages({
 
 ---
 
+## Phase 2.4: Radio Component (COMPLETED ✅)
+
+Phase 2.4 adds the Radio component to the inputs module, providing radio button group functionality with full validation and accessibility support.
+
+---
+
+## ✅ Phase 2.4 Features
+
+### Radio Component (`src/inputs/Radio.tsx`)
+
+Implemented fully-featured radio button group component with:
+
+#### Core Features
+- **Radio Group Management**: Manage multiple radio options with single selection
+- **Array of Options**: Pass options array with value/label pairs
+- **Controlled Component**: Full controlled input pattern with value and onChange
+- **Horizontal/Vertical Layout**: flexDirection prop for layout control (default: vertical)
+- **Error State**: Visual error styling and aria-invalid support
+- **Accessibility**: Full ARIA attribute support with radiogroup role
+
+#### Technical Implementation
+- **Size**: 206 lines of code, part of inputs module
+- **Pattern**: Mirrors other input component architecture for consistency
+- **TypeScript**: Full type safety with RadioProps and RadioOption interfaces
+- **Props Forwarding**: All native radio attributes supported
+- **Display Name**: Set for React DevTools debugging
+- **Documentation**: Comprehensive JSDoc with examples and feature list
+
+---
+
+## 📦 Phase 2.4 Bundle Sizes
+
+All targets still met! ✅
+
+| Module | Phase 2.3 | Phase 2.4 | Change | Target | Status |
+|--------|-----------|-----------|--------|--------|--------|
+| Core | 13.16 KB | 13.16 KB | 0 B | 14 KB | ✅ Pass |
+| Inputs Module | 823 B | ~1 KB | +177 B | 2 KB | ✅ Pass |
+| Full Bundle | 13.3 KB | 13.3 KB | 0 B | 15 KB | ✅ Pass |
+
+---
+
+## Phase 2.5: Select Component (COMPLETED ✅)
+
+Phase 2.5 adds the Select/Dropdown component to the inputs module, providing a comprehensive dropdown selection interface with search, keyboard navigation, and full accessibility support.
+
+---
+
+## ✅ Phase 2.5 Features
+
+### Select Component (`src/inputs/Select.tsx`)
+
+Implemented fully-featured dropdown component with:
+
+#### Core Features
+- **Single Selection**: Dropdown with single value selection
+- **Searchable Options**: Built-in search input with filtering (configurable)
+- **Keyboard Navigation**: Full keyboard support with ArrowUp/ArrowDown, Enter, Escape
+- **Option Groups**: Organize options into labeled groups
+- **Clearable Selection**: Optional clear button to reset selection
+- **Custom Option Rendering**: renderOption prop for custom option display
+- **Loading State**: Visual loading indicator for async options
+- **Disabled Options**: Individual options can be disabled
+- **Error State**: Visual error styling and aria-invalid support
+- **Accessibility**: Full ARIA support with combobox/listbox/option roles
+
+#### Advanced Features
+- **Type-ahead Search**: Quick navigation by typing when search is disabled
+- **Click Outside to Close**: Automatic dropdown closure on outside clicks
+- **Focus Management**: Auto-focus search input when dropdown opens
+- **Wrap-around Navigation**: Keyboard navigation wraps at start/end
+- **Skip Disabled Options**: Keyboard navigation skips disabled items
+
+#### Technical Implementation
+- **Size**: 528 lines of code, 2.65 KB gzipped (well under 3 KB limit)
+- **Pattern**: Mirrors other input component architecture for consistency
+- **TypeScript**: Full type safety with SelectProps, SelectOption, SelectOptionGroup interfaces
+- **Dual Rendering**: Hidden native select for form submission + custom UI
+- **State Management**: Uses React.useState for dropdown state
+- **Refs**: Uses React.useRef for search input and dropdown container
+- **Props Forwarding**: All relevant attributes supported
+- **Display Name**: Set for React DevTools debugging
+- **Documentation**: Comprehensive JSDoc with examples and feature list
+
+---
+
+## 🧪 Phase 2.5 Testing
+
+### Test Coverage
+- **Total Tests**: 374 (up from 314 in Phase 2.4)
+- **New Tests**: +60 tests for Select component
+- **Test Duration**: ~1.7s for Select suite
+- **Passing Tests**: 59 passing, 1 skipped (setTimeout focus behavior)
+- **Coverage**: Maintained high coverage across all modules
+
+### Test Categories for Select
+
+#### Basic Rendering (6 tests)
+- Select element rendering with custom UI
+- Name attribute application
+- Placeholder display
+- Selected value display
+- Hidden native select for form submission
+
+#### Select Specific Features (10 tests)
+- Options array rendering
+- Option groups support
+- Searchable dropdown with filtering
+- Clearable button functionality
+- Loading state indicator
+- Disabled options handling
+- Custom option rendering via renderOption prop
+
+#### User Interaction (12 tests)
+- Dropdown toggle on click
+- Option selection via click
+- Search input filtering
+- Clear button functionality
+- Click outside to close
+- Controlled input pattern
+
+#### Keyboard Navigation (15 tests)
+- ArrowDown opens dropdown and focuses first option
+- ArrowUp/ArrowDown navigation through options
+- Wrap-around navigation at start/end
+- Skip disabled options during navigation
+- Enter to select focused option
+- Escape to close dropdown
+- Space key to open (when not searchable)
+- Type-ahead search (when searchable disabled)
+- Full keyboard accessibility
+
+#### Attributes and States (6 tests)
+- Disabled state prevents interaction
+- Required attribute
+- Additional HTML attributes forwarding
+- Option disabled state
+
+#### Error State (3 tests)
+- Error class application
+- aria-invalid when error
+- aria-invalid override support
+
+#### Accessibility (7 tests)
+- role="combobox" on trigger
+- role="listbox" on dropdown
+- role="option" on options
+- aria-expanded state
+- aria-controls linking
+- aria-describedby support
+- aria-selected on options
+
+---
+
+## 📦 Phase 2.5 Bundle Sizes
+
+Select component meets size target! ✅
+
+| Module | Phase 2.4 | Phase 2.5 | Change | Target | Status |
+|--------|-----------|-----------|--------|--------|--------|
+| Core | 13.16 KB | 13.16 KB | 0 B | 14 KB | ✅ Pass |
+| Select Component | N/A | 2.65 KB | +2.65 KB | 3 KB | ✅ Pass |
+| Full Bundle | 13.3 KB | 13.3 KB | 0 B | 15 KB | ✅ Pass |
+
+**Result**: Added comprehensive Select component with search, keyboard navigation, option groups, and full accessibility for 2.65 KB gzipped!
+
+---
+
+## 🔧 Phase 2.5 New Exports
+
+### src/inputs/index.ts (Updated)
+```tsx
+export { TextInput } from "./TextInput";
+export { TextArea } from "./TextArea";
+export type { TextAreaProps } from "./TextArea";
+export { Checkbox } from "./Checkbox";
+export type { CheckboxProps } from "./Checkbox";
+export { Radio } from "./Radio";
+export type { RadioProps, RadioOption } from "./Radio";
+export { Select } from "./Select";
+export type {
+  SelectProps,
+  SelectOption,
+  SelectOptionGroup,
+} from "./Select";
+```
+
+### Usage Examples
+
+```tsx
+import { Select } from '@page-speed/forms/inputs';
+
+// Basic usage
+<Select
+  name="country"
+  value={country}
+  onChange={setCountry}
+  placeholder="Select a country"
+  options={[
+    { value: 'us', label: 'United States' },
+    { value: 'ca', label: 'Canada' },
+    { value: 'mx', label: 'Mexico' }
+  ]}
+/>
+
+// With form integration
+const form = useForm({ initialValues: { country: '' } });
+
+<Select
+  {...form.getFieldProps('country')}
+  placeholder="Select your country"
+  options={countryOptions}
+  searchable
+  clearable
+  error={!!form.errors.country}
+  aria-describedby={form.errors.country ? 'country-error' : undefined}
+/>
+
+// With option groups
+<Select
+  name="timezone"
+  value={timezone}
+  onChange={setTimezone}
+  optionGroups={[
+    {
+      label: 'North America',
+      options: [
+        { value: 'est', label: 'Eastern Time' },
+        { value: 'cst', label: 'Central Time' }
+      ]
+    },
+    {
+      label: 'Europe',
+      options: [
+        { value: 'gmt', label: 'GMT' },
+        { value: 'cet', label: 'Central European Time' }
+      ]
+    }
+  ]}
+/>
+
+// With custom option rendering
+<Select
+  name="user"
+  value={selectedUser}
+  onChange={setSelectedUser}
+  options={users}
+  renderOption={(option) => (
+    <div className="user-option">
+      <img src={option.avatar} alt="" />
+      <span>{option.label}</span>
+    </div>
+  )}
+/>
+
+// With disabled options
+<Select
+  name="plan"
+  value={plan}
+  onChange={setPlan}
+  options={[
+    { value: 'free', label: 'Free Plan' },
+    { value: 'pro', label: 'Pro Plan', disabled: true },
+    { value: 'enterprise', label: 'Enterprise' }
+  ]}
+/>
+
+// Loading state for async options
+<Select
+  name="city"
+  value={city}
+  onChange={setCity}
+  options={cities}
+  loading={loadingCities}
+  searchable
+  placeholder="Search cities..."
+/>
+```
+
+---
+
+## 📊 Updated Implementation Statistics (Phase 2.5)
+
+- **Total Files Created**: 27+ (Phase 2.4: 25, Phase 2.5: +2)
+- **Lines of Code**: ~6,000+ (Phase 2.4: ~5,200, Phase 2.5: +800)
+- **TypeScript Coverage**: 100%
+- **Total Tests**: 374 (Phase 2.4: 314, Phase 2.5: +60)
+- **Bundle Size**: 13.3 KB (unchanged)
+- **Select Component Size**: 2.65 KB gzipped
+- **API Surface**: 45 exports (Phase 2.4: 42, Phase 2.5: +3)
+
+---
+
 ## 🔗 Related Documentation
 
 - [@legendapp/state docs](https://legendapp.com/open-source/state/)

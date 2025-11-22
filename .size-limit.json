@@ -42,6 +42,13 @@
     "gzip": true
   },
   {
+    "name": "Select",
+    "path": "dist/inputs.js",
+    "import": "{ Select }",
+    "limit": "3 KB",
+    "gzip": true
+  },
+  {
     "name": "Valibot Adapter",
     "path": "dist/validation-valibot.js",
     "import": "{ createValibotSchema }",
