@@ -242,9 +242,14 @@ describe("ChaiBlockAdapter", () => {
         blockProps: {},
       };
 
+      // Suppress error output in test
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
       expect(() => {
         render(<AdaptedError block={block} />);
       }).toThrow("Component render error");
+
+      consoleSpy.mockRestore();
     });
 
     it("should use custom error fallback if provided", () => {
