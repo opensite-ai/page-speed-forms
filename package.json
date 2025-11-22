@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -24,59 +24,59 @@
   "author": "OpenSite AI (https://opensite.ai)",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./core": {
       "types": "./dist/core.d.ts",
-      "import": "./dist/core.mjs",
-      "require": "./dist/core.js"
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
     },
     "./inputs": {
       "types": "./dist/inputs.d.ts",
-      "import": "./dist/inputs.mjs",
-      "require": "./dist/inputs.js"
+      "import": "./dist/inputs.js",
+      "require": "./dist/inputs.cjs"
     },
     "./validation": {
       "types": "./dist/validation.d.ts",
-      "import": "./dist/validation.mjs",
-      "require": "./dist/validation.js"
+      "import": "./dist/validation.js",
+      "require": "./dist/validation.cjs"
     },
     "./validation/valibot": {
       "types": "./dist/validation-valibot.d.ts",
-      "import": "./dist/validation-valibot.mjs",
-      "require": "./dist/validation-valibot.js"
+      "import": "./dist/validation-valibot.js",
+      "require": "./dist/validation-valibot.cjs"
     },
     "./validation/rules": {
       "types": "./dist/validation-rules.d.ts",
-      "import": "./dist/validation-rules.mjs",
-      "require": "./dist/validation-rules.js"
+      "import": "./dist/validation-rules.js",
+      "require": "./dist/validation-rules.cjs"
     },
     "./validation/utils": {
       "types": "./dist/validation-utils.d.ts",
-      "import": "./dist/validation-utils.mjs",
-      "require": "./dist/validation-utils.js"
+      "import": "./dist/validation-utils.js",
+      "require": "./dist/validation-utils.cjs"
     },
     "./upload": {
       "types": "./dist/upload.d.ts",
-      "import": "./dist/upload.mjs",
-      "require": "./dist/upload.js"
+      "import": "./dist/upload.js",
+      "require": "./dist/upload.cjs"
     },
     "./integration": {
       "types": "./dist/integration.d.ts",
-      "import": "./dist/integration.mjs",
-      "require": "./dist/integration.js"
+      "import": "./dist/integration.js",
+      "require": "./dist/integration.cjs"
     },
     "./builder": {
       "types": "./dist/builder.d.ts",
-      "import": "./dist/builder.mjs",
-      "require": "./dist/builder.js"
+      "import": "./dist/builder.js",
+      "require": "./dist/builder.cjs"
     }
   },
   "files": [
