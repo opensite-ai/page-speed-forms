@@ -1,11 +1,17 @@
 {
-  "name": "@page-speed/forms",
+  "name": "@opensite/page-speed-forms",
   "version": "0.1.0",
-  "description": "TODO",
+  "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
+    "forms",
+    "validation",
+    "performance",
     "pagespeed",
-    "tree-shakeable"
+    "tree-shakeable",
+    "valibot",
+    "observable",
+    "reactive"
   ],
   "homepage": "https://github.com/opensite-ai/page-speed-forms#readme",
   "repository": {
@@ -27,10 +33,50 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./forms": {
-      "types": "./dist/web-vitals.d.ts",
-      "import": "./dist/web-vitals.mjs",
-      "require": "./dist/web-vitals.js"
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.js"
+    },
+    "./inputs": {
+      "types": "./dist/inputs.d.ts",
+      "import": "./dist/inputs.mjs",
+      "require": "./dist/inputs.js"
+    },
+    "./validation": {
+      "types": "./dist/validation.d.ts",
+      "import": "./dist/validation.mjs",
+      "require": "./dist/validation.js"
+    },
+    "./validation/valibot": {
+      "types": "./dist/validation-valibot.d.ts",
+      "import": "./dist/validation-valibot.mjs",
+      "require": "./dist/validation-valibot.js"
+    },
+    "./validation/rules": {
+      "types": "./dist/validation-rules.d.ts",
+      "import": "./dist/validation-rules.mjs",
+      "require": "./dist/validation-rules.js"
+    },
+    "./validation/utils": {
+      "types": "./dist/validation-utils.d.ts",
+      "import": "./dist/validation-utils.mjs",
+      "require": "./dist/validation-utils.js"
+    },
+    "./upload": {
+      "types": "./dist/upload.d.ts",
+      "import": "./dist/upload.mjs",
+      "require": "./dist/upload.js"
+    },
+    "./integration": {
+      "types": "./dist/integration.d.ts",
+      "import": "./dist/integration.mjs",
+      "require": "./dist/integration.js"
+    },
+    "./builder": {
+      "types": "./dist/builder.d.ts",
+      "import": "./dist/builder.mjs",
+      "require": "./dist/builder.js"
     }
   },
   "files": [
@@ -53,17 +99,29 @@
     "react-dom": ">=16.8.0"
   },
   "devDependencies": {
+    "@size-limit/preset-small-lib": "^11.2.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.0.10",
+    "@vitest/ui": "^4.0.10",
+    "happy-dom": "^20.0.10",
+    "jsdom": "^27.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "size-limit": "^11.1.6",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.5"
+    "vitest": "^4.0.10"
   },
-  "dependencies": {},
+  "optionalDependencies": {
+    "@legendapp/state": "^3.0.0-beta.42",
+    "valibot": "^1.0.0"
+  },
   "packageManager": "pnpm@9.14.4",
   "engines": {
     "node": ">=18.0.0",

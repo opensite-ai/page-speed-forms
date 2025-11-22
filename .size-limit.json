@@ -1,11 +1,57 @@
 [
   {
-    "name": "Full library",
-    "path": "dist/index.js"
+    "name": "Core (useForm, Form, Field, useField)",
+    "path": "dist/core.js",
+    "import": "{ useForm, Form, Field, useField }",
+    "limit": "14 KB",
+    "gzip": true
   },
   {
-    "name": "forms",
+    "name": "useForm only",
+    "path": "dist/core.js",
+    "import": "{ useForm }",
+    "limit": "14 KB",
+    "gzip": true
+  },
+  {
+    "name": "TextInput",
+    "path": "dist/inputs.js",
+    "import": "{ TextInput }",
+    "limit": "1.5 KB",
+    "gzip": true
+  },
+  {
+    "name": "TextArea",
+    "path": "dist/inputs.js",
+    "import": "{ TextArea }",
+    "limit": "1.5 KB",
+    "gzip": true
+  },
+  {
+    "name": "Checkbox",
+    "path": "dist/inputs.js",
+    "import": "{ Checkbox }",
+    "limit": "1.5 KB",
+    "gzip": true
+  },
+  {
+    "name": "Radio",
+    "path": "dist/inputs.js",
+    "import": "{ Radio }",
+    "limit": "1.5 KB",
+    "gzip": true
+  },
+  {
+    "name": "Valibot Adapter",
+    "path": "dist/validation-valibot.js",
+    "import": "{ createValibotSchema }",
+    "limit": "1 KB",
+    "gzip": true
+  },
+  {
+    "name": "Full Bundle (all modules)",
     "path": "dist/index.js",
-    "import": "{ useForms }"
+    "limit": "15 KB",
+    "gzip": true
   }
 ]

@@ -3,9 +3,15 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: {
     index: "src/index.ts",
-    "web-vitals": "src/web-vitals/index.ts",
-    media: "src/media/index.ts",
-    resources: "src/resources/index.ts",
+    core: "src/core/index.ts",
+    inputs: "src/inputs/index.ts",
+    validation: "src/validation/index.ts",
+    "validation-valibot": "src/validation/valibot.ts",
+    "validation-rules": "src/validation/rules.ts",
+    "validation-utils": "src/validation/utils.ts",
+    upload: "src/upload/index.ts",
+    integration: "src/integration/index.ts",
+    builder: "src/builder/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
@@ -14,7 +20,7 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   minify: false,
-  external: ["react", "react-dom", "web-vitals"],
+  external: ["react", "react-dom", "@legendapp/state", "valibot"],
   esbuildOptions(options) {
     options.banner = {
       js: '"use client";',
