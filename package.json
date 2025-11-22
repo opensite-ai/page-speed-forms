@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -62,21 +62,6 @@
       "types": "./dist/validation-utils.d.ts",
       "import": "./dist/validation-utils.js",
       "require": "./dist/validation-utils.cjs"
-    },
-    "./upload": {
-      "types": "./dist/upload.d.ts",
-      "import": "./dist/upload.js",
-      "require": "./dist/upload.cjs"
-    },
-    "./integration": {
-      "types": "./dist/integration.d.ts",
-      "import": "./dist/integration.js",
-      "require": "./dist/integration.cjs"
-    },
-    "./builder": {
-      "types": "./dist/builder.d.ts",
-      "import": "./dist/builder.js",
-      "require": "./dist/builder.cjs"
     }
   },
   "files": [

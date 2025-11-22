@@ -9,9 +9,10 @@ export default defineConfig({
     "validation-valibot": "src/validation/valibot.ts",
     "validation-rules": "src/validation/rules.ts",
     "validation-utils": "src/validation/utils.ts",
-    upload: "src/upload/index.ts",
-    integration: "src/integration/index.ts",
-    builder: "src/builder/index.ts",
+    // Placeholder modules commented out until implemented
+    // upload: "src/upload/index.ts",
+    // integration: "src/integration/index.ts",
+    // builder: "src/builder/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,
