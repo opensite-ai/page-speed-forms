@@ -1,4 +1,4 @@
-<img width="1200" height="330" alt="page-speed-forms-npm-module" src="https://github.com/user-attachments/assets/4dd21311-9de6-4c42-be75-bbc8fe5a0192" />
+<img width="1200" height="330" alt="page-speed-forms-library" src="https://github.com/user-attachments/assets/abbcd5be-f5ea-4ae8-a51e-cee16c71c0ab" />
 
 # @page-speed/forms
 
