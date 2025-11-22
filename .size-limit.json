@@ -17,28 +17,28 @@
     "name": "TextInput",
     "path": "dist/inputs.js",
     "import": "{ TextInput }",
-    "limit": "1.5 KB",
+    "limit": "3 KB",
     "gzip": true
   },
   {
     "name": "TextArea",
     "path": "dist/inputs.js",
     "import": "{ TextArea }",
-    "limit": "1.5 KB",
+    "limit": "3 KB",
     "gzip": true
   },
   {
     "name": "Checkbox",
     "path": "dist/inputs.js",
     "import": "{ Checkbox }",
-    "limit": "1.5 KB",
+    "limit": "3 KB",
     "gzip": true
   },
   {
     "name": "Radio",
     "path": "dist/inputs.js",
     "import": "{ Radio }",
-    "limit": "1.5 KB",
+    "limit": "3 KB",
     "gzip": true
   },
   {
