@@ -16,15 +16,12 @@ export default defineConfig({
   },
   format: ["esm", "cjs"],
   dts: true,
-  splitting: true,
+  splitting: false,
   sourcemap: true,
   clean: true,
   treeshake: true,
   minify: false,
   external: ["react", "react-dom", "@legendapp/state", "valibot"],
-  esbuildOptions(options) {
-    options.banner = {
-      js: '"use client";',
-    };
-  },
+  // Note: "use client" directive removed - should be added by consuming application
+  // For Next.js 13+ App Router, add "use client" at the top of files that import this library
 });

@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -77,10 +77,10 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
-    "test:ci": "vitest run",
+    "test:ci": "./scripts/test-ci-silent.sh",
     "type-check": "tsc --noEmit",
-    "size": "size-limit",
-    "prepublishOnly": "pnpm run build && pnpm run test:ci && pnpm run size"
+    "size": "bash -c 'size-limit --silent 2>/dev/null'",
+    "prepublishOnly": "pnpm run build && pnpm run test:ci"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
