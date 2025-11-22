@@ -22,3 +22,8 @@ export type {
   SelectOption,
   SelectOptionGroup,
 } from "./Select";
+export { FileInput } from "./FileInput";
+export type {
+  FileInputProps,
+  FileValidationError,
+} from "./FileInput";

@@ -9,9 +9,9 @@ export default defineConfig({
     "validation-valibot": "src/validation/valibot.ts",
     "validation-rules": "src/validation/rules.ts",
     "validation-utils": "src/validation/utils.ts",
+    upload: "src/upload/index.ts",
+    integration: "src/integration/index.ts",
     // Placeholder modules commented out until implemented
-    // upload: "src/upload/index.ts",
-    // integration: "src/integration/index.ts",
     // builder: "src/builder/index.ts",
   },
   format: ["esm", "cjs"],
@@ -21,7 +21,12 @@ export default defineConfig({
   clean: true,
   treeshake: true,
   minify: false,
-  external: ["react", "react-dom", "@legendapp/state", "valibot"],
+  external: [
+    "react",
+    "react-dom",
+    "@legendapp/state",
+    "valibot",
+  ],
   // Note: "use client" directive removed - should be added by consuming application
   // For Next.js 13+ App Router, add "use client" at the top of files that import this library
 });

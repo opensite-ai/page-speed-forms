@@ -2,12 +2,29 @@
  * @page-speed/forms - File Upload Module
  *
  * High-performance file upload components with progress tracking,
- * drag-and-drop support, and image previews.
+ * drag-and-drop support, chunked uploads, and legacy Rails API compatibility.
  *
- * TODO: Implement file upload functionality
+ * @example
+ * ```tsx
+ * import { useFileUpload } from "@page-speed/forms/upload";
+ *
+ * const { upload, progress, state } = useFileUpload({
+ *   endpoint: "/api/uploads",
+ *   format: "legacy", // Rails DTFormBuilder compatibility
+ *   onComplete: (token) => {
+ *     form.setFieldValue("resumeToken", token);
+ *   },
+ * });
+ * ```
  *
  * @see https://opensite.ai/developers/page-speed/forms/upload
  */
 
-// Placeholder - will be implemented in Phase 2
-export {};
+export {
+  useFileUpload,
+  type UseFileUploadOptions,
+  type UploadProgress,
+  type UploadError,
+  type UploadState,
+  type UploadFormat,
+} from "./useFileUpload";
