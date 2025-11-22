@@ -49,6 +49,13 @@
     "gzip": true
   },
   {
+    "name": "CheckboxGroup",
+    "path": "dist/inputs.js",
+    "import": "{ CheckboxGroup }",
+    "limit": "3 KB",
+    "gzip": true
+  },
+  {
     "name": "Valibot Adapter",
     "path": "dist/validation-valibot.js",
     "import": "{ createValibotSchema }",

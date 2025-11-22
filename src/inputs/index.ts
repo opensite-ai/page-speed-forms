@@ -12,6 +12,8 @@ export { TextArea } from "./TextArea";
 export type { TextAreaProps } from "./TextArea";
 export { Checkbox } from "./Checkbox";
 export type { CheckboxProps } from "./Checkbox";
+export { CheckboxGroup } from "./CheckboxGroup";
+export type { CheckboxGroupProps, CheckboxGroupOption } from "./CheckboxGroup";
 export { Radio } from "./Radio";
 export type { RadioProps, RadioOption } from "./Radio";
 export { Select } from "./Select";
