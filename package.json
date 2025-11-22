@@ -1,5 +1,5 @@
 {
-  "name": "@opensite/page-speed-forms",
+  "name": "@page-speed/forms",
   "version": "0.1.0",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
