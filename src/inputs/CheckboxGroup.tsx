@@ -224,7 +224,7 @@ export function CheckboxGroup({
     `${baseClassName} ${errorClassName} ${layoutClassName} ${className}`.trim();
 
   // Determine if max selections reached
-  const maxReached = maxSelections && value.length >= maxSelections;
+  const maxReached = Boolean(maxSelections && value.length >= maxSelections);
 
   return (
     <div
