@@ -7,6 +7,24 @@ const originalWarn = console.warn;
 // Store original console methods
 const originalLog = console.log;
 
+// Store original stderr.write to intercept React's low-level error output
+const originalStderrWrite = process.stderr.write.bind(process.stderr);
+
+// Intercept process.stderr.write to suppress React error boundary output
+process.stderr.write = ((chunk: any, ...args: any[]): boolean => {
+  const output = chunk.toString();
+
+  // Suppress React error boundary stack traces
+  if (output.includes('Component render error') ||
+      output.includes('at ErrorComponent') ||
+      output.includes('at renderWithHooks') ||
+      output.includes('useField must be used within a FormContext')) {
+    return true;
+  }
+
+  return originalStderrWrite(chunk, ...args);
+}) as typeof process.stderr.write;
+
 // Suppress React error boundary errors globally
 // This must be done before beforeAll to catch React's internal error logging
 console.error = (...args: any[]) => {
