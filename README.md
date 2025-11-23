@@ -8,6 +8,12 @@ Type-safe form state management and validation for React applications.
 
 OpenSite Page Speed Forms is a high-performance library designed to streamline form state management, validation, and submission handling in React applications. This library is part of OpenSite AI's open-source ecosystem, built for performance and open collaboration. By emphasizing type safety and modularity, it aligns with OpenSite's goal to create scalable, open, and developer-friendly performance tooling.
 
+[![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
+[![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
+[![License](https://img.shields.io/npm/l/@page-speed/forms?style=flat-square)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square)](./tsconfig.json)
+[![Tree-Shakeable](https://img.shields.io/badge/Tree%20Shakeable-Yes-brightgreen?style=flat-square)](#tree-shaking)
+
 Learn more at [OpenSite.ai Developers](https://opensite.ai/developers).
 
 ## Key Features
