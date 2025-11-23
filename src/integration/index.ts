@@ -77,10 +77,10 @@
  * @example
  * ```tsx
  * import { TextInput } from "@page-speed/forms/inputs";
- * import { createChaiBlockAdapter } from "@page-speed/forms/integration";
+ * import { createBlockAdapter } from "@page-speed/forms/integration";
  *
  * // Create a block-compatible wrapper
- * const TextInputBlock = createChaiBlockAdapter(TextInput, {
+ * const TextInputBlock = createBlockAdapter(TextInput, {
  *   transformProps: (blockProps, block) => ({
  *     ...blockProps,
  *     label: block.content,
@@ -105,10 +105,10 @@ export {
 } from "./ContactFormSerializer";
 
 export {
-  createChaiBlockAdapter,
-  createChaiBlockAdapters,
+  createBlockAdapter,
+  createBlockAdapters,
   standardInputTransformer,
-  type ChaiBlock,
-  type ChaiBlockAdapterOptions,
+  type Block,
+  type BlockAdapterOptions,
   type AdaptedComponentProps,
-} from "./ChaiBlockAdapter";
+} from "./BlockAdapter";

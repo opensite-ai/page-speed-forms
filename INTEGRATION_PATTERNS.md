@@ -34,30 +34,30 @@ This architecture ensures:
 
 @page-speed/forms provides generic utilities in the `@page-speed/forms/integration` module:
 
-### `createChaiBlockAdapter`
+### `createBlockAdapter`
 
-A generic adapter factory for wrapping form components to work with ChaiBlock-based systems.
+A generic adapter factory for wrapping form components to work with block-based systems.
 
 **Type Signature**:
 ```typescript
-function createChaiBlockAdapter<P extends Record<string, unknown>>(
+function createBlockAdapter<P extends Record<string, unknown>>(
   Component: React.ComponentType<P>,
-  options: ChaiBlockAdapterOptions<P>
-): React.ComponentType<ChaiBlockProps<P>>
+  options: BlockAdapterOptions<P>
+): React.ComponentType<BlockProps<P>>
 ```
 
 **Options**:
 - `defaultProps` - Default props for all instances
-- `transformProps` - Function to transform ChaiBlock props to component props
+- `transformProps` - Function to transform block props to component props
 - `withErrorBoundary` - Enable React error boundaries (default: true)
 - `errorFallback` - Custom error UI component
 
 **Example**:
 ```typescript
 import { TextInput } from "@page-speed/forms/inputs";
-import { createChaiBlockAdapter, standardInputTransformer } from "@page-speed/forms/integration";
+import { createBlockAdapter, standardInputTransformer } from "@page-speed/forms/integration";
 
-const TextInputBlock = createChaiBlockAdapter(TextInput, {
+const TextInputBlock = createBlockAdapter(TextInput, {
   defaultProps: {
     type: "text",
     placeholder: "Enter text...",
