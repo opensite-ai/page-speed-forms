@@ -2,12 +2,12 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import * as React from "react";
 import {
-  createChaiBlockAdapter,
-  createChaiBlockAdapters,
+  createBlockAdapter,
+  createBlockAdapters,
   standardInputTransformer,
-  type ChaiBlock,
+  type Block,
   type AdaptedComponentProps,
-} from "../ChaiBlockAdapter";
+} from "../BlockAdapter";
 
 // Mock input component for testing
 interface MockInputProps {
@@ -76,12 +76,12 @@ const ErrorComponent: React.FC = () => {
   throw new Error("Component render error");
 };
 
-describe("ChaiBlockAdapter", () => {
-  describe("createChaiBlockAdapter", () => {
+describe("BlockAdapter", () => {
+  describe("createBlockAdapter", () => {
     it("should render component with props from blockProps", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput);
+      const AdaptedInput = createBlockAdapter(MockInput);
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         blockProps: {
@@ -100,9 +100,9 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should add data attributes for debugging", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput);
+      const AdaptedInput = createBlockAdapter(MockInput);
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-email",
         _type: "TextInput",
         _name: "Email Field",
@@ -120,14 +120,14 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should merge default props with block props", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput, {
+      const AdaptedInput = createBlockAdapter(MockInput, {
         defaultProps: {
           placeholder: "Default placeholder",
           className: "default-class",
         },
       });
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         blockProps: {
@@ -145,7 +145,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should apply custom prop transformation", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput, {
+      const AdaptedInput = createBlockAdapter(MockInput, {
         transformProps: (blockProps, block) => ({
           ...blockProps,
           label: block.content,
@@ -153,7 +153,7 @@ describe("ChaiBlockAdapter", () => {
         }),
       });
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         content: "Email Address",
@@ -171,9 +171,9 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should render children when provided", () => {
-      const AdaptedContainer = createChaiBlockAdapter(MockContainer);
+      const AdaptedContainer = createBlockAdapter(MockContainer);
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "container-1",
         _type: "Container",
         blockProps: {
@@ -192,12 +192,12 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should call renderChildren callback if provided", () => {
-      const AdaptedContainer = createChaiBlockAdapter(MockContainer);
+      const AdaptedContainer = createBlockAdapter(MockContainer);
       const renderChildren = vi.fn(() => (
         <div data-testid="rendered-children">Rendered children</div>
       ));
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "container-1",
         _type: "Container",
         blockProps: {},
@@ -210,9 +210,9 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should wrap with error boundary by default", () => {
-      const AdaptedError = createChaiBlockAdapter(ErrorComponent);
+      const AdaptedError = createBlockAdapter(ErrorComponent);
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "error-block",
         _type: "ErrorComponent",
         _name: "Error Test",
@@ -232,11 +232,11 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should not wrap with error boundary if disabled", () => {
-      const AdaptedError = createChaiBlockAdapter(ErrorComponent, {
+      const AdaptedError = createBlockAdapter(ErrorComponent, {
         withErrorBoundary: false,
       });
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "error-block",
         _type: "ErrorComponent",
         blockProps: {},
@@ -253,7 +253,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should use custom error fallback if provided", () => {
-      const AdaptedError = createChaiBlockAdapter(ErrorComponent, {
+      const AdaptedError = createBlockAdapter(ErrorComponent, {
         errorFallback: (error, block) => (
           <div data-testid="custom-error">
             Custom error for {block._id}: {error.message}
@@ -261,7 +261,7 @@ describe("ChaiBlockAdapter", () => {
         ),
       });
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "error-block",
         _type: "ErrorComponent",
         blockProps: {},
@@ -279,13 +279,13 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should handle empty blockProps", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput, {
+      const AdaptedInput = createBlockAdapter(MockInput, {
         defaultProps: {
           name: "default-name",
         },
       });
 
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
       };
@@ -297,14 +297,14 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should set display name for debugging", () => {
-      const AdaptedInput = createChaiBlockAdapter(MockInput);
-      expect(AdaptedInput.displayName).toBe("ChaiBlockAdapter(MockInput)");
+      const AdaptedInput = createBlockAdapter(MockInput);
+      expect(AdaptedInput.displayName).toBe("BlockAdapter(MockInput)");
     });
   });
 
   describe("standardInputTransformer", () => {
     it("should map content to label if not provided", () => {
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         content: "Email Address",
@@ -322,7 +322,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should not override existing label", () => {
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         content: "From Content",
@@ -341,7 +341,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should map styles to className", () => {
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         styles: "w-full mb-4",
@@ -359,7 +359,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should handle both content and styles", () => {
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         content: "Email Address",
@@ -381,7 +381,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should preserve all blockProps", () => {
-      const block: ChaiBlock = {
+      const block: Block = {
         _id: "field-1",
         _type: "TextInput",
         blockProps: {
@@ -405,19 +405,19 @@ describe("ChaiBlockAdapter", () => {
     });
   });
 
-  describe("createChaiBlockAdapters", () => {
+  describe("createBlockAdapters", () => {
     it("should adapt multiple components at once", () => {
       const components = {
         Input: MockInput,
         Container: MockContainer,
       };
 
-      const adapted = createChaiBlockAdapters(components);
+      const adapted = createBlockAdapters(components);
 
       expect(adapted.Input).toBeDefined();
       expect(adapted.Container).toBeDefined();
-      expect(adapted.Input.displayName).toBe("ChaiBlockAdapter(MockInput)");
-      expect(adapted.Container.displayName).toBe("ChaiBlockAdapter(MockContainer)");
+      expect(adapted.Input.displayName).toBe("BlockAdapter(MockInput)");
+      expect(adapted.Container.displayName).toBe("BlockAdapter(MockContainer)");
     });
 
     it("should apply shared options to all components", () => {
@@ -426,21 +426,21 @@ describe("ChaiBlockAdapter", () => {
         Input2: MockInput,
       };
 
-      const adapted = createChaiBlockAdapters(components, {
+      const adapted = createBlockAdapters(components, {
         defaultProps: {
           className: "shared-class",
         },
         transformProps: standardInputTransformer,
       });
 
-      const block1: ChaiBlock = {
+      const block1: Block = {
         _id: "field-1",
         _type: "Input1",
         content: "Label 1",
         blockProps: { name: "field1" },
       };
 
-      const block2: ChaiBlock = {
+      const block2: Block = {
         _id: "field-2",
         _type: "Input2",
         content: "Label 2",
@@ -459,7 +459,7 @@ describe("ChaiBlockAdapter", () => {
     });
 
     it("should handle empty components object", () => {
-      const adapted = createChaiBlockAdapters({});
+      const adapted = createBlockAdapters({});
       expect(Object.keys(adapted)).toHaveLength(0);
     });
   });
