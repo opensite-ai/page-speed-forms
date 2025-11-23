@@ -219,8 +219,9 @@ describe("BlockAdapter", () => {
         blockProps: {},
       };
 
-      // Suppress error output in test
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      // Suppress all console output during error boundary tests
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       render(<AdaptedError block={block} />);
 
@@ -228,7 +229,8 @@ describe("BlockAdapter", () => {
       expect(screen.getByText(/Error Test/)).toBeInTheDocument();
       expect(screen.getByText("Component render error")).toBeInTheDocument();
 
-      consoleSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+      consoleWarnSpy.mockRestore();
     });
 
     it("should not wrap with error boundary if disabled", () => {
@@ -242,14 +244,16 @@ describe("BlockAdapter", () => {
         blockProps: {},
       };
 
-      // Suppress error output in test
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      // Suppress all console output during error boundary tests
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       expect(() => {
         render(<AdaptedError block={block} />);
       }).toThrow("Component render error");
 
-      consoleSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+      consoleWarnSpy.mockRestore();
     });
 
     it("should use custom error fallback if provided", () => {
@@ -267,15 +271,17 @@ describe("BlockAdapter", () => {
         blockProps: {},
       };
 
-      // Suppress error output in test
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      // Suppress all console output during error boundary tests
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
       render(<AdaptedError block={block} />);
 
       expect(screen.getByTestId("custom-error")).toBeInTheDocument();
       expect(screen.getByText(/Custom error for error-block/)).toBeInTheDocument();
 
-      consoleSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+      consoleWarnSpy.mockRestore();
     });
 
     it("should handle empty blockProps", () => {
