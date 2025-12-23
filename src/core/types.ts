@@ -281,12 +281,16 @@ export interface FieldInputProps<T = any> {
 
 /**
  * Field meta information
+ * Enhanced with @opensite/hooks metadata tracking
  */
 export interface FieldMeta {
   error?: string | string[];
   touched: boolean;
   isDirty: boolean;
   isValidating: boolean;
+  // Additional metadata from @opensite/hooks useMap
+  validationCount?: number;
+  lastValidated?: number;
 }
 
 /**

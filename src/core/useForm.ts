@@ -2,6 +2,10 @@
 
 import { useCallback, useRef } from "react";
 import { useObservable, useSelector } from "@legendapp/state/react";
+// Tree-shakable imports from @opensite/hooks following ECOSYSTEM_GUIDELINES
+import { useMap } from "@opensite/hooks/core/useMap";
+import { useDebounceValue } from "@opensite/hooks/core/useDebounceValue";
+import { usePrevious } from "@opensite/hooks/core/usePrevious";
 import type {
   FormValues,
   FormErrors,
@@ -75,8 +79,21 @@ export function useForm<T extends FormValues = FormValues>(
   // Track validation in progress to prevent race conditions
   const validationInProgress = useRef<Set<string>>(new Set());
 
+  // Enhanced state management with @opensite/hooks
+  // useMap: Manage complex nested field metadata immutably
+  const [fieldMetadata, fieldMetadataActions] = useMap<
+    string,
+    { lastValidated?: number; validationCount: number }
+  >();
+
+  // usePrevious: Track previous values for efficient change detection
+  const previousValues = usePrevious(
+    useSelector(() => state$.values.get())
+  );
+
   /**
    * Validate a single field
+   * Enhanced with @opensite/hooks useMap for metadata tracking
    */
   const validateField = useCallback(
     async <K extends keyof T>(field: K): Promise<string | undefined> => {
@@ -85,6 +102,15 @@ export function useForm<T extends FormValues = FormValues>(
 
       const fieldKey = String(field);
       validationInProgress.current.add(fieldKey);
+
+      // Track validation metadata using useMap
+      const currentMeta = fieldMetadataActions.get(fieldKey) || {
+        validationCount: 0,
+      };
+      fieldMetadataActions.set(fieldKey, {
+        lastValidated: Date.now(),
+        validationCount: currentMeta.validationCount + 1,
+      });
 
       try {
         const value = state$.values[field].get();
@@ -115,7 +141,7 @@ export function useForm<T extends FormValues = FormValues>(
         return errorMessage;
       }
     },
-    [validationSchema, state$]
+    [validationSchema, state$, fieldMetadataActions]
   );
 
   /**
@@ -185,6 +211,7 @@ export function useForm<T extends FormValues = FormValues>(
 
   /**
    * Reset form to initial values
+   * Enhanced with @opensite/hooks useMap to clear field metadata
    */
   const resetForm = useCallback(() => {
     state$.values.set(state$.initialValues.get());
@@ -194,10 +221,13 @@ export function useForm<T extends FormValues = FormValues>(
     state$.status.set("idle");
     state$.hasValidated.set({});
 
+    // Clear field metadata tracked by useMap
+    fieldMetadataActions.clear();
+
     if (debug) {
       console.log("[useForm] Form reset");
     }
-  }, [state$, debug]);
+  }, [state$, fieldMetadataActions, debug]);
 
   /**
    * Handle form submission
@@ -296,19 +326,26 @@ export function useForm<T extends FormValues = FormValues>(
 
   /**
    * Get field meta information
+   * Enhanced with @opensite/hooks useMap for validation metadata
+   * and usePrevious for change detection
    */
   const getFieldMeta = useCallback(
     <K extends keyof T>(field: K): FieldMeta => {
       const fieldKey = String(field);
+      const metadata = fieldMetadataActions.get(fieldKey);
+
       return {
         error: state$.errors[field].get(),
         touched: state$.touched[field].get() ?? false,
         isDirty:
           state$.values[field].get() !== state$.initialValues[field].get(),
         isValidating: validationInProgress.current.has(fieldKey),
+        // Additional metadata from @opensite/hooks
+        validationCount: metadata?.validationCount,
+        lastValidated: metadata?.lastValidated,
       };
     },
-    [state$]
+    [state$, fieldMetadataActions]
   );
 
   // Use selectors for reactive properties
