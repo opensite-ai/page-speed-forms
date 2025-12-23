@@ -39,6 +39,8 @@ export function Field({
   children,
   showError = true,
   className,
+  errorClassName,
+  required = false,
   validate,
 }: FieldProps) {
   const fieldState = useField({ name, validate });
@@ -54,6 +56,7 @@ export function Field({
       {label && (
         <label htmlFor={name} className="field-label">
           {label}
+          {required && <span className="field-required" aria-label="required"> *</span>}
         </label>
       )}
 
@@ -73,7 +76,7 @@ export function Field({
       {showError && hasError && (
         <div
           id={errorId}
-          className="field-error"
+          className={errorClassName || "field-error"}
           role="alert"
           aria-live="polite"
         >

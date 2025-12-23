@@ -409,6 +409,17 @@ export interface FieldProps {
   className?: string;
 
   /**
+   * Custom className for error message
+   */
+  errorClassName?: string;
+
+  /**
+   * Mark field as required (adds visual indicator to label)
+   * @default false
+   */
+  required?: boolean;
+
+  /**
    * Field validator
    */
   validate?: FieldValidator;
