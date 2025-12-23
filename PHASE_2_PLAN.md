@@ -37,38 +37,11 @@ Fine-tune bundle size, tree-shaking, and runtime performance.
 
 ## Feature Roadmap
 
-### 2.1 Advanced Validation Features (Priority: High)
-
-**Objective:** Expand validation capabilities to handle complex real-world scenarios.
-
-**Features:**
-- **Cross-field validation**
-  - Dependencies between fields (e.g., "confirm password" must match "password")
-  - Conditional validation based on other field values
-  - API: `validationSchema` supports field dependencies via context parameter
-
-- **Async validation debouncing**
-  - Built-in debounce for async validators (e.g., API username availability check)
-  - Configurable debounce timing per field
-  - API: `asyncValidators` with `debounce` option
-
-- **Validation rules**
-  - Common validation rules as reusable functions (email, phone, URL, credit card, etc.)
-  - Composable validator utilities
-  - Export from `/validation` entry point
-
-- **Custom error messages**
-  - Template system for error messages with variable interpolation
-  - Internationalization (i18n) support for error messages
-  - API: `errorMessages` config option
-
-**Estimated Effort:** 2-3 weeks
-**Dependencies:** None
-**Tests Required:** Unit tests for all new validation features
+### 2.1 ~~Advanced Validation Features~~ ✅ COMPLETED (v0.2.4)
 
 ---
 
-### 2.2 Built-in Input Components Expansion (Priority: Medium)
+### 2.2 ~~Built-in Input Components Expansion~~ ✅ COMPLETED (v0.3.0)
 
 **Objective:** Provide a comprehensive set of pre-built input components to accelerate development.
 

@@ -13,6 +13,23 @@ export interface FileValidationError {
 }
 
 /**
+ * Upload progress tracking per file
+ */
+export interface FileUploadProgress {
+  [fileName: string]: number; // 0-100
+}
+
+/**
+ * Crop area coordinates
+ */
+export interface CropArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
  * FileInput component props
  */
 export interface FileInputProps extends Omit<InputProps<File[]>, "value" | "onChange"> {
@@ -58,6 +75,36 @@ export interface FileInputProps extends Omit<InputProps<File[]>, "value" | "onCh
   showPreview?: boolean;
 
   /**
+   * Show upload progress indicators
+   * @default true
+   */
+  showProgress?: boolean;
+
+  /**
+   * Upload progress per file (0-100)
+   * Consumer should update this during upload
+   */
+  uploadProgress?: FileUploadProgress;
+
+  /**
+   * Enable image cropping for image files
+   * @default false
+   */
+  enableCropping?: boolean;
+
+  /**
+   * Crop aspect ratio (width / height)
+   * @default Free form (no constraint)
+   * @example 16/9, 1, 4/3
+   */
+  cropAspectRatio?: number;
+
+  /**
+   * Crop complete handler - receives cropped blob and original file
+   */
+  onCropComplete?: (croppedBlob: Blob, originalFile: File) => void;
+
+  /**
    * Validation error handler
    */
   onValidationError?: (errors: FileValidationError[]) => void;
@@ -69,7 +116,15 @@ export interface FileInputProps extends Omit<InputProps<File[]>, "value" | "onCh
 }
 
 /**
- * FileInput component for file selection with validation
+ * FileInput component for file selection with validation, progress tracking, and image cropping
+ *
+ * Features:
+ * - Drag-and-drop file upload
+ * - File type and size validation
+ * - Image preview thumbnails
+ * - Upload progress indicators
+ * - Image cropping with aspect ratio control
+ * - Multiple file support
  *
  * @example
  * ```tsx
@@ -80,6 +135,36 @@ export interface FileInputProps extends Omit<InputProps<File[]>, "value" | "onCh
  *   value={files}
  *   onChange={(files) => setFiles(files)}
  *   error={hasError}
+ * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With upload progress
+ * <FileInput
+ *   name="photos"
+ *   accept="image/*"
+ *   multiple
+ *   value={files}
+ *   onChange={setFiles}
+ *   showProgress
+ *   uploadProgress={progress}
+ * />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // With image cropping
+ * <FileInput
+ *   name="avatar"
+ *   accept="image/*"
+ *   value={files}
+ *   onChange={setFiles}
+ *   enableCropping
+ *   cropAspectRatio={1}
+ *   onCropComplete={(blob, file) => {
+ *     // Handle cropped image
+ *   }}
  * />
  * ```
  */
@@ -98,12 +183,25 @@ export function FileInput({
   maxFiles = 1,
   multiple = false,
   showPreview = true,
+  showProgress = true,
+  uploadProgress = {},
+  enableCropping = false,
+  cropAspectRatio,
+  onCropComplete,
   onValidationError,
   onFileRemove,
   ...props
 }: FileInputProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = React.useState(false);
+  const [cropperOpen, setCropperOpen] = React.useState(false);
+  const [imageToCrop, setImageToCrop] = React.useState<{
+    file: File;
+    url: string;
+  } | null>(null);
+  const [crop, setCrop] = React.useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = React.useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<CropArea | null>(null);
 
   /**
    * Validate file against constraints
@@ -188,10 +286,20 @@ export function FileInput({
         onValidationError(validationErrors);
       }
 
-      // Update files if valid
+      // Handle valid files
       if (validFiles.length > 0 && totalFiles <= maxFiles) {
-        const updatedFiles = multiple ? [...value, ...validFiles] : validFiles;
-        onChange(updatedFiles.slice(0, maxFiles));
+        // If cropping is enabled and file is an image, open cropper for first image
+        const firstImage = validFiles.find((f) => f.type.startsWith("image/"));
+        if (enableCropping && firstImage && !multiple) {
+          // Open cropper for single image
+          const previewUrl = URL.createObjectURL(firstImage);
+          setImageToCrop({ file: firstImage, url: previewUrl });
+          setCropperOpen(true);
+        } else {
+          // Add files directly
+          const updatedFiles = multiple ? [...value, ...validFiles] : validFiles;
+          onChange(updatedFiles.slice(0, maxFiles));
+        }
       }
 
       // Reset input value to allow same file selection again
@@ -199,7 +307,136 @@ export function FileInput({
         inputRef.current.value = "";
       }
     },
-    [value, onChange, validateFile, maxFiles, multiple, onValidationError]
+    [value, onChange, validateFile, maxFiles, multiple, enableCropping, onValidationError]
+  );
+
+  /**
+   * Create cropped image from canvas
+   */
+  const createCroppedImage = React.useCallback(
+    async (imageUrl: string, cropArea: CropArea): Promise<Blob> => {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          if (!ctx) {
+            reject(new Error("Failed to get canvas context"));
+            return;
+          }
+
+          // Set canvas size to crop area
+          canvas.width = cropArea.width;
+          canvas.height = cropArea.height;
+
+          // Draw cropped image
+          ctx.drawImage(
+            image,
+            cropArea.x,
+            cropArea.y,
+            cropArea.width,
+            cropArea.height,
+            0,
+            0,
+            cropArea.width,
+            cropArea.height
+          );
+
+          // Convert canvas to blob
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to create blob from canvas"));
+            }
+          }, "image/jpeg", 0.95);
+        };
+        image.onerror = () => {
+          reject(new Error("Failed to load image"));
+        };
+        image.src = imageUrl;
+      });
+    },
+    []
+  );
+
+  /**
+   * Handle crop completion
+   */
+  const handleCropSave = React.useCallback(async () => {
+    if (!imageToCrop || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await createCroppedImage(
+        imageToCrop.url,
+        croppedAreaPixels
+      );
+
+      // Notify parent of cropped image
+      if (onCropComplete) {
+        onCropComplete(croppedBlob, imageToCrop.file);
+      }
+
+      // Create new file from blob
+      const croppedFile = new File(
+        [croppedBlob],
+        imageToCrop.file.name,
+        { type: "image/jpeg" }
+      );
+
+      // Update files
+      const updatedFiles = multiple ? [...value, croppedFile] : [croppedFile];
+      onChange(updatedFiles);
+
+      // Close cropper
+      setCropperOpen(false);
+      URL.revokeObjectURL(imageToCrop.url);
+      setImageToCrop(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCroppedAreaPixels(null);
+    } catch (error) {
+      console.error("Failed to crop image:", error);
+    }
+  }, [imageToCrop, croppedAreaPixels, createCroppedImage, onCropComplete, value, onChange, multiple]);
+
+  /**
+   * Handle crop cancel
+   */
+  const handleCropCancel = React.useCallback(() => {
+    if (imageToCrop) {
+      URL.revokeObjectURL(imageToCrop.url);
+    }
+    setCropperOpen(false);
+    setImageToCrop(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  }, [imageToCrop]);
+
+  /**
+   * Handle crop change
+   */
+  const onCropChange = React.useCallback((crop: { x: number; y: number }) => {
+    setCrop(crop);
+  }, []);
+
+  /**
+   * Handle zoom change
+   */
+  const onZoomChange = React.useCallback((zoom: number) => {
+    setZoom(zoom);
+  }, []);
+
+  /**
+   * Handle crop complete (receives pixel coordinates)
+   */
+  const onCropCompleteInternal = React.useCallback(
+    (_: any, croppedAreaPixels: CropArea) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
   );
 
   /**
@@ -287,7 +524,7 @@ export function FileInput({
     return null;
   };
 
-  // Cleanup preview URLs on unmount
+  // Cleanup preview URLs on unmount and when files change
   React.useEffect(() => {
     return () => {
       value.forEach((file) => {
@@ -296,8 +533,12 @@ export function FileInput({
           URL.revokeObjectURL(previewUrl);
         }
       });
+      // Cleanup crop image URL if present
+      if (imageToCrop) {
+        URL.revokeObjectURL(imageToCrop.url);
+      }
     };
-  }, [value]);
+  }, [value, imageToCrop]);
 
   const baseClassName = "file-input";
   const errorClassName = error ? "file-input--error" : "";
@@ -394,6 +635,23 @@ export function FileInput({
                   <span className="file-input__filesize">
                     {formatFileSize(file.size)}
                   </span>
+                  {/* Upload progress indicator */}
+                  {showProgress && uploadProgress[file.name] !== undefined && (
+                    <div className="file-input__progress">
+                      <div
+                        className="file-input__progress-bar"
+                        style={{ width: `${uploadProgress[file.name]}%` }}
+                        role="progressbar"
+                        aria-valuenow={uploadProgress[file.name]}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`Upload progress: ${uploadProgress[file.name]}%`}
+                      />
+                      <span className="file-input__progress-text">
+                        {uploadProgress[file.name]}%
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -424,6 +682,151 @@ export function FileInput({
             );
           })}
         </ul>
+      )}
+
+      {/* Image cropper modal */}
+      {cropperOpen && imageToCrop && (
+        <div className="file-input-cropper-modal">
+          <div
+            className="file-input-cropper-overlay"
+            onClick={handleCropCancel}
+            aria-label="Close cropper"
+          />
+          <div className="file-input-cropper-container">
+            <div className="file-input-cropper-header">
+              <h3 className="file-input-cropper-title">Crop Image</h3>
+              <button
+                type="button"
+                className="file-input-cropper-close"
+                onClick={handleCropCancel}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="file-input-cropper-content">
+              <div
+                className="file-input-cropper-image-container"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  const startX = e.clientX - crop.x;
+                  const startY = e.clientY - crop.y;
+
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    onCropChange({
+                      x: moveEvent.clientX - startX,
+                      y: moveEvent.clientY - startY,
+                    });
+                  };
+
+                  const handleMouseUp = () => {
+                    document.removeEventListener("mousemove", handleMouseMove);
+                    document.removeEventListener("mouseup", handleMouseUp);
+                  };
+
+                  document.addEventListener("mousemove", handleMouseMove);
+                  document.addEventListener("mouseup", handleMouseUp);
+                }}
+              >
+                <img
+                  src={imageToCrop.url}
+                  alt="Crop preview"
+                  className="file-input-cropper-image"
+                  style={{
+                    transform: `translate(${crop.x}px, ${crop.y}px) scale(${zoom})`,
+                  }}
+                  draggable={false}
+                  onLoad={(e) => {
+                    const img = e.currentTarget;
+                    const containerWidth = 600;
+                    const containerHeight = 400;
+                    const cropWidth = cropAspectRatio
+                      ? Math.min(containerWidth * 0.8, containerHeight * 0.8 * cropAspectRatio)
+                      : containerWidth * 0.8;
+                    const cropHeight = cropAspectRatio
+                      ? cropWidth / cropAspectRatio
+                      : containerHeight * 0.8;
+
+                    // Calculate crop area in pixels
+                    const scale = zoom;
+                    const imgWidth = img.naturalWidth;
+                    const imgHeight = img.naturalHeight;
+                    const displayWidth = img.width * scale;
+                    const displayHeight = img.height * scale;
+
+                    // Calculate center point
+                    const centerX = containerWidth / 2;
+                    const centerY = containerHeight / 2;
+
+                    // Calculate crop area relative to image
+                    const cropX = (centerX - crop.x - cropWidth / 2) / scale;
+                    const cropY = (centerY - crop.y - cropHeight / 2) / scale;
+
+                    // Store crop area for saving
+                    onCropCompleteInternal(null, {
+                      x: Math.max(0, cropX),
+                      y: Math.max(0, cropY),
+                      width: Math.min(cropWidth / scale, imgWidth),
+                      height: Math.min(cropHeight / scale, imgHeight),
+                    });
+                  }}
+                />
+
+                {/* Crop overlay */}
+                <div
+                  className="file-input-cropper-overlay-box"
+                  style={{
+                    width: cropAspectRatio
+                      ? `${Math.min(80, 80 * cropAspectRatio)}%`
+                      : "80%",
+                    aspectRatio: cropAspectRatio ? String(cropAspectRatio) : undefined,
+                  }}
+                >
+                  <div className="file-input-cropper-grid">
+                    <div className="file-input-cropper-grid-line" />
+                    <div className="file-input-cropper-grid-line" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Zoom controls */}
+              <div className="file-input-cropper-controls">
+                <label htmlFor="zoom-slider" className="file-input-cropper-label">
+                  Zoom: {zoom.toFixed(1)}x
+                </label>
+                <input
+                  id="zoom-slider"
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.1"
+                  value={zoom}
+                  onChange={(e) => onZoomChange(parseFloat(e.target.value))}
+                  className="file-input-cropper-slider"
+                  aria-label="Zoom level"
+                />
+              </div>
+            </div>
+
+            <div className="file-input-cropper-footer">
+              <button
+                type="button"
+                className="file-input-cropper-button file-input-cropper-button--cancel"
+                onClick={handleCropCancel}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="file-input-cropper-button file-input-cropper-button--save"
+                onClick={handleCropSave}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

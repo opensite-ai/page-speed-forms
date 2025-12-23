@@ -767,6 +767,504 @@ describe("FileInput Component", () => {
   });
 
   // ============================================================================
+  // Progress Indicators
+  // ============================================================================
+
+  describe("Progress Indicators", () => {
+    it("should show progress bar when uploadProgress is provided", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 50 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress
+        />
+      );
+
+      expect(container.querySelector(".file-input__progress")).toBeInTheDocument();
+      expect(screen.getByText("50%")).toBeInTheDocument();
+    });
+
+    it("should update progress bar width based on progress value", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 75 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress
+        />
+      );
+
+      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
+      expect(progressBar.style.width).toBe("75%");
+    });
+
+    it("should show progress for multiple files", () => {
+      const onChange = vi.fn();
+      const files = [
+        createMockFile("test1.pdf", 1000, "application/pdf"),
+        createMockFile("test2.pdf", 2000, "application/pdf"),
+      ];
+      const uploadProgress = {
+        "test1.pdf": 100,
+        "test2.pdf": 50,
+      };
+
+      render(
+        <FileInput
+          name="files"
+          onChange={onChange}
+          value={files}
+          uploadProgress={uploadProgress}
+          showProgress
+          multiple
+        />
+      );
+
+      expect(screen.getByText("100%")).toBeInTheDocument();
+      expect(screen.getByText("50%")).toBeInTheDocument();
+    });
+
+    it("should not show progress when showProgress is false", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 50 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress={false}
+        />
+      );
+
+      expect(container.querySelector(".file-input__progress")).not.toBeInTheDocument();
+    });
+
+    it("should not show progress when uploadProgress is undefined", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          showProgress
+        />
+      );
+
+      expect(container.querySelector(".file-input__progress")).not.toBeInTheDocument();
+    });
+
+    it("should have proper ARIA attributes on progress bar", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 50 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress
+        />
+      );
+
+      const progressBar = container.querySelector(".file-input__progress-bar");
+      expect(progressBar).toHaveAttribute("role", "progressbar");
+      expect(progressBar).toHaveAttribute("aria-valuenow", "50");
+      expect(progressBar).toHaveAttribute("aria-valuemin", "0");
+      expect(progressBar).toHaveAttribute("aria-valuemax", "100");
+      expect(progressBar).toHaveAttribute("aria-label", "Upload progress: 50%");
+    });
+
+    it("should handle 0% progress", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 0 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress
+        />
+      );
+
+      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
+      expect(progressBar.style.width).toBe("0%");
+      expect(screen.getByText("0%")).toBeInTheDocument();
+    });
+
+    it("should handle 100% progress", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("test.pdf", 1000, "application/pdf");
+      const uploadProgress = { "test.pdf": 100 };
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          uploadProgress={uploadProgress}
+          showProgress
+        />
+      );
+
+      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
+      expect(progressBar.style.width).toBe("100%");
+      expect(screen.getByText("100%")).toBeInTheDocument();
+    });
+  });
+
+  // ============================================================================
+  // Image Cropping
+  // ============================================================================
+
+  describe("Image Cropping", () => {
+    it("should show crop button for image files when enableCropping is true", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      expect(screen.getByRole("button", { name: "Crop image.png" })).toBeInTheDocument();
+    });
+
+    it("should not show crop button for non-image files", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("document.pdf", 1000, "application/pdf");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      expect(screen.queryByRole("button", { name: /Crop/ })).not.toBeInTheDocument();
+    });
+
+    it("should not show crop button when enableCropping is false", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping={false}
+        />
+      );
+
+      expect(screen.queryByRole("button", { name: /Crop/ })).not.toBeInTheDocument();
+    });
+
+    it("should open cropper modal when crop button is clicked", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      // Mock createObjectURL
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+      });
+    });
+
+    it("should show cropper modal UI elements", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+        expect(screen.getByLabelText(/Zoom/)).toBeInTheDocument();
+      });
+    });
+
+    it("should show zoom slider in cropper modal", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        const zoomSlider = screen.getByLabelText("Zoom level");
+        expect(zoomSlider).toBeInTheDocument();
+        expect(zoomSlider).toHaveAttribute("type", "range");
+        expect(zoomSlider).toHaveAttribute("min", "1");
+        expect(zoomSlider).toHaveAttribute("max", "3");
+        expect(zoomSlider).toHaveAttribute("step", "0.1");
+      });
+    });
+
+    it("should close cropper modal when Cancel is clicked", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole("heading", { name: "Crop Image" })).not.toBeInTheDocument();
+      });
+    });
+
+    it("should close cropper modal when overlay is clicked", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+      });
+
+      const overlay = container.querySelector(".file-input-cropper-overlay");
+      if (overlay) {
+        await user.click(overlay);
+      }
+
+      await waitFor(() => {
+        expect(screen.queryByRole("heading", { name: "Crop Image" })).not.toBeInTheDocument();
+      });
+    });
+
+    it("should close cropper modal when X button is clicked", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Close" }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole("heading", { name: "Crop Image" })).not.toBeInTheDocument();
+      });
+    });
+
+    it("should call onCropComplete when Save is clicked", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const onCropComplete = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      // Mock canvas and toBlob
+      const mockCanvas = document.createElement("canvas");
+      mockCanvas.toBlob = vi.fn((callback) => {
+        callback(new Blob(["cropped"], { type: "image/png" }));
+      });
+      vi.spyOn(document, "createElement").mockReturnValue(mockCanvas as any);
+
+      render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+          onCropComplete={onCropComplete}
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Save" }));
+
+      await waitFor(() => {
+        expect(onCropComplete).toHaveBeenCalled();
+      });
+    });
+
+    it("should support custom crop aspect ratio", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      const { container } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+          cropAspectRatio={16 / 9}
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Crop image.png" }));
+
+      await waitFor(() => {
+        const cropOverlay = container.querySelector(".file-input-cropper-overlay-box") as HTMLElement;
+        expect(cropOverlay).toBeInTheDocument();
+        expect(cropOverlay.style.aspectRatio).toBe(String(16 / 9));
+      });
+    });
+
+    it("should show crop button for each image in multiple files", () => {
+      const onChange = vi.fn();
+      const files = [
+        createMockFile("image1.png", 1000, "image/png"),
+        createMockFile("image2.jpg", 2000, "image/jpeg"),
+        createMockFile("document.pdf", 3000, "application/pdf"),
+      ];
+
+      render(
+        <FileInput
+          name="files"
+          onChange={onChange}
+          value={files}
+          enableCropping
+          multiple
+        />
+      );
+
+      expect(screen.getByRole("button", { name: "Crop image1.png" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Crop image2.jpg" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Crop document.pdf" })).not.toBeInTheDocument();
+    });
+
+    it("should cleanup object URL when component unmounts", () => {
+      const onChange = vi.fn();
+      const file = createMockFile("image.png", 1000, "image/png");
+
+      const revokeObjectURLSpy = vi.spyOn(URL, "revokeObjectURL");
+      global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+
+      const { unmount } = render(
+        <FileInput
+          name="file"
+          onChange={onChange}
+          value={[file]}
+          enableCropping
+        />
+      );
+
+      unmount();
+
+      // Object URLs should be cleaned up
+      expect(revokeObjectURLSpy).toHaveBeenCalled();
+    });
+  });
+
+  // ============================================================================
   // Display Name
   // ============================================================================
 
