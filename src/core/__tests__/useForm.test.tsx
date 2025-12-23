@@ -961,6 +961,8 @@ describe("useForm", () => {
         touched: true,
         isDirty: false,
         isValidating: false,
+        validationCount: 1,
+        lastValidated: expect.any(Number),
       });
     });
 
