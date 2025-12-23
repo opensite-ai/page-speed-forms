@@ -121,7 +121,7 @@
   },
   "optionalDependencies": {
     "@legendapp/state": "^3.0.0-beta.42",
-    "valibot": "^1.0.0"
+    "valibot": "^1.2.0"
   },
   "packageManager": "pnpm@9.14.4",
   "engines": {
