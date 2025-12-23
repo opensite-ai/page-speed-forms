@@ -4,8 +4,6 @@ import { useCallback, useRef } from "react";
 import { useObservable, useSelector } from "@legendapp/state/react";
 // Tree-shakable imports from @opensite/hooks following ECOSYSTEM_GUIDELINES
 import { useMap } from "@opensite/hooks/core/useMap";
-import { useDebounceValue } from "@opensite/hooks/core/useDebounceValue";
-import { usePrevious } from "@opensite/hooks/core/usePrevious";
 import type {
   FormValues,
   FormErrors,
@@ -81,15 +79,10 @@ export function useForm<T extends FormValues = FormValues>(
 
   // Enhanced state management with @opensite/hooks
   // useMap: Manage complex nested field metadata immutably
-  const [fieldMetadata, fieldMetadataActions] = useMap<
+  const [, fieldMetadataActions] = useMap<
     string,
     { lastValidated?: number; validationCount: number }
   >();
-
-  // usePrevious: Track previous values for efficient change detection
-  const previousValues = usePrevious(
-    useSelector(() => state$.values.get())
-  );
 
   /**
    * Validate a single field
