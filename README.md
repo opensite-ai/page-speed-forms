@@ -579,6 +579,87 @@ import { FileInput } from '@page-speed/forms/inputs';
 - Multiple file support
 - Accessible file selection
 
+### File Upload Implementation
+
+The `FileInput` component uses a **two-phase upload process** optimized for Rails API integration. Files are uploaded immediately to temporary storage and return unique tokens, which are then associated with your form submission.
+
+**Quick Example:**
+
+```tsx
+const [uploadTokens, setUploadTokens] = useState<string[]>([]);
+
+const handleFileUpload = async (files: File[]) => {
+  const formData = new FormData();
+  formData.append("contact_form_upload[file_upload]", files[0]);
+
+  const response = await fetch("/api/contact_form_uploads", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+  setUploadTokens([data.token]);
+};
+
+// In your form submission:
+onSubmit: async (values) => {
+  await submitForm({
+    ...values,
+    contact_form_upload_tokens: uploadTokens,
+  });
+}
+```
+
+**Comprehensive Guide:**
+
+For complete file upload documentation, including:
+- Two-phase upload process and flow diagrams
+- Rails API integration with endpoint specifications
+- Multiple working examples (resume uploads, image galleries, document forms)
+- Progress tracking and error handling patterns
+- Image cropping implementation
+- File validation strategies
+- Best practices and common patterns
+- Troubleshooting guide
+
+See the **[File Upload Guide](./docs/FILE_UPLOADS.md)** for detailed information.
+
+## Styling
+
+All components in `@page-speed/forms` are **intentionally unstyled** to provide maximum flexibility and framework-agnostic design. Components use predictable BEM class names (e.g., `.text-input`, `.select-trigger`, `.field-label`) as styling hooks, allowing you to apply any design system or custom styles.
+
+**Quick Example:**
+
+```css
+/* Your custom CSS */
+.text-input {
+  height: 2.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.text-input--error {
+  border-color: #ef4444;
+}
+```
+
+**Comprehensive Guide:**
+
+For complete styling documentation, including:
+- BEM class reference for all components
+- Multiple styling approaches (Vanilla CSS, Tailwind, CSS Modules, CSS-in-JS)
+- Complete examples (shadcn/ui, Material Design, custom brands)
+- Best practices and common patterns
+- Dark mode support
+
+See the **[Styling Guide](./docs/STYLES.md)** for detailed information.
+
 ## Performance Notes
 
 Performance is a core facet of everything we build at OpenSite AI. The library is optimized for minimal re-renders and efficient form state updates, ensuring your applications remain responsive and fast.
