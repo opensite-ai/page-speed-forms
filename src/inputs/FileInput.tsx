@@ -752,8 +752,6 @@ export function FileInput({
                     const scale = zoom;
                     const imgWidth = img.naturalWidth;
                     const imgHeight = img.naturalHeight;
-                    const displayWidth = img.width * scale;
-                    const displayHeight = img.height * scale;
 
                     // Calculate center point
                     const centerX = containerWidth / 2;
