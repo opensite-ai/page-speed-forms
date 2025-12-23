@@ -6,6 +6,8 @@ import { RichTextEditor } from "../RichTextEditor";
 describe("RichTextEditor", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock document.execCommand for WYSIWYG editor functionality
+    document.execCommand = vi.fn(() => true);
   });
 
   describe("Basic Rendering", () => {

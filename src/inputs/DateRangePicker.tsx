@@ -292,7 +292,7 @@ export function DateRangePicker({
     };
 
     return (
-      <div className="daterangepicker-calendar">
+      <div className="daterangepicker-calendar" role="grid" aria-label="Calendar">
         <div className="daterangepicker-calendar-header">
           <button
             type="button"
@@ -410,7 +410,7 @@ export function DateRangePicker({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          aria-invalid={error || props["aria-invalid"]}
+          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
           aria-describedby={props["aria-describedby"]}
           aria-required={required || props["aria-required"]}
           readOnly

@@ -228,7 +228,7 @@ describe("TimePicker", () => {
 
         for (let i = 1; i <= 12; i++) {
           const hourButton = within(dropdown!).getByRole("button", {
-            name: String(i).padStart(2, "0")
+            name: `${String(i).padStart(2, "0")} hours`
           });
           expect(hourButton).toBeInTheDocument();
         }
@@ -255,7 +255,7 @@ describe("TimePicker", () => {
 
         for (let i = 0; i <= 23; i++) {
           const hourButton = within(dropdown!).getByRole("button", {
-            name: String(i).padStart(2, "0")
+            name: `${String(i).padStart(2, "0")} hours`
           });
           expect(hourButton).toBeInTheDocument();
         }
@@ -281,14 +281,14 @@ describe("TimePicker", () => {
         expect(dropdown).toBeInTheDocument();
 
         // Should show 00, 15, 30, 45
-        expect(within(dropdown!).getByRole("button", { name: "00" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "15" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "30" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "45" })).toBeInTheDocument();
+        expect(within(dropdown!).getByRole("button", { name: "00 minutes" })).toBeInTheDocument();
+        expect(within(dropdown!).getByRole("button", { name: "15 minutes" })).toBeInTheDocument();
+        expect(within(dropdown!).getByRole("button", { name: "30 minutes" })).toBeInTheDocument();
+        expect(within(dropdown!).getByRole("button", { name: "45 minutes" })).toBeInTheDocument();
 
         // Should not show other minutes
-        expect(within(dropdown!).queryByRole("button", { name: "05" })).not.toBeInTheDocument();
-        expect(within(dropdown!).queryByRole("button", { name: "10" })).not.toBeInTheDocument();
+        expect(within(dropdown!).queryByRole("button", { name: "05 minutes" })).not.toBeInTheDocument();
+        expect(within(dropdown!).queryByRole("button", { name: "10 minutes" })).not.toBeInTheDocument();
       });
     });
 
@@ -330,7 +330,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const hourButton = screen.getByRole("button", { name: "02" });
+        const hourButton = screen.getByRole("button", { name: "02 hours" });
         expect(hourButton).toHaveClass("timepicker-option--selected");
       });
     });
@@ -349,7 +349,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const minuteButton = screen.getByRole("button", { name: "30" });
+        const minuteButton = screen.getByRole("button", { name: "30 minutes" });
         expect(minuteButton).toHaveClass("timepicker-option--selected");
       });
     });
@@ -390,7 +390,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "02" }));
+      await user.click(screen.getByRole("button", { name: "02 hours" }));
 
       expect(onChange).toHaveBeenCalledTimes(1);
       expect(onChange.mock.calls[0][0]).toMatch(/2:00 (AM|PM)/);
@@ -411,7 +411,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Minute")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "30" }));
+      await user.click(screen.getByRole("button", { name: "30 minutes" }));
 
       expect(onChange).toHaveBeenCalledTimes(1);
       expect(onChange.mock.calls[0][0]).toBe("2:30 PM");
@@ -452,7 +452,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "02" }));
+      await user.click(screen.getByRole("button", { name: "02 hours" }));
 
       // Picker should remain open
       expect(screen.getByText("Hour")).toBeInTheDocument();
@@ -474,8 +474,8 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "14" }));
-      await user.click(screen.getByRole("button", { name: "30" }));
+      await user.click(screen.getByRole("button", { name: "14 hours" }));
+      await user.click(screen.getByRole("button", { name: "30 minutes" }));
 
       // Should be called twice (once for hour, once for minute)
       expect(onChange).toHaveBeenCalledTimes(2);
@@ -498,8 +498,8 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "12" }));
-      await user.click(screen.getByRole("button", { name: "00" }));
+      await user.click(screen.getByRole("button", { name: "12 hours" }));
+      await user.click(screen.getByRole("button", { name: "00 minutes" }));
       await user.click(screen.getByRole("button", { name: "AM" }));
 
       expect(onChange.mock.calls[2][0]).toBe("12:00 AM");
@@ -521,8 +521,8 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
 
-      await user.click(screen.getByRole("button", { name: "12" }));
-      await user.click(screen.getByRole("button", { name: "00" }));
+      await user.click(screen.getByRole("button", { name: "12 hours" }));
+      await user.click(screen.getByRole("button", { name: "00 minutes" }));
       await user.click(screen.getByRole("button", { name: "PM" }));
 
       expect(onChange.mock.calls[2][0]).toBe("12:00 PM");

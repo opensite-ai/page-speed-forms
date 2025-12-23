@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { FileInput } from "../FileInput";
 
@@ -1161,15 +1161,53 @@ describe("FileInput Component", () => {
       const file = createMockFile("image.png", 1000, "image/png");
 
       global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-      // Mock canvas and toBlob
-      const mockCanvas = document.createElement("canvas");
-      mockCanvas.toBlob = vi.fn((callback) => {
+      // Mock Image constructor to simulate image loading
+      const MockImage = function(this: any) {
+        const img = {
+          naturalWidth: 800,
+          naturalHeight: 600,
+          onload: null as any,
+          onerror: null as any,
+          _src: "",
+          get src() {
+            return this._src;
+          },
+          set src(value: string) {
+            this._src = value;
+            // Trigger onload asynchronously to simulate real behavior
+            queueMicrotask(() => {
+              if (this.onload) {
+                this.onload(new Event("load"));
+              }
+            });
+          }
+        };
+        return img;
+      } as any;
+      global.Image = MockImage;
+
+      // Mock canvas and toBlob - only for canvas elements
+      const toBlobSpy = vi.fn((callback) => {
         callback(new Blob(["cropped"], { type: "image/png" }));
       });
-      vi.spyOn(document, "createElement").mockReturnValue(mockCanvas as any);
+      const mockCanvas = document.createElement("canvas");
+      mockCanvas.toBlob = toBlobSpy as any;
+      mockCanvas.getContext = vi.fn(() => ({
+        drawImage: vi.fn(),
+        fillRect: vi.fn(),
+        clearRect: vi.fn(),
+      })) as any;
+      const originalCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
+        if (tagName === "canvas") {
+          return mockCanvas as any;
+        }
+        return originalCreateElement(tagName);
+      });
 
-      render(
+      const { container } = render(
         <FileInput
           name="file"
           onChange={onChange}
@@ -1185,11 +1223,32 @@ describe("FileInput Component", () => {
         expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
       });
 
+      // Trigger the image load event to set croppedAreaPixels
+      const cropperImage = container.querySelector(".file-input-cropper-image") as HTMLImageElement;
+      expect(cropperImage).toBeInTheDocument();
+
+      // Set natural dimensions for the image
+      Object.defineProperty(cropperImage, "naturalWidth", { value: 800, writable: true });
+      Object.defineProperty(cropperImage, "naturalHeight", { value: 600, writable: true });
+
+      // Trigger the onLoad event using fireEvent for React synthetic events
+      fireEvent.load(cropperImage);
+
+      // Wait for state update after image load
+      await waitFor(() => {
+        // The crop overlay should be rendered after image loads
+        expect(container.querySelector(".file-input-cropper-overlay-box")).toBeInTheDocument();
+      });
+
       await user.click(screen.getByRole("button", { name: "Save" }));
 
       await waitFor(() => {
         expect(onCropComplete).toHaveBeenCalled();
       });
+
+      // Check if there were any errors
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
     });
 
     it("should support custom crop aspect ratio", async () => {

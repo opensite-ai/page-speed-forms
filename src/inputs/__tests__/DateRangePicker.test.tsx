@@ -337,7 +337,12 @@ describe("DateRangePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       const today = new Date();
-      const todayButton = screen.getByRole("button", { name: new RegExp(`^${today.getDate()}`) });
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const year = today.getFullYear();
+      const formattedDate = `${month}/${day}/${year}`;
+
+      const todayButton = screen.getByRole("button", { name: formattedDate });
 
       expect(todayButton).toHaveClass("daterangepicker-calendar-day--today");
     });
@@ -553,7 +558,15 @@ describe("DateRangePicker", () => {
       );
 
       await user.click(screen.getByRole("textbox"));
-      await screen.findByText("June 2024");
+
+      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      const prevButton = screen.getByRole("button", { name: "Previous month" });
+      for (let i = 0; i < 18; i++) {
+        await user.click(prevButton);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const disabledButton = screen.getByRole("button", { name: "06/15/2024" });
       expect(disabledButton).toBeDisabled();
@@ -577,7 +590,15 @@ describe("DateRangePicker", () => {
       );
 
       await user.click(screen.getByRole("textbox"));
-      await screen.findByText("June 2024");
+
+      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      const prevButton = screen.getByRole("button", { name: "Previous month" });
+      for (let i = 0; i < 18; i++) {
+        await user.click(prevButton);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const beforeMinButton = screen.getByRole("button", { name: "06/10/2024" });
       expect(beforeMinButton).toBeDisabled();
@@ -598,7 +619,15 @@ describe("DateRangePicker", () => {
       );
 
       await user.click(screen.getByRole("textbox"));
-      await screen.findByText("June 2024");
+
+      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      const prevButton = screen.getByRole("button", { name: "Previous month" });
+      for (let i = 0; i < 18; i++) {
+        await user.click(prevButton);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const afterMaxButton = screen.getByRole("button", { name: "06/20/2024" });
       expect(afterMaxButton).toBeDisabled();

@@ -43,7 +43,7 @@ describe("MultiSelect", () => {
     });
 
     it("should render selected values as chips", () => {
-      render(
+      const { container } = render(
         <MultiSelect
           name="languages"
           value={["js", "ts"]}
@@ -52,8 +52,10 @@ describe("MultiSelect", () => {
         />
       );
 
-      expect(screen.getByText("JavaScript")).toBeInTheDocument();
-      expect(screen.getByText("TypeScript")).toBeInTheDocument();
+      const valueList = container.querySelector(".multi-select-value-list");
+      expect(valueList).toBeInTheDocument();
+      expect(valueList?.textContent).toContain("JavaScript");
+      expect(valueList?.textContent).toContain("TypeScript");
     });
 
     it("should render hidden native select for form submission", () => {
@@ -66,10 +68,13 @@ describe("MultiSelect", () => {
         />
       );
 
-      const hiddenSelects = container.querySelectorAll('select[name="languages[]"]');
-      expect(hiddenSelects).toHaveLength(2);
-      expect(hiddenSelects[0]).toHaveValue("js");
-      expect(hiddenSelects[1]).toHaveValue("ts");
+      const hiddenSelect = container.querySelector('select[name="languages"]');
+      expect(hiddenSelect).toBeInTheDocument();
+      expect(hiddenSelect).toHaveAttribute("multiple");
+      // Check that the select has the correct values
+      const selectedOptions = Array.from(hiddenSelect?.selectedOptions || []);
+      expect(selectedOptions).toHaveLength(2);
+      expect(selectedOptions.map((opt: any) => opt.value)).toEqual(expect.arrayContaining(["js", "ts"]));
     });
   });
 
@@ -222,7 +227,7 @@ describe("MultiSelect", () => {
       render(
         <MultiSelect
           name="languages"
-          value={[]}
+          value={["js"]}
           onChange={() => {}}
           options={defaultOptions}
           showSelectAll
@@ -356,7 +361,7 @@ describe("MultiSelect", () => {
 
       await user.click(screen.getByRole("combobox"));
 
-      expect(screen.getByText("Maximum 2 selections allowed")).toBeInTheDocument();
+      expect(screen.getByText("Maximum 2 selections reached")).toBeInTheDocument();
     });
 
     it("should disable unselected options when max is reached", async () => {

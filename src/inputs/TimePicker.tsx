@@ -325,7 +325,7 @@ export function TimePicker({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          aria-invalid={error || props["aria-invalid"]}
+          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
           aria-describedby={props["aria-describedby"]}
           aria-required={required || props["aria-required"]}
           readOnly
@@ -355,14 +355,32 @@ export function TimePicker({
               <div className="timepicker-column-options">
                 {hours.map((hour) => {
                   const displayHour = use24Hour ? hour : hour;
-                  const isSelected = timeValue?.hour === (use24Hour ? (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) : hour);
+                  const isSelected = use24Hour
+                    ? timeValue?.hour === (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) &&
+                      timeValue?.period === (hour >= 12 ? "PM" : "AM")
+                    : timeValue?.hour === hour;
 
                   return (
                     <button
                       key={hour}
                       type="button"
                       className={`timepicker-option ${isSelected ? "timepicker-option--selected" : ""}`}
-                      onClick={() => handleHourChange(use24Hour ? (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) : hour)}
+                      onClick={() => {
+                        if (use24Hour) {
+                          const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+                          const period = hour >= 12 ? "PM" : "AM";
+                          const newTime: TimeValue = {
+                            hour: hour12,
+                            minute: timeValue?.minute || 0,
+                            period,
+                          };
+                          setTimeValue(newTime);
+                          onChange(formatTimeValue(newTime, use24Hour));
+                        } else {
+                          handleHourChange(hour);
+                        }
+                      }}
+                      aria-label={`${String(displayHour).padStart(2, "0")} hours`}
                     >
                       {String(displayHour).padStart(2, "0")}
                     </button>
@@ -384,6 +402,7 @@ export function TimePicker({
                       type="button"
                       className={`timepicker-option ${isSelected ? "timepicker-option--selected" : ""}`}
                       onClick={() => handleMinuteChange(minute)}
+                      aria-label={`${String(minute).padStart(2, "0")} minutes`}
                     >
                       {String(minute).padStart(2, "0")}
                     </button>

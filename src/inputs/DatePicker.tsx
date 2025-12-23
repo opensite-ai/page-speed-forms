@@ -302,7 +302,7 @@ export function DatePicker({
     };
 
     return (
-      <div className="datepicker-calendar">
+      <div className="datepicker-calendar" role="grid" aria-label="Calendar">
         <div className="datepicker-calendar-header">
           <button
             type="button"
@@ -405,7 +405,7 @@ export function DatePicker({
           disabled={disabled}
           required={required}
           placeholder={placeholder}
-          aria-invalid={error || props["aria-invalid"]}
+          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
           aria-describedby={props["aria-describedby"]}
           aria-required={required || props["aria-required"]}
           readOnly

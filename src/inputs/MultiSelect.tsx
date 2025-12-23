@@ -416,7 +416,7 @@ export function MultiSelect({
       <div
         className="multi-select-trigger"
         onClick={handleToggle}
-        role="button"
+        role="combobox"
         aria-expanded={isOpen}
         aria-controls={dropdownId}
         aria-invalid={error || props["aria-invalid"]}

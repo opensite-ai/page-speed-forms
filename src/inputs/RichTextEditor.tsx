@@ -100,10 +100,10 @@ function htmlToMarkdown(html: string): string {
   markdown = markdown.replace(/<a href="(.*?)">(.*?)<\/a>/g, "[$2]($1)");
 
   // Lists
-  markdown = markdown.replace(/<ul>(.*?)<\/ul>/gs, (match, content) => {
+  markdown = markdown.replace(/<ul>(.*?)<\/ul>/gs, (_match, content) => {
     return content.replace(/<li>(.*?)<\/li>/g, "- $1\n");
   });
-  markdown = markdown.replace(/<ol>(.*?)<\/ol>/gs, (match, content) => {
+  markdown = markdown.replace(/<ol>(.*?)<\/ol>/gs, (_match, content) => {
     let counter = 1;
     return content.replace(/<li>(.*?)<\/li>/g, () => {
       return `${counter++}. $1\n`;
@@ -376,7 +376,7 @@ export function RichTextEditor({
                   key={buttonName}
                   type="button"
                   className="richtexteditor-toolbar-button"
-                  onClick={button.action}
+                  onClick={() => editorRef.current && button.action(editorRef.current)}
                   title={button.title}
                   disabled={disabled || currentMode === "markdown"}
                   aria-label={button.title}
@@ -393,6 +393,7 @@ export function RichTextEditor({
               onClick={handleModeToggle}
               disabled={disabled}
               title={`Switch to ${currentMode === "wysiwyg" ? "Markdown" : "WYSIWYG"}`}
+              aria-label={`Switch to ${currentMode === "wysiwyg" ? "Markdown" : "WYSIWYG"}`}
             >
               {currentMode === "wysiwyg" ? "MD" : "WYSIWYG"}
             </button>
@@ -406,11 +407,12 @@ export function RichTextEditor({
           <div
             ref={editorRef}
             className="richtexteditor-content"
+            role="textbox"
             contentEditable={!disabled}
             onInput={handleWysiwygChange}
             onBlur={onBlur}
             data-placeholder={placeholder}
-            aria-invalid={error || props["aria-invalid"]}
+            aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
             aria-describedby={props["aria-describedby"]}
             aria-required={required || props["aria-required"]}
             suppressContentEditableWarning
@@ -425,7 +427,7 @@ export function RichTextEditor({
             disabled={disabled}
             required={required}
             placeholder={placeholder}
-            aria-invalid={error || props["aria-invalid"]}
+            aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
             aria-describedby={props["aria-describedby"]}
             aria-required={required || props["aria-required"]}
           />
