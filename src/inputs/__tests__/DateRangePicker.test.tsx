@@ -559,9 +559,9 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
       const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 19; i++) {
         await user.click(prevButton);
         await new Promise(resolve => setTimeout(resolve, 50));
       }
@@ -591,9 +591,9 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
       const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 19; i++) {
         await user.click(prevButton);
         await new Promise(resolve => setTimeout(resolve, 50));
       }
@@ -620,9 +620,9 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (18 months back from December 2025 to June 2024)
+      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
       const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 19; i++) {
         await user.click(prevButton);
         await new Promise(resolve => setTimeout(resolve, 50));
       }

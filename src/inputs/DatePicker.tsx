@@ -313,7 +313,7 @@ export function DatePicker({
             ←
           </button>
           <div className="datepicker-calendar-month">
-            {monthNames[month]} {year}
+            {`${monthNames[month]} ${year}`}
           </div>
           <button
             type="button"

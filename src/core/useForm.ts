@@ -3,7 +3,7 @@
 import { useCallback, useRef } from "react";
 import { useObservable, useSelector } from "@legendapp/state/react";
 // Tree-shakable imports from @opensite/hooks following ECOSYSTEM_GUIDELINES
-import { useMap } from "@opensite/hooks/core/useMap";
+import { useMap } from "@opensite/hooks/useMap";
 import type {
   FormValues,
   FormErrors,

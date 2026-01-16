@@ -303,7 +303,7 @@ export function DateRangePicker({
             ←
           </button>
           <div className="daterangepicker-calendar-month">
-            {monthNames[month]} {year}
+            {`${monthNames[month]} ${year}`}
           </div>
           <button
             type="button"
