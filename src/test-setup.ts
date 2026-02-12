@@ -1,4 +1,5 @@
-import '@testing-library/jest-dom';
+/// <reference types="vitest/globals" />
+import '@testing-library/jest-dom/vitest';
 
 // Suppress expected React error messages during tests
 const originalError = console.error;

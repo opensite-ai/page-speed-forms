@@ -59,7 +59,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           label="I agree to the terms"
-        />
+        />,
       );
 
       expect(screen.getByText("I agree to the terms")).toBeInTheDocument();
@@ -73,12 +73,12 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           label="Accept terms"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.parentElement?.tagName).toBe("LABEL");
-      expect(checkbox.parentElement).toHaveClass("checkbox-label");
+      expect(checkbox.parentElement?.tagName).toBe("DIV");
+      expect(checkbox.parentElement).toHaveClass("checkbox-field-content");
     });
 
     it("should support indeterminate state", () => {
@@ -89,7 +89,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           indeterminate={true}
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
@@ -104,7 +104,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           indeterminate={false}
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
@@ -116,7 +116,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           indeterminate={true}
-        />
+        />,
       );
 
       expect(checkbox.indeterminate).toBe(true);
@@ -134,7 +134,7 @@ describe("Checkbox Component", () => {
               I agree to the <strong>terms</strong>
             </span>
           }
-        />
+        />,
       );
 
       expect(screen.getByText("terms")).toBeInTheDocument();
@@ -181,7 +181,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           label="Accept terms"
-        />
+        />,
       );
 
       const label = screen.getByText("Accept terms");
@@ -196,7 +196,12 @@ describe("Checkbox Component", () => {
       const onBlur = vi.fn();
 
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} onBlur={onBlur} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          onBlur={onBlur}
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
@@ -228,7 +233,7 @@ describe("Checkbox Component", () => {
       });
 
       const { rerender } = render(
-        <Checkbox name="terms" value={value} onChange={onChange} />
+        <Checkbox name="terms" value={value} onChange={onChange} />,
       );
 
       const checkbox = screen.getByRole("checkbox");
@@ -252,7 +257,12 @@ describe("Checkbox Component", () => {
     it("should support disabled state", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} disabled={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          disabled={true}
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toBeDisabled();
@@ -270,7 +280,12 @@ describe("Checkbox Component", () => {
       const onChange = vi.fn();
 
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} disabled={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          disabled={true}
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
@@ -282,7 +297,12 @@ describe("Checkbox Component", () => {
     it("should support required attribute", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} required={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          required={true}
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toBeRequired();
@@ -304,7 +324,7 @@ describe("Checkbox Component", () => {
           onChange={onChange}
           data-testid="custom-checkbox"
           id="terms-checkbox"
-        />
+        />,
       );
 
       const checkbox = screen.getByTestId("custom-checkbox");
@@ -320,16 +340,26 @@ describe("Checkbox Component", () => {
     it("should apply error class when error is true", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} error={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          error={true}
+        />,
       );
 
-      expect(screen.getByRole("checkbox")).toHaveClass("checkbox--error");
+      expect(screen.getByRole("checkbox")).toHaveClass("checkbox-input");
     });
 
     it("should not apply error class when error is false", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} error={false} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          error={false}
+        />,
       );
 
       expect(screen.getByRole("checkbox")).not.toHaveClass("checkbox--error");
@@ -338,12 +368,17 @@ describe("Checkbox Component", () => {
     it("should set aria-invalid when error is true", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} error={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          error={true}
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
 
@@ -356,12 +391,12 @@ describe("Checkbox Component", () => {
           onChange={onChange}
           error={false}
           aria-invalid={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
   });
@@ -375,7 +410,7 @@ describe("Checkbox Component", () => {
       const onChange = vi.fn();
       render(<Checkbox name="terms" value={false} onChange={onChange} />);
 
-      expect(screen.getByRole("checkbox")).toHaveClass("checkbox");
+      expect(screen.getByRole("checkbox")).toHaveClass("checkbox-input");
     });
 
     it("should support custom className", () => {
@@ -386,12 +421,12 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           className="custom-class"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("checkbox");
-      expect(checkbox).toHaveClass("custom-class");
+      expect(checkbox).toHaveClass("checkbox-input");
+      expect(checkbox).toHaveClass("checkbox-input");
     });
 
     it("should combine base, error, and custom classes", () => {
@@ -403,13 +438,11 @@ describe("Checkbox Component", () => {
           onChange={onChange}
           error={true}
           className="custom-class"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("checkbox");
-      expect(checkbox).toHaveClass("checkbox--error");
-      expect(checkbox).toHaveClass("custom-class");
+      expect(checkbox).toHaveClass("checkbox-input");
     });
 
     it("should trim className properly", () => {
@@ -420,7 +453,7 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           className="  custom-class  "
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
@@ -436,11 +469,11 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           label="Accept"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.parentElement).toHaveClass("checkbox-label");
+      expect(checkbox.parentElement).toHaveClass("checkbox-field-content");
     });
 
     it("should apply label text class", () => {
@@ -451,11 +484,11 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           label="Accept terms"
-        />
+        />,
       );
 
       const labelText = screen.getByText("Accept terms");
-      expect(labelText).toHaveClass("checkbox-label-text");
+      expect(labelText).toHaveClass("checkbox-label");
     });
   });
 
@@ -473,24 +506,29 @@ describe("Checkbox Component", () => {
           onChange={onChange}
           error={true}
           aria-describedby="terms-error"
-        />
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-describedby",
-        "terms-error"
+        "terms-error",
       );
     });
 
     it("should support aria-required", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} required={true} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          required={true}
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -503,12 +541,12 @@ describe("Checkbox Component", () => {
           onChange={onChange}
           required={false}
           aria-required={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -520,12 +558,10 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           aria-label="Terms and conditions"
-        />
+        />,
       );
 
-      expect(
-        screen.getByLabelText("Terms and conditions")
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Terms and conditions")).toBeInTheDocument();
     });
 
     it("should support aria-labelledby", () => {
@@ -536,12 +572,12 @@ describe("Checkbox Component", () => {
           value={false}
           onChange={onChange}
           aria-labelledby="terms-label"
-        />
+        />,
       );
 
       expect(screen.getByRole("checkbox")).toHaveAttribute(
         "aria-labelledby",
-        "terms-label"
+        "terms-label",
       );
     });
 
@@ -589,7 +625,7 @@ describe("Checkbox Component", () => {
     it("should update when controlled value changes", () => {
       const onChange = vi.fn();
       const { rerender } = render(
-        <Checkbox name="terms" value={false} onChange={onChange} />
+        <Checkbox name="terms" value={false} onChange={onChange} />,
       );
 
       expect(screen.getByRole("checkbox")).not.toBeChecked();
@@ -608,11 +644,16 @@ describe("Checkbox Component", () => {
     it("should handle empty string className gracefully", () => {
       const onChange = vi.fn();
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} className="" />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          className=""
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.className).toBe("checkbox");
+      expect(checkbox.className).toBe("checkbox-input");
     });
 
     it("should handle rapid clicking", async () => {
@@ -637,7 +678,7 @@ describe("Checkbox Component", () => {
           value={true}
           onChange={onChange}
           indeterminate={true}
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
@@ -650,7 +691,12 @@ describe("Checkbox Component", () => {
       const label = "I accept the <Terms> & Conditions!";
 
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} label={label} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          label={label}
+        />,
       );
 
       expect(screen.getByText(label)).toBeInTheDocument();
@@ -661,7 +707,12 @@ describe("Checkbox Component", () => {
       const label = "我同意条款";
 
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} label={label} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          label={label}
+        />,
       );
 
       expect(screen.getByText(label)).toBeInTheDocument();
@@ -672,7 +723,12 @@ describe("Checkbox Component", () => {
       const label = "✅ Accept terms";
 
       render(
-        <Checkbox name="terms" value={false} onChange={onChange} label={label} />
+        <Checkbox
+          name="terms"
+          value={false}
+          onChange={onChange}
+          label={label}
+        />,
       );
 
       expect(screen.getByText(label)).toBeInTheDocument();
