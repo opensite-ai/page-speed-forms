@@ -42,7 +42,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       expect(screen.getByRole("group")).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -71,7 +71,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -88,7 +88,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       expect(screen.getByText("Option 1")).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           label="Select your interests"
-        />
+        />,
       );
 
       expect(screen.getByText("Select your interests")).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe("CheckboxGroup Component", () => {
           options={mockOptions}
           label="Interests"
           description="Choose all that apply"
-        />
+        />,
       );
 
       expect(screen.getByText("Choose all that apply")).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe("CheckboxGroup Component", () => {
           value={["option1", "option3"]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -160,7 +160,7 @@ describe("CheckboxGroup Component", () => {
           value={["option1"]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 2");
@@ -179,7 +179,7 @@ describe("CheckboxGroup Component", () => {
           value={["option1", "option2"]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 1");
@@ -196,7 +196,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -220,7 +220,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           showSelectAll
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -235,7 +235,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -252,7 +252,7 @@ describe("CheckboxGroup Component", () => {
           options={mockOptions}
           showSelectAll
           selectAllLabel="Choose all"
-        />
+        />,
       );
 
       expect(screen.getByLabelText("Choose all")).toBeInTheDocument();
@@ -267,7 +267,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           showSelectAll
-        />
+        />,
       );
 
       const selectAllCheckbox = screen.getByLabelText("Select all");
@@ -283,11 +283,11 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           showSelectAll
-        />
+        />,
       );
 
       const selectAllCheckbox = screen.getByLabelText(
-        "Select all"
+        "Select all",
       ) as HTMLInputElement;
       expect(selectAllCheckbox.indeterminate).toBe(true);
     });
@@ -303,7 +303,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           showSelectAll
-        />
+        />,
       );
 
       const selectAllCheckbox = screen.getByLabelText("Select all");
@@ -323,7 +323,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           showSelectAll
-        />
+        />,
       );
 
       const selectAllCheckbox = screen.getByLabelText("Select all");
@@ -349,7 +349,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={optionsWithDisabled}
           showSelectAll
-        />
+        />,
       );
 
       const selectAllCheckbox = screen.getByLabelText("Select all");
@@ -373,12 +373,10 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           minSelections={2}
-        />
+        />,
       );
 
-      expect(
-        screen.getByText("Select at least 2 options")
-      ).toBeInTheDocument();
+      expect(screen.getByText("Select at least 2 options")).toBeInTheDocument();
     });
 
     it("should display max selections counter", () => {
@@ -390,7 +388,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           maxSelections={3}
-        />
+        />,
       );
 
       expect(screen.getByText("1/3 selected")).toBeInTheDocument();
@@ -407,7 +405,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 3");
@@ -427,7 +425,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 1");
@@ -445,7 +443,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 3");
@@ -466,7 +464,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptionsWithDescriptions}
-        />
+        />,
       );
 
       expect(screen.getByText("$9/month")).toBeInTheDocument();
@@ -488,7 +486,7 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 2");
@@ -508,7 +506,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           renderOption={renderOption}
-        />
+        />,
       );
 
       expect(screen.getByTestId("custom-option1")).toBeInTheDocument();
@@ -530,11 +528,11 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptions}
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("flex-col");
+      expect(group).toHaveClass("grid-cols-1");
     });
 
     it("should apply inline layout", () => {
@@ -546,11 +544,11 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           layout="inline"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("flex-row");
+      expect(group).toHaveClass("md:grid-cols-2");
     });
 
     it("should apply grid layout", () => {
@@ -562,28 +560,11 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           layout="grid"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
       expect(group).toHaveClass("grid");
-    });
-
-    it("should apply grid columns style", () => {
-      const onChange = vi.fn();
-      render(
-        <CheckboxGroup
-          name="interests"
-          value={[]}
-          onChange={onChange}
-          options={mockOptions}
-          layout="grid"
-          gridColumns={3}
-        />
-      );
-
-      const group = screen.getByRole("group");
-      expect(group).toHaveStyle({ gridTemplateColumns: "repeat(3, 1fr)" });
     });
 
     it("should use default 2 columns for grid layout", () => {
@@ -595,11 +576,11 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           layout="grid"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveStyle({ gridTemplateColumns: "repeat(2, 1fr)" });
+      expect(group).toHaveClass("md:grid-cols-2");
     });
   });
 
@@ -617,7 +598,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           disabled
-        />
+        />,
       );
 
       const checkboxes = screen.getAllByRole("checkbox");
@@ -635,7 +616,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           error
-        />
+        />,
       );
 
       // CheckboxGroup passes error to Checkbox, which applies border-destructive on the indicator div
@@ -658,7 +639,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           onBlur={onBlur}
           options={mockOptions}
-        />
+        />,
       );
 
       const checkbox = screen.getByLabelText("Option 1");
@@ -683,7 +664,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           error
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
@@ -699,7 +680,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           required
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
@@ -715,7 +696,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           aria-describedby="interests-error"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
@@ -731,7 +712,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           label="Select interests"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
@@ -746,11 +727,14 @@ describe("CheckboxGroup Component", () => {
           value={[]}
           onChange={onChange}
           options={mockOptionsWithDescriptions}
-        />
+        />,
       );
 
       const checkbox = screen.getByRole("checkbox", { name: /Basic Plan/ });
-      expect(checkbox).toHaveAttribute("aria-describedby", "plan-basic-description");
+      expect(checkbox).toHaveAttribute(
+        "aria-describedby",
+        "plan-basic-description",
+      );
     });
 
     it("should have aria-live region for feedback", () => {
@@ -762,10 +746,12 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           minSelections={2}
-        />
+        />,
       );
 
-      const feedback = screen.getByText("Select at least 2 options").parentElement;
+      const feedback = screen.getByText(
+        "Select at least 2 options",
+      ).parentElement;
       expect(feedback).toHaveAttribute("aria-live", "polite");
     });
   });
@@ -784,7 +770,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           className="custom-class"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");
@@ -800,7 +786,7 @@ describe("CheckboxGroup Component", () => {
           onChange={onChange}
           options={mockOptions}
           className="custom-class"
-        />
+        />,
       );
 
       const group = screen.getByRole("group");

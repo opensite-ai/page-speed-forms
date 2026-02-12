@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
 
 /**
  * Editor mode type
@@ -359,8 +360,19 @@ export function RichTextEditor({
     },
   };
 
-  const combinedClassName =
-    `rounded-md border border-input ${error ? "border-red-500 ring-1 ring-red-500" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`.trim();
+  const hasValue = React.useMemo(() => {
+    if (!content) return false;
+    const stripped = content.replace(/<[^>]+>/g, "").trim();
+    return stripped.length > 0;
+  }, [content]);
+
+  const combinedClassName = cn(
+    "rounded-md border border-input",
+    !error && hasValue && "ring-2 ring-ring",
+    error && "border-destructive ring-1 ring-destructive",
+    disabled && "opacity-50 cursor-not-allowed",
+    className,
+  );
 
   const editorStyle: React.CSSProperties = {
     minHeight,
@@ -432,7 +444,10 @@ export function RichTextEditor({
         ) : (
           <textarea
             ref={textareaRef}
-            className="w-full p-3 text-base md:text-sm outline-none bg-transparent resize-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className={cn(
+              "w-full p-3 text-base md:text-sm outline-none bg-transparent resize-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+              INPUT_AUTOFILL_RESET_CLASSES,
+            )}
             value={content}
             onChange={handleMarkdownChange}
             onBlur={onBlur}

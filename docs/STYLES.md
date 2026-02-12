@@ -209,7 +209,7 @@ import './forms.css';
   }
 
   .text-input--error {
-    @apply border-red-500 ring-1 ring-red-500;
+    @apply border-destructive ring-1 ring-destructive;
   }
 }
 ```

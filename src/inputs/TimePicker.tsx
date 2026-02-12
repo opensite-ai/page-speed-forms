@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { cn } from "../utils";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
 
 /**
- * Time value format
+ * Legacy time value shape retained for backward-compatible type exports.
  */
 export interface TimeValue {
-  hour: number; // 1-12
-  minute: number; // 0-59
+  hour: number;
+  minute: number;
   period: "AM" | "PM";
 }
 
@@ -18,7 +18,8 @@ export interface TimeValue {
  */
 export interface TimePickerProps extends Omit<InputProps<string>, "onChange"> {
   /**
-   * Change handler - receives time string in format "HH:mm AM/PM"
+   * Change handler - receives time string in format "HH:mm" (24-hour)
+   * or "h:mm AM/PM" (12-hour)
    */
   onChange: (time: string) => void;
 
@@ -58,116 +59,89 @@ export interface TimePickerProps extends Omit<InputProps<string>, "onChange"> {
   [key: string]: any;
 }
 
-/**
- * Parse time string to TimeValue
- */
-function parseTimeString(
-  timeStr: string,
-  use24Hour: boolean,
-): TimeValue | null {
-  if (!timeStr) return null;
+function normalizeToNativeTime(value: string): string {
+  if (!value) return "";
 
-  try {
-    if (use24Hour) {
-      // Parse 24-hour format (HH:mm)
-      const [hourStr, minuteStr] = timeStr.split(":");
-      const hour24 = parseInt(hourStr, 10);
-      const minute = parseInt(minuteStr, 10);
+  // 12-hour format: h:mm AM/PM or hh:mm:ss AM/PM
+  const twelveHourMatch = value.match(
+    /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)$/i,
+  );
+  if (twelveHourMatch) {
+    const rawHour = parseInt(twelveHourMatch[1], 10);
+    const minute = parseInt(twelveHourMatch[2], 10);
+    const period = twelveHourMatch[4].toUpperCase();
 
-      if (isNaN(hour24) || isNaN(minute)) return null;
-      if (hour24 < 0 || hour24 > 23) return null;
-      if (minute < 0 || minute > 59) return null;
-
-      // Convert to 12-hour format with period
-      const period = hour24 >= 12 ? "PM" : "AM";
-      const hour = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-
-      return { hour, minute, period };
-    } else {
-      // Parse 12-hour format (HH:mm AM/PM)
-      const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-      if (!match) return null;
-
-      const hour = parseInt(match[1], 10);
-      const minute = parseInt(match[2], 10);
-      const period = match[3].toUpperCase() as "AM" | "PM";
-
-      if (hour < 1 || hour > 12) return null;
-      if (minute < 0 || minute > 59) return null;
-
-      return { hour, minute, period };
+    if (
+      Number.isNaN(rawHour) ||
+      Number.isNaN(minute) ||
+      rawHour < 1 ||
+      rawHour > 12 ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      return "";
     }
-  } catch {
-    return null;
+
+    const normalizedHour =
+      period === "PM"
+        ? rawHour === 12
+          ? 12
+          : rawHour + 12
+        : rawHour === 12
+          ? 0
+          : rawHour;
+
+    return `${String(normalizedHour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   }
+
+  // 24-hour format: HH:mm or HH:mm:ss
+  const twentyFourHourMatch = value.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if (twentyFourHourMatch) {
+    const hour = parseInt(twentyFourHourMatch[1], 10);
+    const minute = parseInt(twentyFourHourMatch[2], 10);
+
+    if (
+      Number.isNaN(hour) ||
+      Number.isNaN(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      return "";
+    }
+
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  }
+
+  return "";
 }
 
-/**
- * Format TimeValue to string
- */
-function formatTimeValue(time: TimeValue | null, use24Hour: boolean): string {
-  if (!time) return "";
+function formatFromNativeTime(nativeValue: string, use24Hour: boolean): string {
+  if (!nativeValue) return "";
+
+  const [hourValue, minuteValue] = nativeValue.split(":");
+  const hour = parseInt(hourValue, 10);
+  const minute = parseInt(minuteValue, 10);
+
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return "";
+  }
 
   if (use24Hour) {
-    // Convert to 24-hour format
-    let hour24 = time.hour;
-    if (time.period === "PM" && time.hour !== 12) {
-      hour24 = time.hour + 12;
-    } else if (time.period === "AM" && time.hour === 12) {
-      hour24 = 0;
-    }
-    return `${String(hour24).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`;
-  } else {
-    // 12-hour format with AM/PM
-    return `${time.hour}:${String(time.minute).padStart(2, "0")} ${time.period}`;
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   }
+
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
 }
 
 /**
- * TimePicker - Accessible time selection component with AM/PM support
+ * TimePicker - Accessible time input component using native time picker UX.
  *
- * A lightweight time picker with dropdown selection for hours, minutes, and AM/PM period.
- * Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Dropdown selection with hour/minute spinners
- * - 12-hour or 24-hour format support
- * - AM/PM period selector
- * - Configurable minute step intervals
- * - Full accessibility support (ARIA attributes, keyboard navigation)
- * - Error state styling
- * - Controlled input behavior
- * - Clearable selection
- * - Icon display toggle
- * - Click outside to close
- *
- * @example
- * ```tsx
- * const form = useForm({ initialValues: { appointment: '' } });
- *
- * <TimePicker
- *   {...form.getFieldProps('appointment')}
- *   placeholder="Select time"
- *   minuteStep={15}
- *   clearable
- *   showIcon
- *   error={!!form.errors.appointment}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With 24-hour format
- * <TimePicker
- *   name="startTime"
- *   value={startTime}
- *   onChange={setStartTime}
- *   use24Hour
- *   minuteStep={30}
- * />
- * ```
- *
- * @see https://opensite.ai/developers/page-speed/forms/time-picker
+ * Uses a native `type="time"` input for a streamlined UX while preserving
+ * formatting compatibility for 12-hour and 24-hour output formats.
  */
 export function TimePicker({
   name,
@@ -185,112 +159,36 @@ export function TimePicker({
   showIcon = true,
   ...props
 }: TimePickerProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [timeValue, setTimeValue] = React.useState<TimeValue | null>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const [nativeValue, setNativeValue] = React.useState<string>(
+    normalizeToNativeTime(value),
+  );
 
-  // Sync time value with controlled value prop
   React.useEffect(() => {
-    const parsed = parseTimeString(value, use24Hour);
-    setTimeValue(parsed);
-  }, [value, use24Hour]);
+    setNativeValue(normalizeToNativeTime(value));
+  }, [value]);
 
-  // Handle hour change
-  const handleHourChange = (hour: number) => {
-    const newTime: TimeValue = {
-      hour,
-      minute: timeValue?.minute || 0,
-      period: timeValue?.period || "AM",
-    };
-    setTimeValue(newTime);
-    onChange(formatTimeValue(newTime, use24Hour));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextNativeValue = e.target.value;
+    setNativeValue(nextNativeValue);
+    onChange(formatFromNativeTime(nextNativeValue, use24Hour));
   };
 
-  // Handle minute change
-  const handleMinuteChange = (minute: number) => {
-    const newTime: TimeValue = {
-      hour: timeValue?.hour || 12,
-      minute,
-      period: timeValue?.period || "AM",
-    };
-    setTimeValue(newTime);
-    onChange(formatTimeValue(newTime, use24Hour));
-  };
-
-  // Handle period change
-  const handlePeriodChange = (period: "AM" | "PM") => {
-    const newTime: TimeValue = {
-      hour: timeValue?.hour || 12,
-      minute: timeValue?.minute || 0,
-      period,
-    };
-    setTimeValue(newTime);
-    onChange(formatTimeValue(newTime, use24Hour));
-  };
-
-  // Handle clear button
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setNativeValue("");
     onChange("");
-    setTimeValue(null);
     inputRef.current?.focus();
   };
 
-  // Toggle time picker popup
-  const handleToggle = () => {
-    if (disabled) return;
-    setIsOpen(!isOpen);
-  };
-
-  // Close picker when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        onBlur?.();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [isOpen, onBlur]);
-
-  // Generate hour options (1-12 for 12-hour, 0-23 for 24-hour)
-  const hours = React.useMemo(() => {
-    if (use24Hour) {
-      return Array.from({ length: 24 }, (_, i) => i);
-    } else {
-      return Array.from({ length: 12 }, (_, i) => i + 1);
-    }
-  }, [use24Hour]);
-
-  // Generate minute options based on step
-  const minutes = React.useMemo(() => {
-    const mins: number[] = [];
-    for (let i = 0; i < 60; i += minuteStep) {
-      mins.push(i);
-    }
-    return mins;
-  }, [minuteStep]);
-
-  const combinedClassName = cn("relative", className);
-
-  const displayValue = formatTimeValue(timeValue, use24Hour);
+  const hasValue = Boolean(value);
+  const stepInSeconds = Math.max(1, minuteStep * 60);
 
   return (
-    <div ref={containerRef} className={combinedClassName}>
-      {/* Hidden native input for form submission */}
+    <div className={cn("relative", className)}>
+      {/* Hidden input preserves external value format for form submission */}
       <input type="hidden" name={name} value={value} />
 
-      {/* Custom time input */}
       <div className="relative">
         {showIcon && (
           <span
@@ -315,25 +213,29 @@ export function TimePicker({
         )}
         <input
           ref={inputRef}
-          type="text"
+          type="time"
           className={cn(
             "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
             "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            "appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none",
+            INPUT_AUTOFILL_RESET_CLASSES,
             showIcon ? "pl-10" : "pl-3",
             clearable && value ? "pr-10" : "pr-3",
-            error && "border-red-500 ring-1 ring-red-500",
+            !error && hasValue && "ring-2 ring-ring",
+            error && "border-destructive ring-1 ring-destructive",
           )}
-          value={displayValue}
-          onClick={handleToggle}
+          value={nativeValue}
+          onChange={handleChange}
           onBlur={onBlur}
           disabled={disabled}
           required={required}
+          step={stepInSeconds}
           placeholder={placeholder}
           aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
           aria-describedby={props["aria-describedby"]}
           aria-required={required || props["aria-required"]}
-          readOnly
+          {...props}
         />
         {clearable && value && !disabled && (
           <button
@@ -347,132 +249,6 @@ export function TimePicker({
           </button>
         )}
       </div>
-
-      {/* Time picker popup */}
-      {isOpen && !disabled && (
-        <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
-          <div className="flex gap-2">
-            {/* Hour selector */}
-            <div className="flex flex-col flex-1">
-              <div className="text-xs font-medium mb-2 text-center">
-                {use24Hour ? "Hour" : "Hour"}
-              </div>
-              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-                {hours.map((hour) => {
-                  const displayHour = use24Hour ? hour : hour;
-                  const isSelected = use24Hour
-                    ? timeValue?.hour ===
-                        (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) &&
-                      timeValue?.period === (hour >= 12 ? "PM" : "AM")
-                    : timeValue?.hour === hour;
-
-                  return (
-                    <button
-                      key={hour}
-                      type="button"
-                      className={cn(
-                        "flex items-center justify-center h-8 w-full rounded",
-                        "border-none bg-transparent cursor-pointer text-sm transition-colors",
-                        "hover:bg-primary hover:text-primary-foreground",
-                        isSelected
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "",
-                      )}
-                      onClick={() => {
-                        if (use24Hour) {
-                          const hour12 =
-                            hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-                          const period = hour >= 12 ? "PM" : "AM";
-                          const newTime: TimeValue = {
-                            hour: hour12,
-                            minute: timeValue?.minute || 0,
-                            period,
-                          };
-                          setTimeValue(newTime);
-                          onChange(formatTimeValue(newTime, use24Hour));
-                        } else {
-                          handleHourChange(hour);
-                        }
-                      }}
-                      aria-label={`${String(displayHour).padStart(2, "0")} hours`}
-                    >
-                      {String(displayHour).padStart(2, "0")}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Minute selector */}
-            <div className="flex flex-col flex-1">
-              <div className="text-xs font-medium mb-2 text-center">Minute</div>
-              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-                {minutes.map((minute) => {
-                  const isSelected = timeValue?.minute === minute;
-
-                  return (
-                    <button
-                      key={minute}
-                      type="button"
-                      className={cn(
-                        "flex items-center justify-center h-8 w-full",
-                        "rounded border-none bg-transparent cursor-pointer text-sm transition-colors",
-                        "hover:bg-primary hover:text-primary-foreground",
-                        isSelected
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "",
-                      )}
-                      onClick={() => handleMinuteChange(minute)}
-                      aria-label={`${String(minute).padStart(2, "0")} minutes`}
-                    >
-                      {String(minute).padStart(2, "0")}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Period selector (AM/PM) - only for 12-hour format */}
-            {!use24Hour && (
-              <div className="flex flex-col w-20">
-                <div className="text-xs font-medium mb-2 text-center">
-                  Period
-                </div>
-                <div className="flex flex-col gap-1">
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex items-center justify-center h-8 w-full",
-                      "rounded border-none bg-transparent cursor-pointer text-sm",
-                      "transition-colors hover:bg-primary hover:text-primary-foreground",
-                      timeValue?.period === "AM"
-                        ? "bg-muted font-semibold"
-                        : "",
-                    )}
-                    onClick={() => handlePeriodChange("AM")}
-                  >
-                    AM
-                  </button>
-                  <button
-                    type="button"
-                    className={cn(
-                      "flex items-center justify-center h-8 w-full",
-                      "rounded border-none bg-transparent cursor-pointer text-sm",
-                      "transition-colors hover:bg-primary hover:text-primary-foreground",
-                      timeValue?.period === "PM"
-                        ? "bg-muted font-semibold"
-                        : "",
-                    )}
-                    onClick={() => handlePeriodChange("PM")}
-                  >
-                    PM
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

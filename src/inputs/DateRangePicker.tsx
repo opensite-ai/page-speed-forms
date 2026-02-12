@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { cn } from "../utils";
+import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
 
 /**
  * Date range value
@@ -117,6 +118,10 @@ function isDateInRange(
   if (!start || !end) return false;
   const time = date.getTime();
   return time >= start.getTime() && time <= end.getTime();
+}
+
+function addMonths(date: Date, delta: number): Date {
+  return new Date(date.getFullYear(), date.getMonth() + delta, 1);
 }
 
 /**
@@ -241,7 +246,7 @@ export function DateRangePicker({
   // Toggle calendar popup
   const handleToggle = () => {
     if (disabled) return;
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   };
 
   // Check if a date should be disabled
@@ -253,30 +258,44 @@ export function DateRangePicker({
     return false;
   };
 
-  // Close calendar when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        onBlur?.();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
+  const closeCalendar = React.useCallback(() => {
+    if (!isOpen) return;
+    setIsOpen(false);
+    onBlur?.();
   }, [isOpen, onBlur]);
 
-  // Render calendar
-  const renderCalendar = () => {
-    const year = selectedMonth.getFullYear();
-    const month = selectedMonth.getMonth();
+  useOnClickOutside(containerRef, closeCalendar, "pointerdown", true);
+
+  const dayGridStyle: React.CSSProperties = {
+    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  };
+  const monthsGridStyle: React.CSSProperties = {
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  };
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const hasValue = Boolean(rangeStart || rangeEnd);
+
+  const renderMonth = (
+    monthDate: Date,
+    controls?: { prev?: boolean; next?: boolean },
+  ) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay();
 
@@ -288,66 +307,54 @@ export function DateRangePicker({
       days.push(new Date(year, month, day));
     }
 
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    const handlePrevMonth = () => {
-      setSelectedMonth(new Date(year, month - 1, 1));
-    };
-
-    const handleNextMonth = () => {
-      setSelectedMonth(new Date(year, month + 1, 1));
-    };
-
     return (
-      <div role="grid" aria-label="Calendar">
-        <div className="flex items-center justify-between pb-2 border-b border-border">
-          <button
-            type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
-            onClick={handlePrevMonth}
-            aria-label="Previous month"
-          >
-            ←
-          </button>
+      <div className="w-[240px] max-w-full">
+        <div className="flex items-center justify-between pb-3">
+          {controls?.prev ? (
+            <button
+              type="button"
+              className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
+              onClick={() => setSelectedMonth((prev) => addMonths(prev, -1))}
+              aria-label="Previous month"
+            >
+              &#8249;
+            </button>
+          ) : (
+            <div className="h-8 w-8" aria-hidden="true" />
+          )}
           <div className="font-medium text-sm">
             {`${monthNames[month]} ${year}`}
           </div>
-          <button
-            type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
-            onClick={handleNextMonth}
-            aria-label="Next month"
-          >
-            →
-          </button>
+          {controls?.next ? (
+            <button
+              type="button"
+              className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
+              onClick={() => setSelectedMonth((prev) => addMonths(prev, 1))}
+              aria-label="Next month"
+            >
+              &#8250;
+            </button>
+          ) : (
+            <div className="h-8 w-8" aria-hidden="true" />
+          )}
         </div>
-        <div className="grid grid-cols-7 gap-1 mt-2">
+        <div
+          className="grid gap-1 text-xs text-muted-foreground"
+          style={dayGridStyle}
+        >
           {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
             <div
-              key={day}
-              className="flex items-center justify-center h-8 w-full text-xs font-medium"
+              key={`${month}-${day}`}
+              className="flex items-center justify-center h-8 w-8 font-medium"
             >
               {day}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid gap-1" style={dayGridStyle}>
           {days.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${index}`} />;
+              return <div key={`empty-${month}-${index}`} className="h-8 w-8" />;
             }
 
             const isStart =
@@ -376,12 +383,13 @@ export function DateRangePicker({
                 key={date.toISOString()}
                 type="button"
                 className={cn(
-                  "flex items-center justify-center h-8 w-full rounded border-none bg-transparent",
-                  "cursor-pointer text-sm transition-colors hover:bg-muted",
-                  isRangeEndpoint && "bg-muted font-semibold",
-                  isRangeHighlight && "bg-muted/70",
-                  isToday && "border border-primary",
-                  disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+                  "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
+                  "hover:bg-muted",
+                  isRangeEndpoint && "bg-primary text-primary-foreground font-semibold",
+                  isRangeHighlight && "bg-muted",
+                  !isRangeEndpoint && !isRangeHighlight && isToday && "border border-primary",
+                  disabled &&
+                    "cursor-not-allowed opacity-50 pointer-events-none",
                 )}
                 onClick={() => !disabled && handleDateSelect(date)}
                 onMouseEnter={() => setHoverDate(date)}
@@ -449,9 +457,11 @@ export function DateRangePicker({
             "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
             "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            INPUT_AUTOFILL_RESET_CLASSES,
             showIcon ? "pl-10" : "pl-3",
             clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3",
-            error && "border-red-500 ring-1 ring-red-500",
+            !error && hasValue && "ring-2 ring-ring",
+            error && "border-destructive ring-1 ring-destructive",
           )}
           value={displayValue}
           onClick={handleToggle}
@@ -479,8 +489,13 @@ export function DateRangePicker({
 
       {/* Calendar popup */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
-          {renderCalendar()}
+        <div className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
+          <div role="grid" aria-label="Calendar">
+            <div className="grid gap-4" style={monthsGridStyle}>
+              {renderMonth(selectedMonth, { prev: true })}
+              {renderMonth(addMonths(selectedMonth, 1), { next: true })}
+            </div>
+          </div>
           {rangeStart && !rangeEnd && (
             <div className="text-xs text-center pt-2 border-t border-border mt-2">
               Select end date

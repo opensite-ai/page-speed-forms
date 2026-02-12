@@ -21,7 +21,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(screen.getByRole("combobox")).toBeInTheDocument();
@@ -36,10 +36,12 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           placeholder="Choose languages"
-        />
+        />,
       );
 
-      expect(screen.getByRole("combobox")).toHaveTextContent("Choose languages");
+      expect(screen.getByRole("combobox")).toHaveTextContent(
+        "Choose languages",
+      );
     });
 
     it("should render selected values as chips", () => {
@@ -49,7 +51,7 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const valueList = container.querySelector(".flex.flex-wrap.gap-1");
@@ -65,7 +67,7 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const hiddenSelect = container.querySelector('select[name="languages"]');
@@ -74,7 +76,9 @@ describe("MultiSelect", () => {
       // Check that the select has the correct values
       const selectedOptions = Array.from(hiddenSelect?.selectedOptions || []);
       expect(selectedOptions).toHaveLength(2);
-      expect(selectedOptions.map((opt: any) => opt.value)).toEqual(expect.arrayContaining(["js", "ts"]));
+      expect(selectedOptions.map((opt: any) => opt.value)).toEqual(
+        expect.arrayContaining(["js", "ts"]),
+      );
     });
   });
 
@@ -88,7 +92,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -112,7 +116,7 @@ describe("MultiSelect", () => {
           value={["js"]}
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -132,7 +136,7 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -155,7 +159,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -168,6 +172,31 @@ describe("MultiSelect", () => {
       // Dropdown should still be open
       expect(screen.getByRole("listbox")).toBeInTheDocument();
     });
+
+    it("should close dropdown when clicking outside", async () => {
+      const user = userEvent.setup();
+      render(
+        <div>
+          <MultiSelect
+            name="languages"
+            value={[]}
+            onChange={() => {}}
+            options={defaultOptions}
+          />
+          <button>Outside</button>
+        </div>,
+      );
+
+      await user.click(screen.getByRole("combobox"));
+      await waitFor(() => {
+        expect(screen.getByRole("listbox")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Outside" }));
+      await waitFor(() => {
+        expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe("Value Chips", () => {
@@ -178,7 +207,7 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const removeButtons = screen.getAllByRole("button", { name: /^Remove / });
@@ -194,10 +223,12 @@ describe("MultiSelect", () => {
           value={["js", "ts", "py"]}
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
-      const removeButton = screen.getByRole("button", { name: "Remove TypeScript" });
+      const removeButton = screen.getByRole("button", {
+        name: "Remove TypeScript",
+      });
       await user.click(removeButton);
 
       expect(onChange).toHaveBeenCalledWith(["js", "py"]);
@@ -211,10 +242,12 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
-      const removeButton = screen.getByRole("button", { name: "Remove JavaScript" });
+      const removeButton = screen.getByRole("button", {
+        name: "Remove JavaScript",
+      });
       await user.click(removeButton);
 
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
@@ -231,7 +264,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           showSelectAll
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -249,7 +282,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           showSelectAll={false}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -268,7 +301,7 @@ describe("MultiSelect", () => {
           onChange={onChange}
           options={defaultOptions}
           showSelectAll
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -287,7 +320,7 @@ describe("MultiSelect", () => {
           onChange={onChange}
           options={defaultOptions}
           showSelectAll
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -312,7 +345,7 @@ describe("MultiSelect", () => {
           onChange={onChange}
           options={optionsWithDisabled}
           showSelectAll
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -333,7 +366,7 @@ describe("MultiSelect", () => {
           onChange={onChange}
           options={defaultOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -356,12 +389,14 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
 
-      expect(screen.getByText("Maximum 2 selections reached")).toBeInTheDocument();
+      expect(
+        screen.getByText("Maximum 2 selections reached"),
+      ).toBeInTheDocument();
     });
 
     it("should disable unselected options when max is reached", async () => {
@@ -373,7 +408,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -396,7 +431,7 @@ describe("MultiSelect", () => {
           onChange={onChange}
           options={defaultOptions}
           maxSelections={2}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -420,7 +455,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -445,7 +480,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -478,7 +513,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -505,7 +540,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={onChange}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -528,7 +563,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -549,7 +584,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -574,7 +609,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -601,7 +636,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -617,7 +652,7 @@ describe("MultiSelect", () => {
           value={["js", "ts"]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -638,7 +673,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           error
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -654,7 +689,7 @@ describe("MultiSelect", () => {
           value={[]}
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(container.querySelector(".relative.w-full")).toBeInTheDocument();
@@ -668,11 +703,15 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           error
-        />
+        />,
       );
 
       const trigger = container.querySelector("[role='combobox']");
-      expect(trigger).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(trigger).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
     });
 
     it("should apply custom className", () => {
@@ -683,7 +722,7 @@ describe("MultiSelect", () => {
           onChange={() => {}}
           options={defaultOptions}
           className="custom-class"
-        />
+        />,
       );
 
       expect(container.querySelector(".custom-class")).toBeInTheDocument();

@@ -151,7 +151,7 @@ describe("Field Component", () => {
       render(<TestFieldWrapper fieldName="email" label="Email Address" />);
 
       const label = screen.getByText("Email Address");
-      expect(label).toHaveClass("block", "text-sm", "font-medium");
+      expect(label).toHaveClass("font-medium");
     });
   });
 
@@ -276,9 +276,8 @@ describe("Field Component", () => {
       await waitFor(() => {
         const errorElement = screen.getByText("Email is required");
         expect(errorElement).toHaveClass(
-          "text-sm",
-          "font-medium",
-          "text-red-500",
+          "bg-destructive",
+          "text-destructive-foreground",
         );
       });
     });

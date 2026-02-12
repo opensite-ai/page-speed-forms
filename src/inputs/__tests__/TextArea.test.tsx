@@ -26,11 +26,7 @@ describe("TextArea Component", () => {
     it("should display value", () => {
       const onChange = vi.fn();
       render(
-        <TextArea
-          name="bio"
-          value="This is my bio text"
-          onChange={onChange}
-        />
+        <TextArea name="bio" value="This is my bio text" onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue("This is my bio text");
@@ -73,7 +69,7 @@ describe("TextArea Component", () => {
     it("should support maxLength attribute", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} maxLength={500} />
+        <TextArea name="bio" value="" onChange={onChange} maxLength={500} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute("maxLength", "500");
@@ -82,7 +78,7 @@ describe("TextArea Component", () => {
     it("should support minLength attribute", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} minLength={10} />
+        <TextArea name="bio" value="" onChange={onChange} minLength={10} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute("minLength", "10");
@@ -140,8 +136,10 @@ describe("TextArea Component", () => {
       expect(onChange).toHaveBeenCalledTimes(13); // 6 chars + Enter + 6 chars
 
       // Verify textarea supports multi-line values by checking one of the calls includes newline
-      const calls = onChange.mock.calls.map(call => call[0]);
-      const hasNewline = calls.some(value => typeof value === 'string' && value.includes('\n'));
+      const calls = onChange.mock.calls.map((call) => call[0]);
+      const hasNewline = calls.some(
+        (value) => typeof value === "string" && value.includes("\n"),
+      );
       expect(hasNewline).toBe(true);
     });
 
@@ -151,7 +149,7 @@ describe("TextArea Component", () => {
       const onBlur = vi.fn();
 
       render(
-        <TextArea name="bio" value="" onChange={onChange} onBlur={onBlur} />
+        <TextArea name="bio" value="" onChange={onChange} onBlur={onBlur} />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -195,7 +193,7 @@ describe("TextArea Component", () => {
       });
 
       const { rerender } = render(
-        <TextArea name="bio" value={value} onChange={onChange} />
+        <TextArea name="bio" value={value} onChange={onChange} />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -224,18 +222,18 @@ describe("TextArea Component", () => {
           value=""
           onChange={onChange}
           placeholder="Tell us about yourself"
-        />
+        />,
       );
 
       expect(
-        screen.getByPlaceholderText("Tell us about yourself")
+        screen.getByPlaceholderText("Tell us about yourself"),
       ).toBeInTheDocument();
     });
 
     it("should support disabled state", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} disabled={true} />
+        <TextArea name="bio" value="" onChange={onChange} disabled={true} />,
       );
 
       expect(screen.getByRole("textbox")).toBeDisabled();
@@ -251,7 +249,7 @@ describe("TextArea Component", () => {
     it("should support required attribute", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} required={true} />
+        <TextArea name="bio" value="" onChange={onChange} required={true} />,
       );
 
       expect(screen.getByRole("textbox")).toBeRequired();
@@ -274,7 +272,7 @@ describe("TextArea Component", () => {
           data-testid="custom-textarea"
           id="bio-textarea"
           autoComplete="off"
-        />
+        />,
       );
 
       const textarea = screen.getByTestId("custom-textarea");
@@ -292,13 +290,17 @@ describe("TextArea Component", () => {
       const onChange = vi.fn();
       render(<TextArea name="bio" value="" onChange={onChange} error={true} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(screen.getByRole("textbox")).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
     });
 
     it("should not apply error class when error is false", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} error={false} />
+        <TextArea name="bio" value="" onChange={onChange} error={false} />,
       );
 
       expect(screen.getByRole("textbox")).not.toHaveClass("textarea--error");
@@ -310,7 +312,7 @@ describe("TextArea Component", () => {
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
 
@@ -323,12 +325,12 @@ describe("TextArea Component", () => {
           onChange={onChange}
           error={false}
           aria-invalid={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
   });
@@ -342,7 +344,12 @@ describe("TextArea Component", () => {
       const onChange = vi.fn();
       render(<TextArea name="bio" value="" onChange={onChange} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("flex", "min-h-20", "w-full", "rounded-md");
+      expect(screen.getByRole("textbox")).toHaveClass(
+        "flex",
+        "min-h-20",
+        "w-full",
+        "rounded-md",
+      );
     });
 
     it("should support custom className", () => {
@@ -353,7 +360,7 @@ describe("TextArea Component", () => {
           value=""
           onChange={onChange}
           className="custom-class"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -370,12 +377,16 @@ describe("TextArea Component", () => {
           onChange={onChange}
           error={true}
           className="custom-class"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
       expect(textarea).toHaveClass("flex", "min-h-20", "w-full");
-      expect(textarea).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(textarea).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
       expect(textarea).toHaveClass("custom-class");
     });
 
@@ -387,7 +398,7 @@ describe("TextArea Component", () => {
           value=""
           onChange={onChange}
           className="  custom-class  "
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -410,24 +421,24 @@ describe("TextArea Component", () => {
           onChange={onChange}
           error={true}
           aria-describedby="bio-error"
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-describedby",
-        "bio-error"
+        "bio-error",
       );
     });
 
     it("should support aria-required", () => {
       const onChange = vi.fn();
       render(
-        <TextArea name="bio" value="" onChange={onChange} required={true} />
+        <TextArea name="bio" value="" onChange={onChange} required={true} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -440,12 +451,12 @@ describe("TextArea Component", () => {
           onChange={onChange}
           required={false}
           aria-required={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -457,7 +468,7 @@ describe("TextArea Component", () => {
           value=""
           onChange={onChange}
           aria-label="Biography"
-        />
+        />,
       );
 
       expect(screen.getByLabelText("Biography")).toBeInTheDocument();
@@ -471,12 +482,12 @@ describe("TextArea Component", () => {
           value=""
           onChange={onChange}
           aria-labelledby="bio-label"
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-labelledby",
-        "bio-label"
+        "bio-label",
       );
     });
   });
@@ -511,7 +522,7 @@ describe("TextArea Component", () => {
     it("should update when controlled value changes", () => {
       const onChange = vi.fn();
       const { rerender } = render(
-        <TextArea name="bio" value="initial" onChange={onChange} />
+        <TextArea name="bio" value="initial" onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue("initial");
@@ -529,9 +540,7 @@ describe("TextArea Component", () => {
   describe("Edge Cases", () => {
     it("should handle empty string className gracefully", () => {
       const onChange = vi.fn();
-      render(
-        <TextArea name="bio" value="" onChange={onChange} className="" />
-      );
+      render(<TextArea name="bio" value="" onChange={onChange} className="" />);
 
       const textarea = screen.getByRole("textbox");
       expect(textarea).toHaveClass("flex", "min-h-20", "w-full", "rounded-md");
@@ -582,7 +591,7 @@ describe("TextArea Component", () => {
       const multilineValue = "Line 1\nLine 2\nLine 3";
 
       render(
-        <TextArea name="bio" value={multilineValue} onChange={onChange} />
+        <TextArea name="bio" value={multilineValue} onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue(multilineValue);
@@ -592,9 +601,7 @@ describe("TextArea Component", () => {
       const onChange = vi.fn();
       const valueWithTabs = "Column1\tColumn2\tColumn3";
 
-      render(
-        <TextArea name="bio" value={valueWithTabs} onChange={onChange} />
-      );
+      render(<TextArea name="bio" value={valueWithTabs} onChange={onChange} />);
 
       expect(screen.getByRole("textbox")).toHaveValue(valueWithTabs);
     });

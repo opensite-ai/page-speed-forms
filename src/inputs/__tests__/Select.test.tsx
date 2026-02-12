@@ -240,6 +240,32 @@ describe("Select", () => {
       });
     });
 
+    it("should close dropdown when clicking outside", async () => {
+      const user = userEvent.setup();
+      render(
+        <div>
+          <Select
+            name="country"
+            value=""
+            onChange={() => {}}
+            options={defaultOptions}
+          />
+          <button>Outside</button>
+        </div>,
+      );
+
+      await user.click(screen.getByRole("combobox"));
+      await waitFor(() => {
+        expect(screen.getByRole("listbox")).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Outside" }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+      });
+    });
+
     it("should call onChange when option is selected", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
@@ -938,7 +964,11 @@ describe("Select", () => {
       );
 
       const trigger = container.querySelector("[role='combobox']");
-      expect(trigger).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(trigger).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
     });
 
     it("should apply disabled class when disabled is true", () => {

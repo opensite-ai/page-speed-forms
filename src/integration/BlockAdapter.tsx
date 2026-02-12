@@ -41,7 +41,10 @@ export interface BlockAdapterOptions {
    * Transform function to convert Block props to component props.
    * Useful for custom prop mapping logic.
    */
-  transformProps?: (blockProps: Record<string, unknown>, block: Block) => Record<string, unknown>;
+  transformProps?: (
+    blockProps: Record<string, unknown>,
+    block: Block,
+  ) => Record<string, unknown>;
 
   /**
    * Extract display name from block for debugging.
@@ -105,7 +108,11 @@ class BlockErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(`Block render error (${this.props.block._id}):`, error, errorInfo);
+    console.error(
+      `Block render error (${this.props.block._id}):`,
+      error,
+      errorInfo,
+    );
   }
 
   render() {
@@ -116,13 +123,14 @@ class BlockErrorBoundary extends React.Component<
 
       return (
         <div
-          className="block-error border border-red-300 bg-red-50 p-4 rounded text-red-700"
+          className="block-error border border-destructive bg-destructive p-4 rounded text-destructive-foreground"
           data-block-id={this.props.block._id}
           data-block-type={this.props.block._type}
         >
           <p className="font-semibold">Block Render Error</p>
           <p className="text-sm">
-            Block: {this.props.block._name || this.props.block._id} ({this.props.block._type})
+            Block: {this.props.block._name || this.props.block._id} (
+            {this.props.block._type})
           </p>
           <p className="text-sm mt-1">{this.state.error.message}</p>
         </div>
@@ -201,7 +209,7 @@ class BlockErrorBoundary extends React.Component<
  */
 export function createBlockAdapter<TProps extends Record<string, unknown>>(
   Component: React.ComponentType<TProps>,
-  options: BlockAdapterOptions = {}
+  options: BlockAdapterOptions = {},
 ): React.ComponentType<AdaptedComponentProps> {
   const {
     defaultProps = {},
@@ -210,7 +218,11 @@ export function createBlockAdapter<TProps extends Record<string, unknown>>(
     errorFallback,
   } = options;
 
-  const AdaptedComponent: React.FC<AdaptedComponentProps> = ({ block, children, renderChildren }) => {
+  const AdaptedComponent: React.FC<AdaptedComponentProps> = ({
+    block,
+    children,
+    renderChildren,
+  }) => {
     // Extract component props from blockProps
     const blockProps = (block.blockProps || {}) as Record<string, unknown>;
 
@@ -236,12 +248,12 @@ export function createBlockAdapter<TProps extends Record<string, unknown>>(
     } as unknown as TProps;
 
     // Render children if renderChildren callback provided
-    const renderedChildren = renderChildren ? renderChildren(block._id) : children;
+    const renderedChildren = renderChildren
+      ? renderChildren(block._id)
+      : children;
 
     const element = (
-      <Component {...componentProps}>
-        {renderedChildren}
-      </Component>
+      <Component {...componentProps}>{renderedChildren}</Component>
     );
 
     // Wrap with error boundary if enabled
@@ -284,7 +296,7 @@ export function createBlockAdapter<TProps extends Record<string, unknown>>(
  */
 export function standardInputTransformer(
   blockProps: Record<string, unknown>,
-  block: Block
+  block: Block,
 ): Record<string, unknown> {
   return {
     ...blockProps,
@@ -327,16 +339,22 @@ export function standardInputTransformer(
  * ```
  */
 export function createBlockAdapters<
-  TComponents extends Record<string, React.ComponentType<any>>
+  TComponents extends Record<string, React.ComponentType<any>>,
 >(
   components: TComponents,
-  options: BlockAdapterOptions = {}
+  options: BlockAdapterOptions = {},
 ): Record<keyof TComponents, React.ComponentType<AdaptedComponentProps>> {
-  const adapted: Record<string, React.ComponentType<AdaptedComponentProps>> = {};
+  const adapted: Record<
+    string,
+    React.ComponentType<AdaptedComponentProps>
+  > = {};
 
   for (const [name, component] of Object.entries(components)) {
     adapted[name] = createBlockAdapter(component, options);
   }
 
-  return adapted as Record<keyof TComponents, React.ComponentType<AdaptedComponentProps>>;
+  return adapted as Record<
+    keyof TComponents,
+    React.ComponentType<AdaptedComponentProps>
+  >;
 }

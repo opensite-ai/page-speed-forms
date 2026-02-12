@@ -26,7 +26,7 @@ describe("TextInput Component", () => {
     it("should display value", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="test@example.com" onChange={onChange} />
+        <TextInput name="email" value="test@example.com" onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue("test@example.com");
@@ -35,7 +35,7 @@ describe("TextInput Component", () => {
     it("should handle null or undefined value", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value={null as any} onChange={onChange} />
+        <TextInput name="email" value={null as any} onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue("");
@@ -57,7 +57,7 @@ describe("TextInput Component", () => {
     it("should support type=email", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} type="email" />
+        <TextInput name="email" value="" onChange={onChange} type="email" />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute("type", "email");
@@ -65,7 +65,15 @@ describe("TextInput Component", () => {
 
     it("should support type=password", () => {
       const onChange = vi.fn();
-      render(<TextInput name="pwd" value="" onChange={onChange} type="password" data-testid="password-input" />);
+      render(
+        <TextInput
+          name="pwd"
+          value=""
+          onChange={onChange}
+          type="password"
+          data-testid="password-input"
+        />,
+      );
 
       const input = screen.getByTestId("password-input");
       expect(input).toHaveAttribute("type", "password");
@@ -73,14 +81,18 @@ describe("TextInput Component", () => {
 
     it("should support type=url", () => {
       const onChange = vi.fn();
-      render(<TextInput name="website" value="" onChange={onChange} type="url" />);
+      render(
+        <TextInput name="website" value="" onChange={onChange} type="url" />,
+      );
 
       expect(screen.getByRole("textbox")).toHaveAttribute("type", "url");
     });
 
     it("should support type=tel", () => {
       const onChange = vi.fn();
-      render(<TextInput name="phone" value="" onChange={onChange} type="tel" />);
+      render(
+        <TextInput name="phone" value="" onChange={onChange} type="tel" />,
+      );
 
       expect(screen.getByRole("textbox")).toHaveAttribute("type", "tel");
     });
@@ -88,7 +100,7 @@ describe("TextInput Component", () => {
     it("should support type=search", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="query" value="" onChange={onChange} type="search" />
+        <TextInput name="query" value="" onChange={onChange} type="search" />,
       );
 
       expect(screen.getByRole("searchbox")).toBeInTheDocument();
@@ -119,7 +131,7 @@ describe("TextInput Component", () => {
       const onBlur = vi.fn();
 
       render(
-        <TextInput name="email" value="" onChange={onChange} onBlur={onBlur} />
+        <TextInput name="email" value="" onChange={onChange} onBlur={onBlur} />,
       );
 
       const input = screen.getByRole("textbox");
@@ -163,7 +175,7 @@ describe("TextInput Component", () => {
       });
 
       const { rerender } = render(
-        <TextInput name="email" value={value} onChange={onChange} />
+        <TextInput name="email" value={value} onChange={onChange} />,
       );
 
       const input = screen.getByRole("textbox");
@@ -192,16 +204,18 @@ describe("TextInput Component", () => {
           value=""
           onChange={onChange}
           placeholder="Enter your email"
-        />
+        />,
       );
 
-      expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Enter your email"),
+      ).toBeInTheDocument();
     });
 
     it("should support disabled state", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} disabled={true} />
+        <TextInput name="email" value="" onChange={onChange} disabled={true} />,
       );
 
       expect(screen.getByRole("textbox")).toBeDisabled();
@@ -217,7 +231,7 @@ describe("TextInput Component", () => {
     it("should support required attribute", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} required={true} />
+        <TextInput name="email" value="" onChange={onChange} required={true} />,
       );
 
       expect(screen.getByRole("textbox")).toBeRequired();
@@ -240,7 +254,7 @@ describe("TextInput Component", () => {
           data-testid="custom-input"
           id="email-input"
           autoComplete="email"
-        />
+        />,
       );
 
       const input = screen.getByTestId("custom-input");
@@ -257,16 +271,20 @@ describe("TextInput Component", () => {
     it("should apply error class when error is true", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} error={true} />
+        <TextInput name="email" value="" onChange={onChange} error={true} />,
       );
 
-      expect(screen.getByRole("textbox")).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(screen.getByRole("textbox")).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
     });
 
     it("should not apply error class when error is false", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} error={false} />
+        <TextInput name="email" value="" onChange={onChange} error={false} />,
       );
 
       expect(screen.getByRole("textbox")).not.toHaveClass("text-input--error");
@@ -275,12 +293,12 @@ describe("TextInput Component", () => {
     it("should set aria-invalid when error is true", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} error={true} />
+        <TextInput name="email" value="" onChange={onChange} error={true} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
 
@@ -293,12 +311,12 @@ describe("TextInput Component", () => {
           onChange={onChange}
           error={false}
           aria-invalid={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-invalid",
-        "true"
+        "true",
       );
     });
   });
@@ -312,7 +330,12 @@ describe("TextInput Component", () => {
       const onChange = vi.fn();
       render(<TextInput name="email" value="" onChange={onChange} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("flex", "h-9", "w-full", "rounded-md");
+      expect(screen.getByRole("textbox")).toHaveClass(
+        "flex",
+        "h-9",
+        "w-full",
+        "rounded-md",
+      );
     });
 
     it("should support custom className", () => {
@@ -323,7 +346,7 @@ describe("TextInput Component", () => {
           value=""
           onChange={onChange}
           className="custom-class"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -340,12 +363,16 @@ describe("TextInput Component", () => {
           onChange={onChange}
           error={true}
           className="custom-class"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
       expect(input).toHaveClass("flex", "h-9", "w-full");
-      expect(input).toHaveClass("border-red-500", "ring-1", "ring-red-500");
+      expect(input).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
+      );
       expect(input).toHaveClass("custom-class");
     });
 
@@ -357,7 +384,7 @@ describe("TextInput Component", () => {
           value=""
           onChange={onChange}
           className="  custom-class  "
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -380,29 +407,24 @@ describe("TextInput Component", () => {
           onChange={onChange}
           error={true}
           aria-describedby="email-error"
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-describedby",
-        "email-error"
+        "email-error",
       );
     });
 
     it("should support aria-required", () => {
       const onChange = vi.fn();
       render(
-        <TextInput
-          name="email"
-          value=""
-          onChange={onChange}
-          required={true}
-        />
+        <TextInput name="email" value="" onChange={onChange} required={true} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -415,12 +437,12 @@ describe("TextInput Component", () => {
           onChange={onChange}
           required={false}
           aria-required={true}
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-required",
-        "true"
+        "true",
       );
     });
 
@@ -432,7 +454,7 @@ describe("TextInput Component", () => {
           value=""
           onChange={onChange}
           aria-label="Email address"
-        />
+        />,
       );
 
       expect(screen.getByLabelText("Email address")).toBeInTheDocument();
@@ -446,12 +468,12 @@ describe("TextInput Component", () => {
           value=""
           onChange={onChange}
           aria-labelledby="email-label"
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toHaveAttribute(
         "aria-labelledby",
-        "email-label"
+        "email-label",
       );
     });
   });
@@ -486,14 +508,12 @@ describe("TextInput Component", () => {
     it("should update when controlled value changes", () => {
       const onChange = vi.fn();
       const { rerender } = render(
-        <TextInput name="email" value="initial" onChange={onChange} />
+        <TextInput name="email" value="initial" onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue("initial");
 
-      rerender(
-        <TextInput name="email" value="updated" onChange={onChange} />
-      );
+      rerender(<TextInput name="email" value="updated" onChange={onChange} />);
 
       expect(screen.getByRole("textbox")).toHaveValue("updated");
     });
@@ -507,7 +527,7 @@ describe("TextInput Component", () => {
     it("should handle empty string className gracefully", () => {
       const onChange = vi.fn();
       render(
-        <TextInput name="email" value="" onChange={onChange} className="" />
+        <TextInput name="email" value="" onChange={onChange} className="" />,
       );
 
       const input = screen.getByRole("textbox");
@@ -532,7 +552,7 @@ describe("TextInput Component", () => {
       const specialChars = "test@example.com!#$%^&*()";
 
       render(
-        <TextInput name="email" value={specialChars} onChange={onChange} />
+        <TextInput name="email" value={specialChars} onChange={onChange} />,
       );
 
       expect(screen.getByRole("textbox")).toHaveValue(specialChars);

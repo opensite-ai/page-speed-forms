@@ -4,6 +4,7 @@ import * as React from "react";
 import type { InputProps } from "../core/types";
 import { cn } from "../utils";
 import { Checkbox } from "./Checkbox";
+import { LabelGroup } from "../core/label-group";
 
 /**
  * CheckboxGroup option type
@@ -51,7 +52,7 @@ export interface CheckboxGroupProps extends Omit<
    * Layout direction
    * @default "stacked"
    */
-  layout?: "inline" | "stacked" | "grid";
+  layout?: "stacked" | "grid" | "inline";
 
   /**
    * Group-level label
@@ -112,7 +113,7 @@ export interface CheckboxGroupProps extends Omit<
  * - Full accessibility support (ARIA attributes, role="group")
  * - Error state styling
  * - Controlled input behavior
- * - Multiple layout options (inline, stacked, grid)
+ * - Multiple layout options (stacked, grid)
  * - Optional "select all" checkbox
  * - Individual option disabled state
  * - Minimum/maximum selection validation
@@ -191,11 +192,10 @@ export function CheckboxGroup({
   const allSelected = selectedEnabledCount === enabledOptions.length;
   const someSelected = selectedEnabledCount > 0 && !allSelected;
 
-  const checkboxVariant: "boxed" | "inline" = React.useMemo(() => {
-    if (options.some((opt) => opt.description)) {
-      return "boxed";
-    }
-    return "inline";
+  const useChoiceCard: boolean = React.useMemo(() => {
+    if (!options) return false;
+
+    return options?.some((opt) => opt.description);
   }, [options]);
 
   const countableValue: number = React.useMemo(() => {
@@ -238,34 +238,36 @@ export function CheckboxGroup({
   // Determine if max selections reached
   const maxReached = Boolean(maxSelections && countableValue >= maxSelections);
 
-  const containerClass = cn(
-    "w-full gap-3",
-    layout === "stacked" && "flex flex-col",
-    layout === "inline" && "flex flex-row flex-wrap",
-    layout === "grid" && "grid",
-    className,
-  );
+  const containerClass = React.useMemo(() => {
+    return cn(
+      "w-full gap-3 grid grid-cols-1 border-0 m-0 p-0 min-w-0",
+      (layout === "grid" || layout === "inline") && "md:grid-cols-2",
+      className,
+    );
+  }, [layout, className]);
+
+  const groupDescriptionId = description ? `${name}-description` : undefined;
+  const groupAriaDescribedBy =
+    [props["aria-describedby"], groupDescriptionId].filter(Boolean).join(" ") ||
+    undefined;
 
   return (
-    <div
+    <fieldset
       className={containerClass}
       role="group"
       aria-invalid={error || props["aria-invalid"]}
-      aria-describedby={props["aria-describedby"]}
+      aria-describedby={groupAriaDescribedBy}
       aria-required={required || props["aria-required"]}
       aria-label={typeof label === "string" ? label : props["aria-label"]}
-      style={
-        layout === "grid"
-          ? {
-              gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
-            }
-          : undefined
-      }
     >
-      {label ? <div className="text-sm font-medium">{label}</div> : null}
-      {description ? (
-        <div className="text-xs opacity-70">{description}</div>
-      ) : null}
+      <LabelGroup
+        labelHtmlFor={name}
+        required={required}
+        variant="legend"
+        secondaryId={groupDescriptionId}
+        secondary={description}
+        primary={label}
+      />
 
       {/* Select All Checkbox */}
       {showSelectAll && enabledOptions.length > 0 && (
@@ -277,7 +279,7 @@ export function CheckboxGroup({
           onBlur={handleBlur}
           indeterminate={someSelected}
           label={selectAllLabel}
-          checkboxVariant="inline"
+          useChoiceCard={useChoiceCard}
           disabled={disabled}
           aria-label={selectAllLabel}
         />
@@ -304,7 +306,7 @@ export function CheckboxGroup({
             error={error}
             label={renderOption ? renderOption(option) : option.label}
             description={renderOption ? undefined : option.description}
-            checkboxVariant={checkboxVariant}
+            useChoiceCard={useChoiceCard}
           />
         );
       })}
@@ -333,7 +335,7 @@ export function CheckboxGroup({
           )}
         </div>
       )}
-    </div>
+    </fieldset>
   );
 }
 

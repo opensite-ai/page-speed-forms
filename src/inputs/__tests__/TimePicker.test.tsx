@@ -1,7 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { TimePicker } from "../TimePicker";
+
+function getTimeInput(container: HTMLElement): HTMLInputElement {
+  const input = container.querySelector('input[type="time"]');
+  if (!input) {
+    throw new Error("Expected time input to be rendered");
+  }
+  return input as HTMLInputElement;
+}
 
 describe("TimePicker", () => {
   beforeEach(() => {
@@ -10,85 +18,71 @@ describe("TimePicker", () => {
 
   describe("Basic Rendering", () => {
     it("should render with default props", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-        />
+      const { container } = render(
+        <TimePicker name="appointment" value="" onChange={() => {}} />,
       );
 
-      const input = screen.getByRole("textbox");
+      const input = getTimeInput(container);
       expect(input).toBeInTheDocument();
       expect(input).toHaveAttribute("placeholder", "Select time...");
     });
 
     it("should render with custom placeholder", () => {
-      render(
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
           placeholder="Pick a time"
-        />
+        />,
       );
 
-      expect(screen.getByPlaceholderText("Pick a time")).toBeInTheDocument();
+      expect(getTimeInput(container)).toHaveAttribute("placeholder", "Pick a time");
     });
 
-    it("should display formatted time when value is provided (12-hour)", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-        />
+    it("should normalize 12-hour value into native input value", () => {
+      const { container } = render(
+        <TimePicker name="appointment" value="2:30 PM" onChange={() => {}} />,
       );
 
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      expect(input.value).toBe("2:30 PM");
+      expect(getTimeInput(container)).toHaveValue("14:30");
     });
 
-    it("should display formatted time when value is provided (24-hour)", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value="14:30"
-          onChange={() => {}}
-          use24Hour
-        />
+    it("should normalize 24-hour value into padded native value", () => {
+      const { container } = render(
+        <TimePicker name="appointment" value="4:05" onChange={() => {}} />,
       );
 
-      const input = screen.getByRole("textbox") as HTMLInputElement;
-      expect(input.value).toBe("14:30");
+      expect(getTimeInput(container)).toHaveValue("04:05");
+    });
+
+    it("should render empty value when provided value is invalid", () => {
+      const { container } = render(
+        <TimePicker name="appointment" value="not-a-time" onChange={() => {}} />,
+      );
+
+      expect(getTimeInput(container)).toHaveValue("");
     });
 
     it("should render clock icon when showIcon is true", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          showIcon
-        />
+      const { container } = render(
+        <TimePicker name="appointment" value="" onChange={() => {}} showIcon />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
-      expect(icon).toBeInTheDocument();
+      expect(container.querySelector("svg")).toBeInTheDocument();
     });
 
     it("should not render clock icon when showIcon is false", () => {
-      render(
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
           showIcon={false}
-        />
+        />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
-      expect(icon).not.toBeInTheDocument();
+      expect(container.querySelector("svg")).not.toBeInTheDocument();
     });
 
     it("should render clear button when value is present and clearable is true", () => {
@@ -98,10 +92,12 @@ describe("TimePicker", () => {
           value="2:30 PM"
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: "Clear time" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Clear time" }),
+      ).toBeInTheDocument();
     });
 
     it("should not render clear button when value is empty", () => {
@@ -111,682 +107,206 @@ describe("TimePicker", () => {
           value=""
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear time" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear time" }),
+      ).not.toBeInTheDocument();
     });
 
-    it("should not render clear button when clearable is false", () => {
+    it("should not render clear button when disabled", () => {
       render(
         <TimePicker
           name="appointment"
           value="2:30 PM"
           onChange={() => {}}
-          clearable={false}
-        />
+          clearable
+          disabled
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear time" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear time" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render hidden input for form submission", () => {
       const { container } = render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-        />
+        <TimePicker name="appointment" value="2:30 PM" onChange={() => {}} />,
       );
 
-      const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[type="hidden"]',
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeInTheDocument();
       expect(hiddenInput).toHaveAttribute("name", "appointment");
       expect(hiddenInput.value).toBe("2:30 PM");
     });
   });
 
-  describe("Time Picker Popup", () => {
-    it("should open time picker when input is clicked", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-        />
+  describe("User Interaction", () => {
+    it("should call onChange with 12-hour formatted value by default", () => {
+      const onChange = vi.fn();
+      const { container } = render(
+        <TimePicker name="appointment" value="" onChange={onChange} />,
       );
 
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        expect(screen.getByText("Hour")).toBeInTheDocument();
-        expect(screen.getByText("Minute")).toBeInTheDocument();
-      });
+      fireEvent.change(getTimeInput(container), { target: { value: "14:30" } });
+      expect(onChange).toHaveBeenCalledWith("2:30 PM");
     });
 
-    it("should display Period column in 12-hour mode", async () => {
-      const user = userEvent.setup();
-
-      render(
+    it("should call onChange with 24-hour formatted value when use24Hour is true", () => {
+      const onChange = vi.fn();
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
-          onChange={() => {}}
-          use24Hour={false}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        expect(screen.getByText("Period")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "AM" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "PM" })).toBeInTheDocument();
-      });
-    });
-
-    it("should not display Period column in 24-hour mode", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
+          onChange={onChange}
           use24Hour
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        expect(screen.queryByText("Period")).not.toBeInTheDocument();
-        expect(screen.queryByRole("button", { name: "AM" })).not.toBeInTheDocument();
-        expect(screen.queryByRole("button", { name: "PM" })).not.toBeInTheDocument();
-      });
+      fireEvent.change(getTimeInput(container), { target: { value: "14:30" } });
+      expect(onChange).toHaveBeenCalledWith("14:30");
     });
 
-    it("should display hours 1-12 in 12-hour mode", async () => {
+    it("should clear value when clear button is clicked", async () => {
       const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          use24Hour={false}
-        />
+      const onChange = vi.fn();
+      const { container } = render(
+        <TimePicker name="appointment" value="2:30 PM" onChange={onChange} />,
       );
 
-      await user.click(screen.getByRole("textbox"));
+      const input = getTimeInput(container);
+      await user.click(screen.getByRole("button", { name: "Clear time" }));
 
-      await waitFor(() => {
-        const dropdown = screen.getByText("Hour").parentElement;
-        expect(dropdown).toBeInTheDocument();
-
-        for (let i = 1; i <= 12; i++) {
-          const hourButton = within(dropdown!).getByRole("button", {
-            name: `${String(i).padStart(2, "0")} hours`
-          });
-          expect(hourButton).toBeInTheDocument();
-        }
-      });
+      expect(onChange).toHaveBeenCalledWith("");
+      expect(input).toHaveFocus();
     });
 
-    it("should display hours 0-23 in 24-hour mode", async () => {
+    it("should call onBlur when input loses focus", async () => {
       const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          use24Hour
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const dropdown = screen.getByText("Hour").parentElement;
-        expect(dropdown).toBeInTheDocument();
-
-        for (let i = 0; i <= 23; i++) {
-          const hourButton = within(dropdown!).getByRole("button", {
-            name: `${String(i).padStart(2, "0")} hours`
-          });
-          expect(hourButton).toBeInTheDocument();
-        }
-      });
-    });
-
-    it("should respect minuteStep prop", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          minuteStep={15}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const dropdown = screen.getByText("Minute").parentElement;
-        expect(dropdown).toBeInTheDocument();
-
-        // Should show 00, 15, 30, 45
-        expect(within(dropdown!).getByRole("button", { name: "00 minutes" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "15 minutes" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "30 minutes" })).toBeInTheDocument();
-        expect(within(dropdown!).getByRole("button", { name: "45 minutes" })).toBeInTheDocument();
-
-        // Should not show other minutes
-        expect(within(dropdown!).queryByRole("button", { name: "05 minutes" })).not.toBeInTheDocument();
-        expect(within(dropdown!).queryByRole("button", { name: "10 minutes" })).not.toBeInTheDocument();
-      });
-    });
-
-    it("should close picker when clicking outside", async () => {
-      const user = userEvent.setup();
-
-      render(
+      const onBlur = vi.fn();
+      const { container } = render(
         <div>
           <TimePicker
             name="appointment"
             value=""
             onChange={() => {}}
+            onBlur={onBlur}
           />
-          <button>Outside</button>
-        </div>
+          <button type="button">Outside</button>
+        </div>,
       );
 
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
+      await user.click(getTimeInput(container));
       await user.click(screen.getByRole("button", { name: "Outside" }));
 
-      await waitFor(() => {
-        expect(screen.queryByText("Hour")).not.toBeInTheDocument();
-      });
-    });
-
-    it("should highlight selected hour", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const hourButton = screen.getByRole("button", { name: "02 hours" });
-        expect(hourButton).toHaveClass("bg-primary");
-        expect(hourButton).toHaveClass("text-primary-foreground");
-      });
-    });
-
-    it("should highlight selected minute", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const minuteButton = screen.getByRole("button", { name: "30 minutes" });
-        expect(minuteButton).toHaveClass("bg-primary");
-        expect(minuteButton).toHaveClass("text-primary-foreground");
-      });
-    });
-
-    it("should highlight selected period", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const pmButton = screen.getByRole("button", { name: "PM" });
-        expect(pmButton).toHaveClass("bg-muted");
-        expect(pmButton).toHaveClass("font-semibold");
-      });
+      expect(onBlur).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("Time Selection", () => {
-    it("should call onChange when hour is selected", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={onChange}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "02 hours" }));
-
-      expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange.mock.calls[0][0]).toMatch(/2:00 (AM|PM)/);
-    });
-
-    it("should call onChange when minute is selected", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:00 PM"
-          onChange={onChange}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Minute")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "30 minutes" }));
-
-      expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange.mock.calls[0][0]).toBe("2:30 PM");
-    });
-
-    it("should call onChange when period is selected", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 AM"
-          onChange={onChange}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Period")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "PM" }));
-
-      expect(onChange).toHaveBeenCalledTimes(1);
-      expect(onChange.mock.calls[0][0]).toBe("2:30 PM");
-    });
-
-    it("should keep picker open after selection", async () => {
-      const user = userEvent.setup();
-
-      render(
+  describe("Attributes and Styling", () => {
+    it("should apply minuteStep as step in seconds", () => {
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
-        />
+          minuteStep={15}
+        />,
       );
 
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "02 hours" }));
-
-      // Picker should remain open
-      expect(screen.getByText("Hour")).toBeInTheDocument();
+      expect(getTimeInput(container)).toHaveAttribute("step", "900");
     });
 
-    it("should format time correctly in 24-hour mode", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
+    it("should clamp step to at least 1 second", () => {
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
-          onChange={onChange}
-          use24Hour
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "14 hours" }));
-      await user.click(screen.getByRole("button", { name: "30 minutes" }));
-
-      // Should be called twice (once for hour, once for minute)
-      expect(onChange).toHaveBeenCalledTimes(2);
-      expect(onChange.mock.calls[1][0]).toBe("14:30");
-    });
-
-    it("should handle midnight in 12-hour mode", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={onChange}
-          use24Hour={false}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "12 hours" }));
-      await user.click(screen.getByRole("button", { name: "00 minutes" }));
-      await user.click(screen.getByRole("button", { name: "AM" }));
-
-      expect(onChange.mock.calls[2][0]).toBe("12:00 AM");
-    });
-
-    it("should handle noon in 12-hour mode", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={onChange}
-          use24Hour={false}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("Hour")).toBeInTheDocument());
-
-      await user.click(screen.getByRole("button", { name: "12 hours" }));
-      await user.click(screen.getByRole("button", { name: "00 minutes" }));
-      await user.click(screen.getByRole("button", { name: "PM" }));
-
-      expect(onChange.mock.calls[2][0]).toBe("12:00 PM");
-    });
-  });
-
-  describe("Clear Functionality", () => {
-    it("should clear time when clear button is clicked", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={onChange}
-          clearable
-        />
-      );
-
-      await user.click(screen.getByRole("button", { name: "Clear time" }));
-
-      expect(onChange).toHaveBeenCalledWith("");
-    });
-
-    it("should not open picker when clear button is clicked", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
           onChange={() => {}}
-          clearable
-        />
+          minuteStep={0}
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: "Clear time" }));
-
-      expect(screen.queryByText("Hour")).not.toBeInTheDocument();
+      expect(getTimeInput(container)).toHaveAttribute("step", "1");
     });
 
-    it("should focus input after clearing", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-          clearable
-        />
-      );
-
-      const input = screen.getByRole("textbox");
-      await user.click(screen.getByRole("button", { name: "Clear time" }));
-
-      expect(input).toHaveFocus();
-    });
-  });
-
-  describe("Disabled State", () => {
-    it("should not open picker when disabled", async () => {
-      const user = userEvent.setup();
-
-      render(
+    it("should support disabled and required attributes", () => {
+      const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
           disabled
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      expect(screen.queryByText("Hour")).not.toBeInTheDocument();
-    });
-
-    it("should disable input when disabled prop is true", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
-      );
-
-      expect(screen.getByRole("textbox")).toBeDisabled();
-    });
-
-    it("should not show clear button when disabled", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value="2:30 PM"
-          onChange={() => {}}
-          disabled
-          clearable
-        />
-      );
-
-      expect(screen.queryByRole("button", { name: "Clear time" })).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Accessibility", () => {
-    it("should have correct ARIA attributes", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-        />
-      );
-
-      const input = screen.getByRole("textbox");
-      expect(input).toHaveAttribute("aria-invalid", "false");
-    });
-
-    it("should have aria-invalid when error is true", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          error
-        />
-      );
-
-      const input = screen.getByRole("textbox");
-      expect(input).toHaveAttribute("aria-invalid", "true");
-    });
-
-    it("should have aria-required when required is true", () => {
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
           required
-        />
+        />,
       );
 
-      const input = screen.getByRole("textbox");
-      expect(input).toHaveAttribute("aria-required", "true");
+      const input = getTimeInput(container);
+      expect(input).toBeDisabled();
+      expect(input).toBeRequired();
     });
 
-    it("should have aria-describedby when provided", () => {
-      render(
+    it("should apply ring style when a value is present", () => {
+      const { container } = render(
+        <TimePicker name="appointment" value="2:30 PM" onChange={() => {}} />,
+      );
+
+      expect(getTimeInput(container)).toHaveClass("ring-2", "ring-ring");
+    });
+
+    it("should not apply ring style when no value is present", () => {
+      const { container } = render(
+        <TimePicker name="appointment" value="" onChange={() => {}} />,
+      );
+
+      expect(getTimeInput(container)).not.toHaveClass("ring-2");
+    });
+
+    it("should apply error classes when error is true", () => {
+      const { container } = render(
         <TimePicker
           name="appointment"
-          value=""
+          value="2:30 PM"
           onChange={() => {}}
-          aria-describedby="appointment-help"
-        />
+          error
+        />,
       );
 
-      const input = screen.getByRole("textbox");
-      expect(input).toHaveAttribute("aria-describedby", "appointment-help");
-    });
-
-    it("should have aria-label on zoom slider", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-        />
+      expect(getTimeInput(container)).toHaveClass(
+        "border-destructive",
+        "ring-1",
+        "ring-destructive",
       );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        const clearButton = screen.queryByRole("button", { name: "Clear time" });
-        if (clearButton) {
-          expect(clearButton).toHaveAttribute("aria-label", "Clear time");
-        }
-      });
     });
-  });
 
-  describe("CSS Classes", () => {
-    it("should apply base class", () => {
+    it("should support custom wrapper className", () => {
       const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
-        />
+          className="custom-wrapper"
+        />,
       );
 
-      const wrapper = container.querySelector('[class*="relative"]');
-      expect(wrapper).toBeInTheDocument();
+      expect(container.firstElementChild).toHaveClass("custom-wrapper");
     });
 
-    it("should apply error class when error is true", () => {
+    it("should expose invalid aria state when error is true", () => {
       const { container } = render(
         <TimePicker
           name="appointment"
           value=""
           onChange={() => {}}
           error
-        />
+        />,
       );
 
-      const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("border-red-500");
-    });
-
-    it("should apply disabled class when disabled is true", () => {
-      const { container } = render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
-      );
-
-      const input = screen.getByRole("textbox");
-      expect(input).toBeDisabled();
-    });
-
-    it("should apply open class when picker is open", async () => {
-      const user = userEvent.setup();
-      const { container } = render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-        />
-      );
-
-      await user.click(screen.getByRole("textbox"));
-
-      await waitFor(() => {
-        expect(screen.getByText("Hour")).toBeInTheDocument();
-      });
-    });
-
-    it("should apply custom className", () => {
-      const { container } = render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          className="custom-timepicker"
-        />
-      );
-
-      expect(container.querySelector(".custom-timepicker")).toBeInTheDocument();
-    });
-  });
-
-  describe("Component Meta", () => {
-    it("should have correct displayName", () => {
-      expect(TimePicker.displayName).toBe("TimePicker");
+      expect(getTimeInput(container)).toHaveAttribute("aria-invalid", "true");
     });
   });
 });

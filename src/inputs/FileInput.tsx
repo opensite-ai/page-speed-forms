@@ -597,7 +597,7 @@ export function FileInput({
 
       {/* Drop zone */}
       <div
-        className={`flex min-h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-input bg-transparent p-6 transition-colors hover:bg-primary/50 hover:border-ring ${dragActive ? "bg-primary text-primary-foreground border-ring" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${error ? "border-red-500" : ""}`}
+        className={`flex min-h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-input bg-transparent p-6 transition-colors hover:bg-primary/50 hover:border-ring ${dragActive ? "bg-primary text-primary-foreground border-ring" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${error ? "border-destructive" : ""}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}

@@ -12,13 +12,7 @@ describe("RichTextEditor", () => {
 
   describe("Basic Rendering", () => {
     it("should render with default props", () => {
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={() => {}} />);
 
       const editor = screen.getByRole("textbox");
       expect(editor).toBeInTheDocument();
@@ -31,22 +25,21 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           placeholder="Type your content..."
-        />
+        />,
       );
 
       const editor = screen.getByRole("textbox");
-      expect(editor).toHaveAttribute("data-placeholder", "Type your content...");
+      expect(editor).toHaveAttribute(
+        "data-placeholder",
+        "Type your content...",
+      );
     });
 
     it("should display value when provided (WYSIWYG mode)", () => {
       const value = "<p>Hello World</p>";
 
       render(
-        <RichTextEditor
-          name="content"
-          value={value}
-          onChange={() => {}}
-        />
+        <RichTextEditor name="content" value={value} onChange={() => {}} />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -62,7 +55,7 @@ describe("RichTextEditor", () => {
           value={value}
           onChange={() => {}}
           mode="markdown"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
@@ -76,7 +69,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           showToolbar
-        />
+        />,
       );
 
       const toolbar = container.querySelector('[class*="border-b"]');
@@ -90,10 +83,12 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           showToolbar={false}
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Bold" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Bold" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render default toolbar buttons", () => {
@@ -103,16 +98,28 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           showToolbar
-        />
+        />,
       );
 
       expect(screen.getByRole("button", { name: "Bold" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Italic" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Underline" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Heading" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Bullet List" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Numbered List" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Insert Link" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Italic" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Underline" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Heading" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Bullet List" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Numbered List" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Insert Link" }),
+      ).toBeInTheDocument();
     });
 
     it("should render only specified toolbar buttons", () => {
@@ -123,13 +130,19 @@ describe("RichTextEditor", () => {
           onChange={() => {}}
           showToolbar
           toolbarButtons={["bold", "italic"]}
-        />
+        />,
       );
 
       expect(screen.getByRole("button", { name: "Bold" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Italic" })).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Underline" })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Heading" })).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Italic" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Underline" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Heading" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render mode toggle when allowModeSwitch is true", () => {
@@ -139,10 +152,12 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           allowModeSwitch
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: /Switch to/ })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Switch to/ }),
+      ).toBeInTheDocument();
     });
 
     it("should not render mode toggle when allowModeSwitch is false", () => {
@@ -152,23 +167,23 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           allowModeSwitch={false}
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: /Switch to/ })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Switch to/ }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render hidden input for form submission", () => {
       const value = "<p>Hello</p>";
       const { container } = render(
-        <RichTextEditor
-          name="content"
-          value={value}
-          onChange={() => {}}
-        />
+        <RichTextEditor name="content" value={value} onChange={() => {}} />,
       );
 
-      const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[type="hidden"]',
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeInTheDocument();
       expect(hiddenInput).toHaveAttribute("name", "content");
       expect(hiddenInput.value).toBe(value);
@@ -181,7 +196,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           minHeight="300px"
-        />
+        />,
       );
 
       // The style is applied to the inner wrapper div, not the outer container
@@ -197,7 +212,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           maxHeight="500px"
-        />
+        />,
       );
 
       // The style is applied to the inner wrapper div, not the outer container
@@ -210,13 +225,7 @@ describe("RichTextEditor", () => {
 
   describe("WYSIWYG Mode", () => {
     it("should be editable when not disabled", () => {
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={() => {}} />);
 
       const editor = screen.getByRole("textbox");
       expect(editor).toHaveAttribute("contenteditable", "true");
@@ -224,12 +233,7 @@ describe("RichTextEditor", () => {
 
     it("should not be editable when disabled", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} disabled />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -240,13 +244,7 @@ describe("RichTextEditor", () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       const editor = screen.getByRole("textbox");
       await user.click(editor);
@@ -264,13 +262,7 @@ describe("RichTextEditor", () => {
       // Mock document.execCommand
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Bold" }));
 
@@ -283,13 +275,7 @@ describe("RichTextEditor", () => {
 
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Italic" }));
 
@@ -302,17 +288,15 @@ describe("RichTextEditor", () => {
 
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Underline" }));
 
-      expect(execCommandSpy).toHaveBeenCalledWith("underline", false, undefined);
+      expect(execCommandSpy).toHaveBeenCalledWith(
+        "underline",
+        false,
+        undefined,
+      );
     });
 
     it("should execute heading command", async () => {
@@ -321,13 +305,7 @@ describe("RichTextEditor", () => {
 
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Heading" }));
 
@@ -340,17 +318,15 @@ describe("RichTextEditor", () => {
 
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Bullet List" }));
 
-      expect(execCommandSpy).toHaveBeenCalledWith("insertUnorderedList", false, undefined);
+      expect(execCommandSpy).toHaveBeenCalledWith(
+        "insertUnorderedList",
+        false,
+        undefined,
+      );
     });
 
     it("should execute ordered list command", async () => {
@@ -359,38 +335,36 @@ describe("RichTextEditor", () => {
 
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Numbered List" }));
 
-      expect(execCommandSpy).toHaveBeenCalledWith("insertOrderedList", false, undefined);
+      expect(execCommandSpy).toHaveBeenCalledWith(
+        "insertOrderedList",
+        false,
+        undefined,
+      );
     });
 
     it("should prompt for URL when inserting link", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
 
-      const promptSpy = vi.spyOn(window, "prompt").mockReturnValue("https://example.com");
+      const promptSpy = vi
+        .spyOn(window, "prompt")
+        .mockReturnValue("https://example.com");
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Insert Link" }));
 
       expect(promptSpy).toHaveBeenCalledWith("Enter URL:");
-      expect(execCommandSpy).toHaveBeenCalledWith("createLink", false, "https://example.com");
+      expect(execCommandSpy).toHaveBeenCalledWith(
+        "createLink",
+        false,
+        "https://example.com",
+      );
 
       promptSpy.mockRestore();
       execCommandSpy.mockRestore();
@@ -403,18 +377,16 @@ describe("RichTextEditor", () => {
       const promptSpy = vi.spyOn(window, "prompt").mockReturnValue(null);
       const execCommandSpy = vi.spyOn(document, "execCommand");
 
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={onChange}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={onChange} />);
 
       await user.click(screen.getByRole("button", { name: "Insert Link" }));
 
       expect(promptSpy).toHaveBeenCalled();
-      expect(execCommandSpy).not.toHaveBeenCalledWith("createLink", expect.anything(), expect.anything());
+      expect(execCommandSpy).not.toHaveBeenCalledWith(
+        "createLink",
+        expect.anything(),
+        expect.anything(),
+      );
 
       promptSpy.mockRestore();
       execCommandSpy.mockRestore();
@@ -422,12 +394,7 @@ describe("RichTextEditor", () => {
 
     it("should disable toolbar buttons when disabled", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} disabled />,
       );
 
       expect(screen.getByRole("button", { name: "Bold" })).toBeDisabled();
@@ -443,7 +410,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           mode="markdown"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -460,7 +427,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={onChange}
           mode="markdown"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -476,7 +443,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           mode="markdown"
-        />
+        />,
       );
 
       expect(screen.getByRole("button", { name: "Bold" })).toBeDisabled();
@@ -491,7 +458,7 @@ describe("RichTextEditor", () => {
           onChange={() => {}}
           mode="markdown"
           disabled
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
@@ -510,10 +477,12 @@ describe("RichTextEditor", () => {
           value="<p>Hello World</p>"
           onChange={onChange}
           allowModeSwitch
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: /Switch to Markdown/ }));
+      await user.click(
+        screen.getByRole("button", { name: /Switch to Markdown/ }),
+      );
 
       await waitFor(() => {
         const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
@@ -533,10 +502,12 @@ describe("RichTextEditor", () => {
           onChange={onChange}
           mode="markdown"
           allowModeSwitch
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: /Switch to WYSIWYG/ }));
+      await user.click(
+        screen.getByRole("button", { name: /Switch to WYSIWYG/ }),
+      );
 
       await waitFor(() => {
         const editor = screen.getByRole("textbox");
@@ -554,10 +525,12 @@ describe("RichTextEditor", () => {
           value="<strong>Bold</strong> and <em>italic</em>"
           onChange={onChange}
           allowModeSwitch
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: /Switch to Markdown/ }));
+      await user.click(
+        screen.getByRole("button", { name: /Switch to Markdown/ }),
+      );
 
       await waitFor(() => {
         expect(onChange).toHaveBeenCalled();
@@ -578,10 +551,12 @@ describe("RichTextEditor", () => {
           onChange={onChange}
           mode="markdown"
           allowModeSwitch
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: /Switch to WYSIWYG/ }));
+      await user.click(
+        screen.getByRole("button", { name: /Switch to WYSIWYG/ }),
+      );
 
       await waitFor(() => {
         expect(onChange).toHaveBeenCalled();
@@ -599,7 +574,7 @@ describe("RichTextEditor", () => {
           onChange={() => {}}
           allowModeSwitch
           disabled
-        />
+        />,
       );
 
       expect(screen.getByRole("button", { name: /Switch to/ })).toBeDisabled();
@@ -609,12 +584,7 @@ describe("RichTextEditor", () => {
   describe("Disabled State", () => {
     it("should disable editor when disabled prop is true", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} disabled />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -623,12 +593,7 @@ describe("RichTextEditor", () => {
 
     it("should disable all toolbar buttons when disabled", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} disabled />,
       );
 
       const buttons = screen.getAllByRole("button");
@@ -640,13 +605,7 @@ describe("RichTextEditor", () => {
 
   describe("Accessibility", () => {
     it("should have correct ARIA attributes", () => {
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={() => {}} />);
 
       const editor = screen.getByRole("textbox");
       expect(editor).toHaveAttribute("aria-invalid", "false");
@@ -654,12 +613,7 @@ describe("RichTextEditor", () => {
 
     it("should have aria-invalid when error is true", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          error
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} error />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -668,12 +622,7 @@ describe("RichTextEditor", () => {
 
     it("should have aria-required when required is true", () => {
       render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          required
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} required />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -687,7 +636,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           aria-describedby="content-help"
-        />
+        />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -695,27 +644,23 @@ describe("RichTextEditor", () => {
     });
 
     it("should have aria-label on toolbar buttons", () => {
-      render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-        />
-      );
+      render(<RichTextEditor name="content" value="" onChange={() => {}} />);
 
-      expect(screen.getByRole("button", { name: "Bold" })).toHaveAttribute("aria-label", "Bold");
-      expect(screen.getByRole("button", { name: "Italic" })).toHaveAttribute("aria-label", "Italic");
+      expect(screen.getByRole("button", { name: "Bold" })).toHaveAttribute(
+        "aria-label",
+        "Bold",
+      );
+      expect(screen.getByRole("button", { name: "Italic" })).toHaveAttribute(
+        "aria-label",
+        "Italic",
+      );
     });
   });
 
   describe("CSS Classes", () => {
     it("should apply base class", () => {
       const { container } = render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} />,
       );
 
       const wrapper = container.querySelector('[class*="rounded-md"]');
@@ -724,26 +669,16 @@ describe("RichTextEditor", () => {
 
     it("should apply error class when error is true", () => {
       const { container } = render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          error
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} error />,
       );
 
       const editorContainer = container.querySelector('[class*="rounded-md"]');
-      expect(editorContainer?.className).toContain("border-red-500");
+      expect(editorContainer?.className).toContain("border-destructive");
     });
 
     it("should apply disabled class when disabled is true", () => {
       const { container } = render(
-        <RichTextEditor
-          name="content"
-          value=""
-          onChange={() => {}}
-          disabled
-        />
+        <RichTextEditor name="content" value="" onChange={() => {}} disabled />,
       );
 
       const editorContainer = container.querySelector('[class*="rounded-md"]');
@@ -757,7 +692,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           mode="wysiwyg"
-        />
+        />,
       );
 
       const editor = screen.getByRole("textbox");
@@ -771,7 +706,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           mode="markdown"
-        />
+        />,
       );
 
       const textarea = screen.getByRole("textbox");
@@ -785,7 +720,7 @@ describe("RichTextEditor", () => {
           value=""
           onChange={() => {}}
           className="custom-editor"
-        />
+        />,
       );
 
       expect(container.querySelector(".custom-editor")).toBeInTheDocument();

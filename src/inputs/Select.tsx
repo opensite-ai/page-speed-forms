@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
 
 /**
  * Select option type
@@ -217,6 +219,8 @@ export function Select({
     return allOptions.find((opt) => opt.value === value);
   }, [allOptions, value]);
 
+  const hasValue = Boolean(value);
+
   // Handle option selection
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
@@ -339,33 +343,25 @@ export function Select({
   };
 
   // Handle blur
-  const handleBlur = () => {
-    onBlur?.();
+  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
+    const nextTarget = event?.relatedTarget as Node | null;
+    if (!nextTarget || !selectRef.current?.contains(nextTarget)) {
+      onBlur?.();
+    }
   };
 
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        setSearchQuery("");
-        setFocusedIndex(-1);
-        handleBlur();
-      }
-    };
+  const closeDropdown = React.useCallback(() => {
+    if (!isOpen) return;
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [isOpen]);
+    setIsOpen(false);
+    setSearchQuery("");
+    setFocusedIndex(-1);
+    onBlur?.();
+  }, [isOpen, onBlur]);
 
-  const combinedClassName = `relative w-full ${className}`.trim();
+  useOnClickOutside(selectRef, closeDropdown, "pointerdown", true);
+
+  const combinedClassName = cn("relative w-full", className);
 
   return (
     <div
@@ -395,7 +391,13 @@ export function Select({
 
       {/* Custom select trigger */}
       <div
-        className={`flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+        className={cn(
+          "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm",
+          "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+          !error && hasValue && "ring-2 ring-ring",
+          disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+          error && "border-destructive ring-1 ring-destructive",
+        )}
         onClick={handleToggle}
         role="combobox"
         aria-expanded={isOpen}
@@ -448,7 +450,10 @@ export function Select({
               <input
                 ref={searchInputRef}
                 type="text"
-                className="w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring"
+                className={cn(
+                  "w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring",
+                  INPUT_AUTOFILL_RESET_CLASSES,
+                )}
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearchChange}

@@ -15,7 +15,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -30,10 +30,12 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           placeholder="Pick date range"
-        />
+        />,
       );
 
-      expect(screen.getByPlaceholderText("Pick date range")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Pick date range"),
+      ).toBeInTheDocument();
     });
 
     it("should display formatted date range when values are provided", () => {
@@ -45,7 +47,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end }}
           onChange={() => {}}
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -60,7 +62,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -77,7 +79,7 @@ describe("DateRangePicker", () => {
           value={{ start, end }}
           onChange={() => {}}
           format="yyyy-MM-dd"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -94,7 +96,7 @@ describe("DateRangePicker", () => {
           value={{ start, end }}
           onChange={() => {}}
           separator=" to "
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -108,10 +110,12 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           showIcon
-        />
+        />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
+      const icon = screen
+        .getByRole("textbox")
+        .parentElement?.querySelector("svg");
       expect(icon).toBeInTheDocument();
     });
 
@@ -122,10 +126,12 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           showIcon={false}
-        />
+        />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
+      const icon = screen
+        .getByRole("textbox")
+        .parentElement?.querySelector("svg");
       expect(icon).not.toBeInTheDocument();
     });
 
@@ -139,10 +145,12 @@ describe("DateRangePicker", () => {
           value={{ start, end }}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: "Clear date range" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Clear date range" }),
+      ).toBeInTheDocument();
     });
 
     it("should render clear button when only start date is selected", () => {
@@ -154,10 +162,12 @@ describe("DateRangePicker", () => {
           value={{ start, end: null }}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: "Clear date range" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Clear date range" }),
+      ).toBeInTheDocument();
     });
 
     it("should not render clear button when no dates are selected", () => {
@@ -167,10 +177,12 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear date range" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear date range" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render hidden inputs for form submission", () => {
@@ -181,11 +193,15 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end }}
           onChange={() => {}}
-        />
+        />,
       );
 
-      const startInput = container.querySelector('input[name="daterange[start]"]') as HTMLInputElement;
-      const endInput = container.querySelector('input[name="daterange[end]"]') as HTMLInputElement;
+      const startInput = container.querySelector(
+        'input[name="daterange[start]"]',
+      ) as HTMLInputElement;
+      const endInput = container.querySelector(
+        'input[name="daterange[end]"]',
+      ) as HTMLInputElement;
 
       expect(startInput).toBeInTheDocument();
       expect(endInput).toBeInTheDocument();
@@ -203,7 +219,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -221,15 +237,25 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
       const now = new Date();
       const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
       ];
       const expectedMonth = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
@@ -247,7 +273,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -268,7 +294,7 @@ describe("DateRangePicker", () => {
             onChange={() => {}}
           />
           <button>Outside</button>
-        </div>
+        </div>,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -289,11 +315,13 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: new Date(2024, 5, 15), end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("June 2024")).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByText("June 2024")).toBeInTheDocument(),
+      );
 
       await user.click(screen.getByRole("button", { name: "Previous month" }));
 
@@ -310,11 +338,13 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: new Date(2024, 5, 15), end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("June 2024")).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByText("June 2024")).toBeInTheDocument(),
+      );
 
       await user.click(screen.getByRole("button", { name: "Next month" }));
 
@@ -331,7 +361,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -357,14 +387,15 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
         const startButton = screen.getByRole("button", { name: "06/15/2024" });
-        expect(startButton).toHaveClass("bg-muted");
+        expect(startButton).toHaveClass("bg-primary");
+        expect(startButton).toHaveClass("text-primary-foreground");
         expect(startButton).toHaveClass("font-semibold");
       });
     });
@@ -379,14 +410,15 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
         const endButton = screen.getByRole("button", { name: "06/20/2024" });
-        expect(endButton).toHaveClass("bg-muted");
+        expect(endButton).toHaveClass("bg-primary");
+        expect(endButton).toHaveClass("text-primary-foreground");
         expect(endButton).toHaveClass("font-semibold");
       });
     });
@@ -401,14 +433,16 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const inRangeButton = screen.getByRole("button", { name: "06/17/2024" });
-        expect(inRangeButton).toHaveClass("bg-muted/70");
+        const inRangeButton = screen.getByRole("button", {
+          name: "06/17/2024",
+        });
+        expect(inRangeButton).toHaveClass("bg-muted");
       });
     });
 
@@ -421,7 +455,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -442,14 +476,16 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={onChange}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
       const calendar = await screen.findByRole("grid");
       const dateButtons = within(calendar).getAllByRole("button");
-      const june15 = dateButtons.find((btn) => btn.getAttribute("aria-label") === "06/15/2024");
+      const june15 = dateButtons.find(
+        (btn) => btn.getAttribute("aria-label") === "06/15/2024",
+      );
 
       if (june15) {
         await user.click(june15);
@@ -471,7 +507,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={onChange}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -500,7 +536,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={onChange}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -510,7 +546,7 @@ describe("DateRangePicker", () => {
 
       expect(onChange).toHaveBeenCalledWith({
         start: expect.any(Date), // Should be June 15 now
-        end: expect.any(Date),   // Should be June 20 now
+        end: expect.any(Date), // Should be June 20 now
       });
 
       const call = onChange.mock.calls[0][0] as DateRange;
@@ -529,7 +565,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end }}
           onChange={onChange}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -557,7 +593,7 @@ describe("DateRangePicker", () => {
           value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           disabledDates={[disabledDate]}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -583,7 +619,7 @@ describe("DateRangePicker", () => {
           value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           minDate={minDate}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -591,7 +627,9 @@ describe("DateRangePicker", () => {
       // Calendar opens on June 2024 because value.start is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
-      const beforeMinButton = screen.getByRole("button", { name: "06/10/2024" });
+      const beforeMinButton = screen.getByRole("button", {
+        name: "06/10/2024",
+      });
       expect(beforeMinButton).toBeDisabled();
     });
 
@@ -606,7 +644,7 @@ describe("DateRangePicker", () => {
           value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           maxDate={maxDate}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -621,7 +659,8 @@ describe("DateRangePicker", () => {
     it("should use custom isDateDisabled function", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const isDateDisabled = (date: Date) => date.getDay() === 0 || date.getDay() === 6;
+      const isDateDisabled = (date: Date) =>
+        date.getDay() === 0 || date.getDay() === 6;
 
       render(
         <DateRangePicker
@@ -629,7 +668,7 @@ describe("DateRangePicker", () => {
           value={{ start: new Date(2024, 5, 15), end: null }}
           onChange={onChange}
           isDateDisabled={isDateDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -654,7 +693,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -665,7 +704,7 @@ describe("DateRangePicker", () => {
 
       // Dates between start and hover should have in-range class
       const june17 = screen.getByRole("button", { name: "06/17/2024" });
-      expect(june17).toHaveClass("bg-muted/70");
+      expect(june17).toHaveClass("bg-muted");
     });
   });
 
@@ -682,10 +721,12 @@ describe("DateRangePicker", () => {
           value={{ start, end }}
           onChange={onChange}
           clearable
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: "Clear date range" }));
+      await user.click(
+        screen.getByRole("button", { name: "Clear date range" }),
+      );
 
       expect(onChange).toHaveBeenCalledWith({ start: null, end: null });
     });
@@ -701,10 +742,12 @@ describe("DateRangePicker", () => {
           value={{ start, end }}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      await user.click(screen.getByRole("button", { name: "Clear date range" }));
+      await user.click(
+        screen.getByRole("button", { name: "Clear date range" }),
+      );
 
       expect(screen.queryByRole("grid")).not.toBeInTheDocument();
     });
@@ -720,7 +763,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -735,7 +778,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toBeDisabled();
@@ -752,10 +795,12 @@ describe("DateRangePicker", () => {
           onChange={() => {}}
           disabled
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear date range" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear date range" }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -766,7 +811,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -780,7 +825,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           error
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -794,7 +839,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           required
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -808,7 +853,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           aria-describedby="daterange-help"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -823,13 +868,17 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
 
-      expect(screen.getByRole("button", { name: "Previous month" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Next month" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Previous month" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Next month" }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -840,7 +889,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       const wrapper = container.querySelector('[class*="relative"]');
@@ -854,11 +903,11 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           error
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("border-red-500");
+      expect(input).toHaveClass("border-destructive");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -868,7 +917,7 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -882,7 +931,7 @@ describe("DateRangePicker", () => {
           name="daterange"
           value={{ start: null, end: null }}
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -899,10 +948,12 @@ describe("DateRangePicker", () => {
           value={{ start: null, end: null }}
           onChange={() => {}}
           className="custom-daterangepicker"
-        />
+        />,
       );
 
-      expect(container.querySelector(".custom-daterangepicker")).toBeInTheDocument();
+      expect(
+        container.querySelector(".custom-daterangepicker"),
+      ).toBeInTheDocument();
     });
   });
 

@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useField } from "./useField";
 import type { FieldProps } from "./types";
+import { FieldFeedback } from "./field-feedback";
+import { LabelGroup } from "./label-group";
 
 /**
  * Field - Field wrapper component with label, description, and error display
@@ -46,31 +48,23 @@ export function Field({
   const fieldState = useField({ name, validate });
   const { meta } = fieldState;
 
-  const hasError = meta.touched && meta.error;
+  const hasError = React.useMemo(() => {
+    return showError && meta.touched && meta.error ? true : false;
+  }, [meta?.touched, meta?.error, showError]);
+
   const errorId = `${name}-error`;
   const descriptionId = `${name}-description`;
 
   return (
     <div className={className} data-field={name}>
-      {/* Label */}
-      {label && (
-        <label htmlFor={name} className="block text-sm font-medium mb-2">
-          {label}
-          {required && (
-            <span className="text-red-500 ml-0.5" aria-label="required">
-              {" "}
-              *
-            </span>
-          )}
-        </label>
-      )}
-
-      {/* Description */}
-      {description && (
-        <div id={descriptionId} className="text-sm mb-2">
-          {description}
-        </div>
-      )}
+      <LabelGroup
+        labelHtmlFor={name}
+        required={required}
+        variant="label"
+        secondaryId={descriptionId}
+        secondary={description}
+        primary={label}
+      />
 
       {/* Field content (render prop or direct children) */}
       <div>
@@ -78,16 +72,12 @@ export function Field({
       </div>
 
       {/* Error message */}
-      {showError && hasError && (
-        <div
-          id={errorId}
-          className={errorClassName || "text-sm font-medium text-red-500 mt-2"}
-          role="alert"
-          aria-live="polite"
-        >
-          {Array.isArray(meta.error) ? meta.error.join(", ") : meta.error}
-        </div>
-      )}
+      <FieldFeedback
+        errorId={errorId}
+        errorClassName={errorClassName}
+        shouldRenderError={hasError}
+        error={meta.error}
+      />
     </div>
   );
 }

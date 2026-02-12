@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { LabelGroup } from "../core/label-group";
 import { cn } from "../utils";
 
 /**
@@ -35,8 +36,10 @@ export interface CheckboxProps extends Omit<
 
   /**
    * Layout variant
+   * Utilized if any checkboxes have a description
+   * @default false
    */
-  checkboxVariant?: "boxed" | "inline";
+  useChoiceCard?: boolean;
 
   /**
    * Additional native input attributes
@@ -98,7 +101,7 @@ export function Checkbox({
   indeterminate = false,
   label,
   description,
-  checkboxVariant = "boxed",
+  useChoiceCard = false,
   ...props
 }: CheckboxProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -149,9 +152,13 @@ export function Checkbox({
       <div
         className={cn(
           "flex shrink-0 items-center justify-center rounded-full border-2 transition-colors size-6",
-          !error && isActive && "border-primary bg-primary text-primary-foreground",
+          !error &&
+            isActive &&
+            "border-primary bg-primary text-primary-foreground",
           !error && !isActive && "border-input bg-transparent",
-          error && isActive && "border-destructive bg-destructive text-destructive-foreground",
+          error &&
+            isActive &&
+            "border-destructive bg-destructive text-destructive-foreground",
           error && !isActive && "border-destructive bg-transparent",
           disabled && "opacity-50",
           "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-1",
@@ -192,8 +199,8 @@ export function Checkbox({
       <label
         className={cn(
           "w-full h-full flex gap-3 p-3 duration-200",
-          checkboxVariant === "boxed" && "border rounded-lg hover:ring-2",
-          checkboxVariant === "boxed" && value && "ring-2",
+          useChoiceCard && "border rounded-lg hover:ring-2",
+          useChoiceCard && value && "ring-2",
           disabled
             ? "opacity-50 cursor-not-allowed hover:ring-0"
             : "cursor-pointer",
@@ -201,19 +208,21 @@ export function Checkbox({
         )}
         htmlFor={checkboxId}
       >
-        <div className="flex w-full flex-row gap-2">
+        <div
+          className={cn(
+            "flex w-full flex-row gap-2",
+            useChoiceCard ? "items-start" : "items-center",
+          )}
+        >
           {checkbox}
-          <div className="flex flex-col gap-0.5">
-            <div className="text-sm font-medium">{label}</div>
-            {description && (
-              <p
-                className="text-xs opacity-75"
-                id={`${checkboxId}-description`}
-              >
-                {description}
-              </p>
-            )}
-          </div>
+          <LabelGroup
+            variant="text"
+            primary={label}
+            secondary={description}
+            secondaryId={description ? `${checkboxId}-description` : undefined}
+            primaryClassName="mb-0"
+            secondaryClassName="text-xs opacity-75"
+          />
         </div>
       </label>
     );

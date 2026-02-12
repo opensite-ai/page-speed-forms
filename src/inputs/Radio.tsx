@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { LabelGroup } from "../core/label-group";
 import { cn } from "../utils";
 
 /**
@@ -50,12 +51,17 @@ export interface RadioProps extends Omit<
    * Layout direction
    * @default "stacked"
    */
-  layout?: "inline" | "stacked";
+  layout?: "stacked" | "grid" | "inline";
 
   /**
    * Group-level label
    */
   label?: React.ReactNode;
+
+  /**
+   * Group-level description
+   */
+  description?: React.ReactNode;
 
   /**
    * Additional native input attributes
@@ -74,7 +80,7 @@ export interface RadioProps extends Omit<
  * - Error state styling
  * - Controlled input behavior
  * - Keyboard navigation (arrow keys)
- * - Inline or stacked layout
+ * - Grid or stacked layout
  * - Optional descriptions for each option (with nil guard)
  * - Individual option disabled state
  * - Card-based styling with proper visual hierarchy
@@ -99,12 +105,12 @@ export interface RadioProps extends Omit<
  *
  * @example
  * ```tsx
- * // Inline layout
+ * // Grid layout
  * <Radio
  *   name="size"
  *   value={size}
  *   onChange={handleSizeChange}
- *   layout="inline"
+ *   layout="grid"
  *   options={[
  *     { value: 'sm', label: 'Small' },
  *     { value: 'md', label: 'Medium' },
@@ -126,6 +132,7 @@ export function Radio({
   className = "",
   layout = "stacked",
   label,
+  description,
   options,
   ...props
 }: RadioProps) {
@@ -182,22 +189,32 @@ export function Radio({
 
   const containerClass = React.useMemo(() => {
     return cn(
-      "w-full gap-3 grid grid-cols-1",
-      layout === "inline" && "md:grid-cols-2",
+      "w-full gap-3 grid grid-cols-1 border-0 m-0 p-0 min-w-0",
+      (layout === "grid" || layout === "inline") && "md:grid-cols-2",
       className,
     );
   }, [layout, className]);
 
+  const groupDescriptionId = description ? `${name}-description` : undefined;
+  const groupAriaDescribedBy =
+    [props["aria-describedby"], groupDescriptionId].filter(Boolean).join(" ") ||
+    undefined;
+
   return (
-    <div
+    <fieldset
       className={containerClass}
       role="radiogroup"
       aria-invalid={error || props["aria-invalid"]}
-      aria-describedby={props["aria-describedby"]}
+      aria-describedby={groupAriaDescribedBy}
       aria-required={required || props["aria-required"]}
       aria-label={typeof label === "string" ? label : props["aria-label"]}
     >
-      {label && <div className="text-sm font-medium mb-2">{label}</div>}
+      <LabelGroup
+        variant="legend"
+        primary={label}
+        secondary={description}
+        secondaryId={groupDescriptionId}
+      />
       {options.map((option, index) => {
         const isChecked = value === option.value;
         const isDisabled = disabled || option.disabled;
@@ -242,14 +259,14 @@ export function Radio({
         );
 
         const labelContent = (
-          <div className="flex flex-col gap-0.5">
-            <div className="text-sm font-medium">{option.label}</div>
-            {hasDescription && (
-              <p className="text-xs opacity-75" id={`${radioId}-description`}>
-                {option.description}
-              </p>
-            )}
-          </div>
+          <LabelGroup
+            variant="text"
+            primary={option.label}
+            secondary={hasDescription ? option.description : undefined}
+            secondaryId={hasDescription ? `${radioId}-description` : undefined}
+            primaryClassName="mb-0"
+            secondaryClassName="text-xs opacity-75"
+          />
         );
 
         return (
@@ -267,7 +284,12 @@ export function Radio({
             onKeyDown={(e) => handleKeyDown(e, index)}
             tabIndex={isDisabled ? -1 : 0}
           >
-            <div className="flex w-full flex-row items-center gap-2">
+            <div
+              className={cn(
+                "flex w-full flex-row gap-2",
+                useChoiceCard ? "items-start" : "items-center",
+              )}
+            >
               {!useChoiceCard && radioIndicator}
               <div className="flex flex-1 flex-col gap-0.5">{labelContent}</div>
               {useChoiceCard && radioIndicator}
@@ -275,7 +297,7 @@ export function Radio({
           </label>
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

@@ -10,13 +10,7 @@ describe("DatePicker", () => {
 
   describe("Basic Rendering", () => {
     it("should render with default props", () => {
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       const input = screen.getByRole("textbox");
       expect(input).toBeInTheDocument();
@@ -30,7 +24,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           placeholder="Pick a date"
-        />
+        />,
       );
 
       expect(screen.getByPlaceholderText("Pick a date")).toBeInTheDocument();
@@ -39,13 +33,7 @@ describe("DatePicker", () => {
     it("should display formatted date when value is provided", () => {
       const date = new Date(2024, 0, 15); // January 15, 2024
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={date}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={date} onChange={() => {}} />);
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
       expect(input.value).toBe("01/15/2024");
@@ -60,7 +48,7 @@ describe("DatePicker", () => {
           value={date}
           onChange={() => {}}
           format="yyyy-MM-dd"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -74,10 +62,12 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           showIcon
-        />
+        />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
+      const icon = screen
+        .getByRole("textbox")
+        .parentElement?.querySelector("svg");
       expect(icon).toBeInTheDocument();
     });
 
@@ -88,10 +78,12 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           showIcon={false}
-        />
+        />,
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
+      const icon = screen
+        .getByRole("textbox")
+        .parentElement?.querySelector("svg");
       expect(icon).not.toBeInTheDocument();
     });
 
@@ -104,10 +96,12 @@ describe("DatePicker", () => {
           value={date}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.getByRole("button", { name: "Clear date" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Clear date" }),
+      ).toBeInTheDocument();
     });
 
     it("should not render clear button when value is null", () => {
@@ -117,10 +111,12 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear date" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear date" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should not render clear button when clearable is false", () => {
@@ -132,23 +128,23 @@ describe("DatePicker", () => {
           value={date}
           onChange={() => {}}
           clearable={false}
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear date" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear date" }),
+      ).not.toBeInTheDocument();
     });
 
     it("should render hidden input for form submission", () => {
       const date = new Date(2024, 0, 15);
       const { container } = render(
-        <DatePicker
-          name="birthdate"
-          value={date}
-          onChange={() => {}}
-        />
+        <DatePicker name="birthdate" value={date} onChange={() => {}} />,
       );
 
-      const hiddenInput = container.querySelector('input[type="hidden"]') as HTMLInputElement;
+      const hiddenInput = container.querySelector(
+        'input[type="hidden"]',
+      ) as HTMLInputElement;
       expect(hiddenInput).toBeInTheDocument();
       expect(hiddenInput).toHaveAttribute("name", "birthdate");
       expect(hiddenInput.value).toBe(date.toISOString());
@@ -159,13 +155,7 @@ describe("DatePicker", () => {
     it("should open calendar when input is clicked", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
@@ -177,20 +167,24 @@ describe("DatePicker", () => {
     it("should display current month by default", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
       const now = new Date();
       const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
       ];
       const expectedMonth = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
@@ -203,13 +197,7 @@ describe("DatePicker", () => {
       const user = userEvent.setup();
       const date = new Date(2024, 5, 15); // June 15, 2024
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={date}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={date} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
@@ -223,13 +211,9 @@ describe("DatePicker", () => {
 
       render(
         <div>
-          <DatePicker
-            name="birthdate"
-            value={null}
-            onChange={() => {}}
-          />
+          <DatePicker name="birthdate" value={null} onChange={() => {}} />
           <button>Outside</button>
-        </div>
+        </div>,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -250,11 +234,13 @@ describe("DatePicker", () => {
           name="birthdate"
           value={new Date(2024, 5, 15)} // June 2024
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("June 2024")).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByText("June 2024")).toBeInTheDocument(),
+      );
 
       await user.click(screen.getByRole("button", { name: "Previous month" }));
 
@@ -271,11 +257,13 @@ describe("DatePicker", () => {
           name="birthdate"
           value={new Date(2024, 5, 15)} // June 2024
           onChange={() => {}}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
-      await waitFor(() => expect(screen.getByText("June 2024")).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByText("June 2024")).toBeInTheDocument(),
+      );
 
       await user.click(screen.getByRole("button", { name: "Next month" }));
 
@@ -287,13 +275,7 @@ describe("DatePicker", () => {
     it("should highlight today's date", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
@@ -313,18 +295,14 @@ describe("DatePicker", () => {
       const user = userEvent.setup();
       const date = new Date(2024, 5, 15); // June 15, 2024
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={date}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={date} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const selectedButton = screen.getByRole("button", { name: "06/15/2024" });
+        const selectedButton = screen.getByRole("button", {
+          name: "06/15/2024",
+        });
         expect(selectedButton).toHaveClass("bg-primary");
         expect(selectedButton).toHaveClass("text-primary-foreground");
       });
@@ -336,20 +314,14 @@ describe("DatePicker", () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={onChange}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={onChange} />);
 
       await user.click(screen.getByRole("textbox"));
 
       const calendar = await screen.findByRole("grid");
       const dateButtons = within(calendar).getAllByRole("button");
-      const firstDate = dateButtons.find((btn) =>
-        btn.textContent && /^\d+$/.test(btn.textContent)
+      const firstDate = dateButtons.find(
+        (btn) => btn.textContent && /^\d+$/.test(btn.textContent),
       );
 
       if (firstDate) {
@@ -363,20 +335,14 @@ describe("DatePicker", () => {
     it("should close calendar after date selection", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
       const calendar = await screen.findByRole("grid");
       const dateButtons = within(calendar).getAllByRole("button");
-      const firstDate = dateButtons.find((btn) =>
-        btn.textContent && /^\d+$/.test(btn.textContent)
+      const firstDate = dateButtons.find(
+        (btn) => btn.textContent && /^\d+$/.test(btn.textContent),
       );
 
       if (firstDate) {
@@ -399,7 +365,7 @@ describe("DatePicker", () => {
           value={new Date(2024, 5, 1)}
           onChange={onChange}
           disabledDates={[disabledDate]}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -425,7 +391,7 @@ describe("DatePicker", () => {
           value={new Date(2024, 5, 1)}
           onChange={onChange}
           minDate={minDate}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -434,7 +400,9 @@ describe("DatePicker", () => {
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       // Try to click date before minDate
-      const beforeMinButton = screen.getByRole("button", { name: "06/10/2024" });
+      const beforeMinButton = screen.getByRole("button", {
+        name: "06/10/2024",
+      });
       expect(beforeMinButton).toBeDisabled();
     });
 
@@ -449,7 +417,7 @@ describe("DatePicker", () => {
           value={new Date(2024, 5, 1)}
           onChange={onChange}
           maxDate={maxDate}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -465,7 +433,8 @@ describe("DatePicker", () => {
     it("should use custom isDateDisabled function", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const isDateDisabled = (date: Date) => date.getDay() === 0 || date.getDay() === 6; // Disable weekends
+      const isDateDisabled = (date: Date) =>
+        date.getDay() === 0 || date.getDay() === 6; // Disable weekends
 
       render(
         <DatePicker
@@ -473,7 +442,7 @@ describe("DatePicker", () => {
           value={new Date(2024, 5, 15)} // June 15, 2024 (Saturday)
           onChange={onChange}
           isDateDisabled={isDateDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -505,7 +474,7 @@ describe("DatePicker", () => {
           value={date}
           onChange={onChange}
           clearable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("button", { name: "Clear date" }));
@@ -523,7 +492,7 @@ describe("DatePicker", () => {
           value={date}
           onChange={() => {}}
           clearable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("button", { name: "Clear date" }));
@@ -543,7 +512,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={onChange}
           allowManualInput
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -567,7 +536,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           allowManualInput={false}
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -584,7 +553,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={onChange}
           allowManualInput
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -601,13 +570,7 @@ describe("DatePicker", () => {
     it.skip("should open calendar with Enter key", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       const input = screen.getByRole("textbox");
       input.focus();
@@ -621,13 +584,7 @@ describe("DatePicker", () => {
     it.skip("should close calendar with Escape key", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
       await waitFor(() => expect(screen.getByRole("grid")).toBeInTheDocument());
@@ -650,7 +607,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -665,7 +622,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       expect(screen.getByRole("textbox")).toBeDisabled();
@@ -681,22 +638,18 @@ describe("DatePicker", () => {
           onChange={() => {}}
           disabled
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByRole("button", { name: "Clear date" })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Clear date" }),
+      ).not.toBeInTheDocument();
     });
   });
 
   describe("Accessibility", () => {
     it("should have correct ARIA attributes", () => {
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       const input = screen.getByRole("textbox");
       expect(input).toHaveAttribute("aria-invalid", "false");
@@ -704,12 +657,7 @@ describe("DatePicker", () => {
 
     it("should have aria-invalid when error is true", () => {
       render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-          error
-        />
+        <DatePicker name="birthdate" value={null} onChange={() => {}} error />,
       );
 
       const input = screen.getByRole("textbox");
@@ -723,7 +671,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           required
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -737,7 +685,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           aria-describedby="birthdate-help"
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -747,29 +695,23 @@ describe("DatePicker", () => {
     it("should have proper ARIA labels on navigation buttons", async () => {
       const user = userEvent.setup();
 
-      render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
-      );
+      render(<DatePicker name="birthdate" value={null} onChange={() => {}} />);
 
       await user.click(screen.getByRole("textbox"));
 
-      expect(screen.getByRole("button", { name: "Previous month" })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Next month" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Previous month" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Next month" }),
+      ).toBeInTheDocument();
     });
   });
 
   describe("CSS Classes", () => {
     it("should apply base class", () => {
       const { container } = render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
+        <DatePicker name="birthdate" value={null} onChange={() => {}} />,
       );
 
       const wrapper = container.querySelector('[class*="relative"]');
@@ -778,16 +720,11 @@ describe("DatePicker", () => {
 
     it("should apply error class when error is true", () => {
       const { container } = render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-          error
-        />
+        <DatePicker name="birthdate" value={null} onChange={() => {}} error />,
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("border-red-500");
+      expect(input).toHaveClass("border-destructive");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -797,7 +734,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           disabled
-        />
+        />,
       );
 
       const input = screen.getByRole("textbox");
@@ -807,11 +744,7 @@ describe("DatePicker", () => {
     it("should apply open class when calendar is open", async () => {
       const user = userEvent.setup();
       const { container } = render(
-        <DatePicker
-          name="birthdate"
-          value={null}
-          onChange={() => {}}
-        />
+        <DatePicker name="birthdate" value={null} onChange={() => {}} />,
       );
 
       await user.click(screen.getByRole("textbox"));
@@ -828,7 +761,7 @@ describe("DatePicker", () => {
           value={null}
           onChange={() => {}}
           className="custom-datepicker"
-        />
+        />,
       );
 
       expect(container.querySelector(".custom-datepicker")).toBeInTheDocument();

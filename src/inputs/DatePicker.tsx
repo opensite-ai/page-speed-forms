@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
 
 /**
  * DatePicker props interface
@@ -85,34 +87,6 @@ function formatDate(date: Date | null, format: string): string {
 }
 
 /**
- * Parse date string to Date
- */
-function parseDate(dateString: string, format: string): Date | null {
-  if (!dateString) return null;
-
-  try {
-    // Simple date parsing for MM/dd/yyyy format
-    if (format === "MM/dd/yyyy" || format === "MM-dd-yyyy") {
-      const parts = dateString.split(/[/-]/);
-      if (parts.length === 3) {
-        const month = parseInt(parts[0], 10) - 1;
-        const day = parseInt(parts[1], 10);
-        const year = parseInt(parts[2], 10);
-        const date = new Date(year, month, day);
-        if (!isNaN(date.getTime())) {
-          return date;
-        }
-      }
-    }
-    // Fallback to native Date parsing
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? null : date;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Check if date is in disabled dates array
  */
 function isDateInArray(date: Date, dates: Date[]): boolean {
@@ -192,20 +166,18 @@ export function DatePicker({
   ...props
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState("");
   const [selectedMonth, setSelectedMonth] = React.useState<Date>(
     value || new Date(),
   );
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // Sync input value with controlled value prop
+  // Sync selected month with controlled value prop
   React.useEffect(() => {
-    setInputValue(formatDate(value, format));
     if (value) {
       setSelectedMonth(value);
     }
-  }, [value, format]);
+  }, [value]);
 
   // Handle date selection from calendar
   const handleDateSelect = (date: Date) => {
@@ -214,32 +186,17 @@ export function DatePicker({
     onBlur?.();
   };
 
-  // Handle input change (manual typing)
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-
-    // Try to parse and update date
-    const parsedDate = parseDate(newValue, format);
-    if (parsedDate && !isNaN(parsedDate.getTime())) {
-      onChange(parsedDate);
-    } else if (newValue === "") {
-      onChange(null);
-    }
-  };
-
   // Handle clear button
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(null);
-    setInputValue("");
     inputRef.current?.focus();
   };
 
   // Toggle calendar popup
   const handleToggle = () => {
     if (disabled) return;
-    setIsOpen(!isOpen);
+    setIsOpen((prev) => !prev);
   };
 
   // Check if a date should be disabled
@@ -251,27 +208,22 @@ export function DatePicker({
     return false;
   };
 
-  // Close calendar when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-        onBlur?.();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
+  const closeCalendar = React.useCallback(() => {
+    if (!isOpen) return;
+    setIsOpen(false);
+    onBlur?.();
   }, [isOpen, onBlur]);
 
-  // Simple calendar component (basic implementation)
+  useOnClickOutside(containerRef, closeCalendar, "pointerdown", true);
+
+  const dayGridStyle: React.CSSProperties = {
+    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+  };
+
+  const hasValue = Boolean(value);
+  const displayValue = formatDate(value, format);
+
+  // Calendar component
   const renderCalendar = () => {
     const year = selectedMonth.getFullYear();
     const month = selectedMonth.getMonth();
@@ -317,42 +269,45 @@ export function DatePicker({
     };
 
     return (
-      <div role="grid" aria-label="Calendar">
-        <div className="flex items-center justify-between pb-2 border-b border-border">
+      <div role="grid" aria-label="Calendar" className="w-[248px] max-w-full">
+        <div className="flex items-center justify-between pb-3">
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
             onClick={handlePrevMonth}
             aria-label="Previous month"
           >
-            ←
+            &#8249;
           </button>
           <div className="font-medium text-sm">
             {`${monthNames[month]} ${year}`}
           </div>
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
             onClick={handleNextMonth}
             aria-label="Next month"
           >
-            →
+            &#8250;
           </button>
         </div>
-        <div className="grid grid-cols-7 gap-1 mt-2">
+        <div
+          className="grid gap-1 text-xs text-muted-foreground"
+          style={dayGridStyle}
+        >
           {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
             <div
               key={day}
-              className="flex items-center justify-center h-8 w-full text-xs font-medium"
+              className="flex items-center justify-center h-8 w-8 font-medium"
             >
               {day}
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid gap-1" style={dayGridStyle}>
           {days.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${index}`} />;
+              return <div key={`empty-${index}`} className="h-8 w-8" />;
             }
 
             const isSelected =
@@ -364,7 +319,13 @@ export function DatePicker({
               <button
                 key={date.toISOString()}
                 type="button"
-                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-primary hover:text-primary-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
+                className={cn(
+                  "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
+                  "hover:bg-muted",
+                  isSelected && "bg-primary text-primary-foreground font-semibold",
+                  !isSelected && isToday && "border border-primary",
+                  disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+                )}
                 onClick={() => !disabled && handleDateSelect(date)}
                 disabled={disabled}
                 aria-label={formatDate(date, format)}
@@ -378,7 +339,7 @@ export function DatePicker({
     );
   };
 
-  const combinedClassName = `relative ${className}`.trim();
+  const combinedClassName = cn("relative", className);
 
   return (
     <div ref={containerRef} className={combinedClassName}>
@@ -414,9 +375,17 @@ export function DatePicker({
         <input
           ref={inputRef}
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
-          value={inputValue}
-          onChange={handleInputChange}
+          className={cn(
+            "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            INPUT_AUTOFILL_RESET_CLASSES,
+            showIcon ? "pl-10" : "pl-3",
+            clearable && value ? "pr-10" : "pr-3",
+            !error && hasValue && "ring-2 ring-ring",
+            error && "border-destructive ring-1 ring-destructive",
+          )}
+          value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
           disabled={disabled}
@@ -442,7 +411,7 @@ export function DatePicker({
 
       {/* Calendar popup */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
+        <div className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
           {renderCalendar()}
         </div>
       )}
