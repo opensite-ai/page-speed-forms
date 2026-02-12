@@ -371,8 +371,8 @@ describe("TimePicker", () => {
 
       await waitFor(() => {
         const pmButton = screen.getByRole("button", { name: "PM" });
-        expect(pmButton).toHaveClass("bg-primary");
-        expect(pmButton).toHaveClass("text-primary-foreground");
+        expect(pmButton).toHaveClass("bg-muted");
+        expect(pmButton).toHaveClass("font-semibold");
       });
     });
   });

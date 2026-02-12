@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { cn } from "../utils";
 
 /**
  * Date range value
@@ -353,6 +354,7 @@ export function DateRangePicker({
               rangeStart && date.toDateString() === rangeStart.toDateString();
             const isEnd =
               rangeEnd && date.toDateString() === rangeEnd.toDateString();
+            const isRangeEndpoint = Boolean(isStart || isEnd);
             const isInRange =
               rangeStart &&
               rangeEnd &&
@@ -363,6 +365,9 @@ export function DateRangePicker({
               hoverDate &&
               ((date >= rangeStart && date <= hoverDate) ||
                 (date <= rangeStart && date >= hoverDate));
+            const isRangeHighlight = Boolean(
+              (isInRange || isInHoverRange) && !isRangeEndpoint,
+            );
             const isToday = date.toDateString() === new Date().toDateString();
             const disabled = isDisabled(date);
 
@@ -370,7 +375,14 @@ export function DateRangePicker({
               <button
                 key={date.toISOString()}
                 type="button"
-                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-primary hover:text-primary-foreground ${isStart || isEnd ? "bg-primary text-primary-foreground font-semibold" : ""} ${isInRange || isInHoverRange ? "bg-primary/70 text-primary-foreground" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
+                className={cn(
+                  "flex items-center justify-center h-8 w-full rounded border-none bg-transparent",
+                  "cursor-pointer text-sm transition-colors hover:bg-muted",
+                  isRangeEndpoint && "bg-muted font-semibold",
+                  isRangeHighlight && "bg-muted/70",
+                  isToday && "border border-primary",
+                  disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+                )}
                 onClick={() => !disabled && handleDateSelect(date)}
                 onMouseEnter={() => setHoverDate(date)}
                 onMouseLeave={() => setHoverDate(null)}
@@ -386,7 +398,7 @@ export function DateRangePicker({
     );
   };
 
-  const combinedClassName = `relative ${className}`.trim();
+  const combinedClassName = cn("relative", className);
 
   const displayValue =
     rangeStart && rangeEnd
@@ -433,7 +445,14 @@ export function DateRangePicker({
         )}
         <input
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+          className={cn(
+            "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            showIcon ? "pl-10" : "pl-3",
+            clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3",
+            error && "border-red-500 ring-1 ring-red-500",
+          )}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}

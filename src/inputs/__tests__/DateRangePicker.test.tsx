@@ -364,8 +364,8 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const startButton = screen.getByRole("button", { name: "06/15/2024" });
-        expect(startButton).toHaveClass("bg-primary");
-        expect(startButton).toHaveClass("text-primary-foreground");
+        expect(startButton).toHaveClass("bg-muted");
+        expect(startButton).toHaveClass("font-semibold");
       });
     });
 
@@ -386,8 +386,8 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const endButton = screen.getByRole("button", { name: "06/20/2024" });
-        expect(endButton).toHaveClass("bg-primary");
-        expect(endButton).toHaveClass("text-primary-foreground");
+        expect(endButton).toHaveClass("bg-muted");
+        expect(endButton).toHaveClass("font-semibold");
       });
     });
 
@@ -408,7 +408,7 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const inRangeButton = screen.getByRole("button", { name: "06/17/2024" });
-        expect(inRangeButton.className).toMatch(/bg-(primary\/10|accent\/50)/);
+        expect(inRangeButton).toHaveClass("bg-muted/70");
       });
     });
 
@@ -665,7 +665,7 @@ describe("DateRangePicker", () => {
 
       // Dates between start and hover should have in-range class
       const june17 = screen.getByRole("button", { name: "06/17/2024" });
-      expect(june17.className).toMatch(/bg-(primary\/10|accent\/50)/);
+      expect(june17).toHaveClass("bg-muted/70");
     });
   });
 

@@ -517,7 +517,7 @@ describe("Radio Component", () => {
         />
       );
 
-      expect(screen.getByRole("radiogroup")).toHaveClass("flex-row");
+      expect(screen.getByRole("radiogroup")).toHaveClass("md:grid-cols-2");
     });
 
     it("should use stacked layout by default", () => {
@@ -784,8 +784,10 @@ describe("Radio Component", () => {
       );
 
       const radiogroup = screen.getByRole("radiogroup");
-      // Layout inline uses flex-row, error adds border-red-500
-      expect(radiogroup.className).toMatch(/flex.*flex-row/);
+      // Layout inline uses a responsive two-column grid.
+      expect(radiogroup).toHaveClass("w-full");
+      expect(radiogroup).toHaveClass("grid");
+      expect(radiogroup).toHaveClass("md:grid-cols-2");
       expect(radiogroup.className).toContain("custom-class");
     });
 

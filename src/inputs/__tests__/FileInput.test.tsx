@@ -43,7 +43,7 @@ describe("FileInput Component", () => {
       const onChange = vi.fn();
       render(<FileInput name="file" onChange={onChange} />);
 
-      expect(screen.getByText("Choose file(s)...")).toBeInTheDocument();
+      expect(screen.getByText("Choose file...")).toBeInTheDocument();
     });
 
     it("should show accept hint when provided", () => {
@@ -409,15 +409,12 @@ describe("FileInput Component", () => {
   describe("Drag and Drop", () => {
     it("should handle drag enter", () => {
       const onChange = vi.fn();
-      const { container } = render(
-        <FileInput name="file" onChange={onChange} />
-      );
+      render(<FileInput name="file" onChange={onChange} />);
 
       const dropzone = screen.getByRole("button");
 
       // Simulate drag enter event
-      const dragEvent = new Event("dragenter", { bubbles: true });
-      dropzone.dispatchEvent(dragEvent);
+      fireEvent.dragEnter(dropzone);
 
       // Drag active state should be applied after event
       // Note: In real browser, this would trigger the drag state

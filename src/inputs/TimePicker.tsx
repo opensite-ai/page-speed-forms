@@ -281,7 +281,7 @@ export function TimePicker({
     return mins;
   }, [minuteStep]);
 
-  const combinedClassName = `relative ${className}`.trim();
+  const combinedClassName = cn("relative", className);
 
   const displayValue = formatTimeValue(timeValue, use24Hour);
 
@@ -316,7 +316,14 @@ export function TimePicker({
         <input
           ref={inputRef}
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+          className={cn(
+            "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            showIcon ? "pl-10" : "pl-3",
+            clearable && value ? "pr-10" : "pr-3",
+            error && "border-red-500 ring-1 ring-red-500",
+          )}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
