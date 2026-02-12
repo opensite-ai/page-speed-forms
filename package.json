@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -117,7 +117,7 @@
     "vitest": "^4.0.10"
   },
   "dependencies": {
-    "@opensite/hooks": "2.0.3"
+    "@opensite/hooks": "2.0.6"
   },
   "optionalDependencies": {
     "@legendapp/state": "^3.0.0-beta.42",

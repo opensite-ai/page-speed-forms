@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@opensite/hooks':
-        specifier: 2.0.3
-        version: 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.6
+        version: 2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       '@legendapp/state':
         specifier: ^3.0.0-beta.42
@@ -554,8 +554,8 @@ packages:
       expo-sqlite:
         optional: true
 
-  '@opensite/hooks@2.0.3':
-    resolution: {integrity: sha512-9QYpJwHyGmCjJ9zO43n1Aq+5dx9hmZyPgdAQWFlxVWdg43sa2R82JIAfWJ5YEPYVUosnQS1oezMN/ZEe9wJU1w==}
+  '@opensite/hooks@2.0.6':
+    resolution: {integrity: sha512-03+SOMrCVRvKX9/Z1kVZRlDonVBQ8+frGdvKW5i4tz4y0w7Kzvb4CCTmCU1W3CW0liKD0qHuV/dtpMusuPdfiA==}
     engines: {node: '>=18.0.0', pnpm: '>=9.0.0'}
     peerDependencies:
       react: '>=17.0.0'
@@ -2009,7 +2009,7 @@ snapshots:
       - react
     optional: true
 
-  '@opensite/hooks@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@opensite/hooks@2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

@@ -389,12 +389,12 @@ describe("DatePicker", () => {
     it("should not allow selection of disabled dates", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const disabledDate = new Date(2024, 5, 15);
+      const disabledDate = new Date(2024, 5, 15); // June 15, 2024
 
       render(
         <DatePicker
           name="birthdate"
-          value={null}
+          value={new Date(2024, 5, 1)}
           onChange={onChange}
           disabledDates={[disabledDate]}
         />
@@ -402,13 +402,7 @@ describe("DatePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const disabledButton = screen.getByRole("button", { name: "06/15/2024" });
@@ -426,7 +420,7 @@ describe("DatePicker", () => {
       render(
         <DatePicker
           name="birthdate"
-          value={null}
+          value={new Date(2024, 5, 1)}
           onChange={onChange}
           minDate={minDate}
         />
@@ -434,13 +428,7 @@ describe("DatePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       // Try to click date before minDate
@@ -456,7 +444,7 @@ describe("DatePicker", () => {
       render(
         <DatePicker
           name="birthdate"
-          value={null}
+          value={new Date(2024, 5, 1)}
           onChange={onChange}
           maxDate={maxDate}
         />
@@ -464,13 +452,7 @@ describe("DatePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       // Try to click date after maxDate

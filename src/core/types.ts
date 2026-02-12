@@ -34,7 +34,7 @@ export type TouchedFields<T extends FormValues = FormValues> = {
  */
 export type FieldValidator<T = any> = (
   value: T,
-  allValues: FormValues
+  allValues: FormValues,
 ) => string | undefined | Promise<string | undefined>;
 
 /**
@@ -77,7 +77,10 @@ export interface FormHelpers<T extends FormValues = FormValues> {
   /**
    * Set a single field error
    */
-  setFieldError: <K extends keyof T>(field: K, error: string | undefined) => void;
+  setFieldError: <K extends keyof T>(
+    field: K,
+    error: string | undefined,
+  ) => void;
 
   /**
    * Set touched fields
@@ -105,14 +108,14 @@ export interface FormHelpers<T extends FormValues = FormValues> {
  */
 export type SubmitHandler<T extends FormValues = FormValues> = (
   values: T,
-  helpers: FormHelpers<T>
+  helpers: FormHelpers<T>,
 ) => void | Promise<void>;
 
 /**
  * Form error handler
  */
 export type ErrorHandler<T extends FormValues = FormValues> = (
-  errors: FormErrors<T>
+  errors: FormErrors<T>,
 ) => void;
 
 /**
@@ -225,7 +228,10 @@ export interface FormActions<T extends FormValues = FormValues> {
   /**
    * Set a single field error
    */
-  setFieldError: <K extends keyof T>(field: K, error: string | undefined) => void;
+  setFieldError: <K extends keyof T>(
+    field: K,
+    error: string | undefined,
+  ) => void;
 
   /**
    * Set touched fields
@@ -433,6 +439,11 @@ export interface InputProps<T = string> {
    * Input name
    */
   name: string;
+
+  /**
+   * Id
+   */
+  id?: string;
 
   /**
    * Input value

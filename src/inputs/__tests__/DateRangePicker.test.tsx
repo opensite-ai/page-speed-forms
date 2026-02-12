@@ -546,12 +546,12 @@ describe("DateRangePicker", () => {
     it("should not allow selection of disabled dates", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const disabledDate = new Date(2024, 5, 15);
+      const disabledDate = new Date(2024, 5, 15); // June 15, 2024
 
       render(
         <DateRangePicker
           name="daterange"
-          value={{ start: null, end: null }}
+          value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           disabledDates={[disabledDate]}
         />
@@ -559,13 +559,7 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value.start is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const disabledButton = screen.getByRole("button", { name: "06/15/2024" });
@@ -578,12 +572,12 @@ describe("DateRangePicker", () => {
     it("should enforce minDate constraint", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const minDate = new Date(2024, 5, 15);
+      const minDate = new Date(2024, 5, 15); // June 15, 2024
 
       render(
         <DateRangePicker
           name="daterange"
-          value={{ start: null, end: null }}
+          value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           minDate={minDate}
         />
@@ -591,13 +585,7 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value.start is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const beforeMinButton = screen.getByRole("button", { name: "06/10/2024" });
@@ -607,12 +595,12 @@ describe("DateRangePicker", () => {
     it("should enforce maxDate constraint", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const maxDate = new Date(2024, 5, 15);
+      const maxDate = new Date(2024, 5, 15); // June 15, 2024
 
       render(
         <DateRangePicker
           name="daterange"
-          value={{ start: null, end: null }}
+          value={{ start: new Date(2024, 5, 1), end: null }}
           onChange={onChange}
           maxDate={maxDate}
         />
@@ -620,13 +608,7 @@ describe("DateRangePicker", () => {
 
       await user.click(screen.getByRole("textbox"));
 
-      // Navigate to June 2024 (19 months back from January 2026 to June 2024)
-      const prevButton = screen.getByRole("button", { name: "Previous month" });
-      for (let i = 0; i < 19; i++) {
-        await user.click(prevButton);
-        await new Promise(resolve => setTimeout(resolve, 50));
-      }
-
+      // Calendar opens on June 2024 because value.start is in June
       expect(screen.getByText("June 2024")).toBeInTheDocument();
 
       const afterMaxButton = screen.getByRole("button", { name: "06/20/2024" });

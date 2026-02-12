@@ -42,6 +42,7 @@ export function TextInput({
   error = false,
   className = "",
   type = "text",
+  id = "text",
   ...props
 }: InputProps<string> & {
   type?: "text" | "email" | "password" | "url" | "tel" | "search";
@@ -56,11 +57,13 @@ export function TextInput({
 
   const baseClassName = "text-input";
   const errorClassName = error ? "text-input--error" : "";
-  const combinedClassName = `${baseClassName} ${errorClassName} ${className}`.trim();
+  const combinedClassName =
+    `${baseClassName} ${errorClassName} ${className}`.trim();
 
   return (
     <input
       type={type}
+      id={id}
       name={name}
       value={value ?? ""}
       onChange={handleChange}
