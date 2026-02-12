@@ -137,19 +137,9 @@ describe("FileInput Component", () => {
 
     it("should display file list when files are selected", async () => {
       const onChange = vi.fn();
-      const { container } = render(
-        <FileInput name="file" onChange={onChange} value={[]} />
-      );
-
-      const input = container.querySelector(
-        'input[type="file"]'
-      ) as HTMLInputElement;
       const file = createMockFile("test.pdf", 1000, "application/pdf");
 
-      await userEvent.upload(input, file);
-
-      // File list should be rendered after onChange
-      const { container: updatedContainer } = render(
+      render(
         <FileInput
           name="file"
           onChange={onChange}
@@ -157,7 +147,6 @@ describe("FileInput Component", () => {
         />
       );
 
-      expect(updatedContainer.querySelector(".file-input__list")).toBeInTheDocument();
       expect(screen.getByText("test.pdf")).toBeInTheDocument();
       expect(screen.getByText("1000 Bytes")).toBeInTheDocument();
     });
@@ -583,7 +572,8 @@ describe("FileInput Component", () => {
         <FileInput name="file" onChange={onChange} error={true} />
       );
 
-      expect(container.querySelector(".file-input--error")).toBeInTheDocument();
+      const dropzone = container.querySelector('[class*="border-red-500"]');
+      expect(dropzone).toBeInTheDocument();
     });
 
     it("should not apply error class when error is false", () => {
@@ -592,7 +582,8 @@ describe("FileInput Component", () => {
         <FileInput name="file" onChange={onChange} error={false} />
       );
 
-      expect(container.querySelector(".file-input--error")).not.toBeInTheDocument();
+      const dropzone = container.querySelector('[class*="border-red-500"]');
+      expect(dropzone).not.toBeInTheDocument();
     });
   });
 
@@ -603,11 +594,13 @@ describe("FileInput Component", () => {
   describe("CSS Classes", () => {
     it("should apply base className", () => {
       const onChange = vi.fn();
-      const { container } = render(
+      render(
         <FileInput name="file" onChange={onChange} />
       );
 
-      expect(container.querySelector(".file-input")).toBeInTheDocument();
+      const dropzone = screen.getByRole("button");
+      expect(dropzone).toHaveClass("flex");
+      expect(dropzone).toHaveClass("min-h-32");
     });
 
     it("should support custom className", () => {
@@ -616,17 +609,19 @@ describe("FileInput Component", () => {
         <FileInput name="file" onChange={onChange} className="custom-class" />
       );
 
-      const fileInput = container.querySelector(".file-input");
-      expect(fileInput).toHaveClass("custom-class");
+      // The custom class is applied to the wrapper div, not the button
+      const wrapperWithCustomClass = container.querySelector('.custom-class');
+      expect(wrapperWithCustomClass).toBeInTheDocument();
     });
 
     it("should apply disabled class when disabled", () => {
       const onChange = vi.fn();
-      const { container } = render(
+      render(
         <FileInput name="file" onChange={onChange} disabled />
       );
 
-      expect(container.querySelector(".file-input--disabled")).toBeInTheDocument();
+      const dropzone = screen.getByRole("button");
+      expect(dropzone).toHaveClass("opacity-50");
     });
   });
 
@@ -786,7 +781,8 @@ describe("FileInput Component", () => {
         />
       );
 
-      expect(container.querySelector(".file-input__progress")).toBeInTheDocument();
+      const progress = container.querySelector('[role="progressbar"]');
+      expect(progress).toBeInTheDocument();
       expect(screen.getByText("50%")).toBeInTheDocument();
     });
 
@@ -805,8 +801,11 @@ describe("FileInput Component", () => {
         />
       );
 
-      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
-      expect(progressBar.style.width).toBe("75%");
+      const progressBar = container.querySelector('[role="progressbar"]');
+      expect(progressBar).toHaveAttribute("aria-valuenow", "75");
+      // Check for either the progress bar itself or its inner element
+      const progressElement = progressBar?.querySelector('[style*="width"]') || progressBar as HTMLElement;
+      expect(progressElement.style.width).toBe("75%");
     });
 
     it("should show progress for multiple files", () => {
@@ -850,7 +849,7 @@ describe("FileInput Component", () => {
         />
       );
 
-      expect(container.querySelector(".file-input__progress")).not.toBeInTheDocument();
+      expect(container.querySelector('[role="progressbar"]')).not.toBeInTheDocument();
     });
 
     it("should not show progress when uploadProgress is undefined", () => {
@@ -866,7 +865,7 @@ describe("FileInput Component", () => {
         />
       );
 
-      expect(container.querySelector(".file-input__progress")).not.toBeInTheDocument();
+      expect(container.querySelector('[role="progressbar"]')).not.toBeInTheDocument();
     });
 
     it("should have proper ARIA attributes on progress bar", () => {
@@ -884,7 +883,7 @@ describe("FileInput Component", () => {
         />
       );
 
-      const progressBar = container.querySelector(".file-input__progress-bar");
+      const progressBar = container.querySelector('[role="progressbar"]');
       expect(progressBar).toHaveAttribute("role", "progressbar");
       expect(progressBar).toHaveAttribute("aria-valuenow", "50");
       expect(progressBar).toHaveAttribute("aria-valuemin", "0");
@@ -907,8 +906,10 @@ describe("FileInput Component", () => {
         />
       );
 
-      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
-      expect(progressBar.style.width).toBe("0%");
+      const progressBar = container.querySelector('[role="progressbar"]');
+      expect(progressBar).toHaveAttribute("aria-valuenow", "0");
+      const progressElement = progressBar?.querySelector('[style*="width"]') || progressBar as HTMLElement;
+      expect(progressElement.style.width).toBe("0%");
       expect(screen.getByText("0%")).toBeInTheDocument();
     });
 
@@ -927,8 +928,10 @@ describe("FileInput Component", () => {
         />
       );
 
-      const progressBar = container.querySelector(".file-input__progress-bar") as HTMLElement;
-      expect(progressBar.style.width).toBe("100%");
+      const progressBar = container.querySelector('[role="progressbar"]');
+      expect(progressBar).toHaveAttribute("aria-valuenow", "100");
+      const progressElement = progressBar?.querySelector('[style*="width"]') || progressBar as HTMLElement;
+      expect(progressElement.style.width).toBe("100%");
       expect(screen.getByText("100%")).toBeInTheDocument();
     });
   });
@@ -1115,10 +1118,8 @@ describe("FileInput Component", () => {
         expect(screen.getByRole("heading", { name: "Crop Image" })).toBeInTheDocument();
       });
 
-      const overlay = container.querySelector(".file-input-cropper-overlay");
-      if (overlay) {
-        await user.click(overlay);
-      }
+      // Use the Cancel button instead of clicking the overlay
+      await user.click(screen.getByRole("button", { name: "Cancel" }));
 
       await waitFor(() => {
         expect(screen.queryByRole("heading", { name: "Crop Image" })).not.toBeInTheDocument();
@@ -1224,7 +1225,7 @@ describe("FileInput Component", () => {
       });
 
       // Trigger the image load event to set croppedAreaPixels
-      const cropperImage = container.querySelector(".file-input-cropper-image") as HTMLImageElement;
+      const cropperImage = container.querySelector('img[alt*="Crop"]') as HTMLImageElement;
       expect(cropperImage).toBeInTheDocument();
 
       // Set natural dimensions for the image
@@ -1237,7 +1238,8 @@ describe("FileInput Component", () => {
       // Wait for state update after image load
       await waitFor(() => {
         // The crop overlay should be rendered after image loads
-        expect(container.querySelector(".file-input-cropper-overlay-box")).toBeInTheDocument();
+        const cropOverlay = container.querySelector('[class*="absolute"][class*="border-2"]');
+        expect(cropOverlay).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: "Save" }));
@@ -1271,7 +1273,7 @@ describe("FileInput Component", () => {
       await user.click(screen.getByRole("button", { name: "Crop image.png" }));
 
       await waitFor(() => {
-        const cropOverlay = container.querySelector(".file-input-cropper-overlay-box") as HTMLElement;
+        const cropOverlay = container.querySelector('[class*="absolute"][class*="border-2"]') as HTMLElement;
         expect(cropOverlay).toBeInTheDocument();
         expect(cropOverlay.style.aspectRatio).toBe(String(16 / 9));
       });

@@ -77,7 +77,7 @@ describe("DatePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".datepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).toBeInTheDocument();
     });
 
@@ -91,7 +91,7 @@ describe("DatePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".datepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).not.toBeInTheDocument();
     });
 
@@ -305,7 +305,8 @@ describe("DatePicker", () => {
 
       const todayButton = screen.getByRole("button", { name: formattedDate });
 
-      expect(todayButton).toHaveClass("datepicker-calendar-day--today");
+      expect(todayButton).toHaveClass("border");
+      expect(todayButton).toHaveClass("border-primary");
     });
 
     it("should highlight selected date", async () => {
@@ -324,7 +325,8 @@ describe("DatePicker", () => {
 
       await waitFor(() => {
         const selectedButton = screen.getByRole("button", { name: "06/15/2024" });
-        expect(selectedButton).toHaveClass("datepicker-calendar-day--selected");
+        expect(selectedButton).toHaveClass("bg-primary");
+        expect(selectedButton).toHaveClass("text-primary-foreground");
       });
     });
   });
@@ -770,7 +772,8 @@ describe("DatePicker", () => {
         />
       );
 
-      expect(container.querySelector(".datepicker")).toBeInTheDocument();
+      const wrapper = container.querySelector('[class*="relative"]');
+      expect(wrapper).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -783,7 +786,8 @@ describe("DatePicker", () => {
         />
       );
 
-      expect(container.querySelector(".datepicker--error")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toHaveClass("border-red-500");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -796,7 +800,8 @@ describe("DatePicker", () => {
         />
       );
 
-      expect(container.querySelector(".datepicker--disabled")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toBeDisabled();
     });
 
     it("should apply open class when calendar is open", async () => {
@@ -812,7 +817,7 @@ describe("DatePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        expect(container.querySelector(".datepicker--open")).toBeInTheDocument();
+        expect(screen.getByRole("grid")).toBeInTheDocument();
       });
     });
 

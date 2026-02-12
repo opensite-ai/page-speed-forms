@@ -260,7 +260,7 @@ describe("TextInput Component", () => {
         <TextInput name="email" value="" onChange={onChange} error={true} />
       );
 
-      expect(screen.getByRole("textbox")).toHaveClass("text-input--error");
+      expect(screen.getByRole("textbox")).toHaveClass("border-red-500", "ring-1", "ring-red-500");
     });
 
     it("should not apply error class when error is false", () => {
@@ -312,7 +312,7 @@ describe("TextInput Component", () => {
       const onChange = vi.fn();
       render(<TextInput name="email" value="" onChange={onChange} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("text-input");
+      expect(screen.getByRole("textbox")).toHaveClass("flex", "h-9", "w-full", "rounded-md");
     });
 
     it("should support custom className", () => {
@@ -327,7 +327,7 @@ describe("TextInput Component", () => {
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("text-input");
+      expect(input).toHaveClass("flex", "h-9", "w-full");
       expect(input).toHaveClass("custom-class");
     });
 
@@ -344,8 +344,8 @@ describe("TextInput Component", () => {
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("text-input");
-      expect(input).toHaveClass("text-input--error");
+      expect(input).toHaveClass("flex", "h-9", "w-full");
+      expect(input).toHaveClass("border-red-500", "ring-1", "ring-red-500");
       expect(input).toHaveClass("custom-class");
     });
 
@@ -511,7 +511,7 @@ describe("TextInput Component", () => {
       );
 
       const input = screen.getByRole("textbox");
-      expect(input.className).toBe("text-input");
+      expect(input).toHaveClass("flex", "h-9", "w-full", "rounded-md");
     });
 
     it("should handle very long values", async () => {

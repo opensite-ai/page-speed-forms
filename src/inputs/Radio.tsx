@@ -173,48 +173,51 @@ export function Radio({
     onBlur?.();
   };
 
-  const baseClassName = "radio-group";
-  const errorClassName = error ? "radio-group--error" : "";
-  const layoutClassName = `radio-group--${layout}`;
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${layoutClassName} ${className}`.trim();
+  const layoutClass = layout === "inline" ? "flex flex-row flex-wrap gap-4" : "grid w-full gap-2";
+  const containerClass = `${layoutClass} ${className}`.trim();
 
   return (
     <div
-      className={combinedClassName}
+      className={containerClass}
       role="radiogroup"
       aria-invalid={error || props["aria-invalid"]}
       aria-describedby={props["aria-describedby"]}
       aria-required={required || props["aria-required"]}
       aria-label={typeof label === "string" ? label : props["aria-label"]}
     >
-      {label && <div className="radio-group-label">{label}</div>}
-      <div className="radio-options">
-        {options.map((option, index) => {
-          const isChecked = value === option.value;
-          const isDisabled = disabled || option.disabled;
-          const radioId = `${name}-${option.value}`;
+      {label && <div className="text-sm font-medium mb-2">{label}</div>}
+      {options.map((option, index) => {
+        const isChecked = value === option.value;
+        const isDisabled = disabled || option.disabled;
+        const radioId = `${name}-${option.value}`;
 
-          return (
-            <label
-              key={option.value}
-              className={`radio-option ${isChecked ? "radio-option--checked" : ""} ${isDisabled ? "radio-option--disabled" : ""}`}
-              htmlFor={radioId}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              tabIndex={0}
-            >
-              <div className="radio-option-content">
-                <div className="radio-option-text">
-                  <span className="radio-label">{option.label}</span>
-                  {option.description && (
-                    <span
-                      className="radio-description"
+        return (
+          <label
+            key={option.value}
+            className={`flex w-fit gap-2 items-center ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            htmlFor={radioId}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            tabIndex={isDisabled ? -1 : 0}
+          >
+            <div className="flex w-full flex-row items-center gap-2">
+              <div className="flex flex-1 flex-col gap-0.5">
+                {option.description ? (
+                  <>
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      {option.label}
+                    </div>
+                    <p
+                      className="text-muted-foreground text-sm"
                       id={`${radioId}-description`}
                     >
                       {option.description}
-                    </span>
-                  )}
-                </div>
+                    </p>
+                  </>
+                ) : (
+                  <span className="text-sm font-medium">{option.label}</span>
+                )}
+              </div>
+              <div className="relative">
                 <input
                   type="radio"
                   id={radioId}
@@ -225,18 +228,25 @@ export function Radio({
                   onBlur={handleBlur}
                   disabled={isDisabled}
                   required={required}
-                  className="radio-input"
+                  className={`peer relative flex aspect-square size-4 shrink-0 appearance-none rounded-full border border-input outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : ""} ${isChecked ? "border-primary bg-primary" : "bg-transparent"}`}
                   aria-describedby={
                     option.description
                       ? `${radioId}-description`
                       : props["aria-describedby"]
                   }
                 />
+                {isChecked && (
+                  <span className="pointer-events-none absolute top-1/2 left-1/2 flex size-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
+                    <svg className="size-2 fill-current" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </span>
+                )}
               </div>
-            </label>
-          );
-        })}
-      </div>
+            </div>
+          </label>
+        );
+      })}
     </div>
   );
 }

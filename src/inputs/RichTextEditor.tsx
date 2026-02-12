@@ -345,12 +345,7 @@ export function RichTextEditor({
     },
   };
 
-  const baseClassName = "richtexteditor";
-  const errorClassName = error ? "richtexteditor--error" : "";
-  const disabledClassName = disabled ? "richtexteditor--disabled" : "";
-  const modeClassName = `richtexteditor--${currentMode}`;
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${disabledClassName} ${modeClassName} ${className}`.trim();
+  const combinedClassName = `rounded-md border border-input ${error ? "border-red-500 ring-1 ring-red-500" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`.trim();
 
   const editorStyle: React.CSSProperties = {
     minHeight,
@@ -365,8 +360,8 @@ export function RichTextEditor({
 
       {/* Toolbar */}
       {showToolbar && (
-        <div className="richtexteditor-toolbar">
-          <div className="richtexteditor-toolbar-buttons">
+        <div className="flex items-center justify-between p-2 border-b border-border bg-muted/50">
+          <div className="flex items-center gap-1">
             {toolbarButtons.map((buttonName) => {
               const button = toolbarConfig[buttonName];
               if (!button) return null;
@@ -375,7 +370,7 @@ export function RichTextEditor({
                 <button
                   key={buttonName}
                   type="button"
-                  className="richtexteditor-toolbar-button"
+                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   onClick={() => editorRef.current && button.action(editorRef.current)}
                   title={button.title}
                   disabled={disabled || currentMode === "markdown"}
@@ -389,7 +384,7 @@ export function RichTextEditor({
           {allowModeSwitch && (
             <button
               type="button"
-              className="richtexteditor-mode-toggle"
+              className="flex items-center justify-center h-8 px-3 rounded border-none bg-transparent hover:bg-accent text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleModeToggle}
               disabled={disabled}
               title={`Switch to ${currentMode === "wysiwyg" ? "Markdown" : "WYSIWYG"}`}
@@ -402,11 +397,11 @@ export function RichTextEditor({
       )}
 
       {/* Editor */}
-      <div className="richtexteditor-editor" style={editorStyle}>
+      <div style={editorStyle}>
         {currentMode === "wysiwyg" ? (
           <div
             ref={editorRef}
-            className="richtexteditor-content"
+            className="w-full p-3 text-base md:text-sm outline-none bg-transparent focus-visible:outline-none [&:empty:before]:content-[attr(data-placeholder)] [&:empty:before]:text-muted-foreground"
             role="textbox"
             contentEditable={!disabled}
             onInput={handleWysiwygChange}
@@ -420,7 +415,7 @@ export function RichTextEditor({
         ) : (
           <textarea
             ref={textareaRef}
-            className="richtexteditor-markdown"
+            className="w-full p-3 text-base md:text-sm outline-none bg-transparent resize-none focus-visible:outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             value={content}
             onChange={handleMarkdownChange}
             onBlur={onBlur}
@@ -430,6 +425,7 @@ export function RichTextEditor({
             aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
             aria-describedby={props["aria-describedby"]}
             aria-required={required || props["aria-required"]}
+            style={editorStyle}
           />
         )}
       </div>

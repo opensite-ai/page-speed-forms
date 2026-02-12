@@ -292,7 +292,7 @@ describe("TextArea Component", () => {
       const onChange = vi.fn();
       render(<TextArea name="bio" value="" onChange={onChange} error={true} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("textarea--error");
+      expect(screen.getByRole("textbox")).toHaveClass("border-red-500", "ring-1", "ring-red-500");
     });
 
     it("should not apply error class when error is false", () => {
@@ -342,7 +342,7 @@ describe("TextArea Component", () => {
       const onChange = vi.fn();
       render(<TextArea name="bio" value="" onChange={onChange} />);
 
-      expect(screen.getByRole("textbox")).toHaveClass("textarea");
+      expect(screen.getByRole("textbox")).toHaveClass("flex", "min-h-20", "w-full", "rounded-md");
     });
 
     it("should support custom className", () => {
@@ -357,7 +357,7 @@ describe("TextArea Component", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      expect(textarea).toHaveClass("textarea");
+      expect(textarea).toHaveClass("flex", "min-h-20", "w-full");
       expect(textarea).toHaveClass("custom-class");
     });
 
@@ -374,8 +374,8 @@ describe("TextArea Component", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      expect(textarea).toHaveClass("textarea");
-      expect(textarea).toHaveClass("textarea--error");
+      expect(textarea).toHaveClass("flex", "min-h-20", "w-full");
+      expect(textarea).toHaveClass("border-red-500", "ring-1", "ring-red-500");
       expect(textarea).toHaveClass("custom-class");
     });
 
@@ -534,7 +534,7 @@ describe("TextArea Component", () => {
       );
 
       const textarea = screen.getByRole("textbox");
-      expect(textarea.className).toBe("textarea");
+      expect(textarea).toHaveClass("flex", "min-h-20", "w-full", "rounded-md");
     });
 
     it("should handle very long values", async () => {

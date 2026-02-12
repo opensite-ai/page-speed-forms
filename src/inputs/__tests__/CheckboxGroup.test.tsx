@@ -534,7 +534,7 @@ describe("CheckboxGroup Component", () => {
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("checkbox-group--stacked");
+      expect(group).toHaveClass("flex-col");
     });
 
     it("should apply inline layout", () => {
@@ -550,7 +550,7 @@ describe("CheckboxGroup Component", () => {
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("checkbox-group--inline");
+      expect(group).toHaveClass("flex-row");
     });
 
     it("should apply grid layout", () => {
@@ -566,7 +566,7 @@ describe("CheckboxGroup Component", () => {
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("checkbox-group--grid");
+      expect(group).toHaveClass("grid");
     });
 
     it("should apply grid columns style", () => {
@@ -638,8 +638,11 @@ describe("CheckboxGroup Component", () => {
         />
       );
 
-      const group = screen.getByRole("group");
-      expect(group).toHaveClass("checkbox-group--error");
+      // CheckboxGroup applies error class to individual checkboxes
+      const checkboxes = screen.getAllByRole("checkbox");
+      checkboxes.forEach((checkbox) => {
+        expect(checkbox.className).toContain("border-destructive");
+      });
     });
 
     it("should call onBlur when checkbox loses focus", async () => {
@@ -800,7 +803,7 @@ describe("CheckboxGroup Component", () => {
       );
 
       const group = screen.getByRole("group");
-      expect(group).toHaveClass("checkbox-group");
+      expect(group).toHaveClass("w-full");
       expect(group).toHaveClass("custom-class");
     });
   });

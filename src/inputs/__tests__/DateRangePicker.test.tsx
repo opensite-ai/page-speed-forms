@@ -111,7 +111,7 @@ describe("DateRangePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".daterangepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).toBeInTheDocument();
     });
 
@@ -125,7 +125,7 @@ describe("DateRangePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".daterangepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).not.toBeInTheDocument();
     });
 
@@ -344,7 +344,8 @@ describe("DateRangePicker", () => {
 
       const todayButton = screen.getByRole("button", { name: formattedDate });
 
-      expect(todayButton).toHaveClass("daterangepicker-calendar-day--today");
+      expect(todayButton).toHaveClass("border");
+      expect(todayButton).toHaveClass("border-primary");
     });
 
     it("should highlight selected start date", async () => {
@@ -363,7 +364,8 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const startButton = screen.getByRole("button", { name: "06/15/2024" });
-        expect(startButton).toHaveClass("daterangepicker-calendar-day--selected");
+        expect(startButton).toHaveClass("bg-primary");
+        expect(startButton).toHaveClass("text-primary-foreground");
       });
     });
 
@@ -384,7 +386,8 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const endButton = screen.getByRole("button", { name: "06/20/2024" });
-        expect(endButton).toHaveClass("daterangepicker-calendar-day--selected");
+        expect(endButton).toHaveClass("bg-primary");
+        expect(endButton).toHaveClass("text-primary-foreground");
       });
     });
 
@@ -405,7 +408,7 @@ describe("DateRangePicker", () => {
 
       await waitFor(() => {
         const inRangeButton = screen.getByRole("button", { name: "06/17/2024" });
-        expect(inRangeButton).toHaveClass("daterangepicker-calendar-day--in-range");
+        expect(inRangeButton.className).toMatch(/bg-(primary\/10|accent\/50)/);
       });
     });
 
@@ -662,7 +665,7 @@ describe("DateRangePicker", () => {
 
       // Dates between start and hover should have in-range class
       const june17 = screen.getByRole("button", { name: "06/17/2024" });
-      expect(june17).toHaveClass("daterangepicker-calendar-day--in-range");
+      expect(june17.className).toMatch(/bg-(primary\/10|accent\/50)/);
     });
   });
 
@@ -840,7 +843,8 @@ describe("DateRangePicker", () => {
         />
       );
 
-      expect(container.querySelector(".daterangepicker")).toBeInTheDocument();
+      const wrapper = container.querySelector('[class*="relative"]');
+      expect(wrapper).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -853,7 +857,8 @@ describe("DateRangePicker", () => {
         />
       );
 
-      expect(container.querySelector(".daterangepicker--error")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toHaveClass("border-red-500");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -866,7 +871,8 @@ describe("DateRangePicker", () => {
         />
       );
 
-      expect(container.querySelector(".daterangepicker--disabled")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toBeDisabled();
     });
 
     it("should apply open class when calendar is open", async () => {
@@ -882,7 +888,7 @@ describe("DateRangePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        expect(container.querySelector(".daterangepicker--open")).toBeInTheDocument();
+        expect(screen.getByRole("grid")).toBeInTheDocument();
       });
     });
 

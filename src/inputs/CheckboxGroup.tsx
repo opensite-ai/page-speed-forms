@@ -217,18 +217,21 @@ export function CheckboxGroup({
     onBlur?.();
   };
 
-  const baseClassName = "checkbox-group";
-  const errorClassName = error ? "checkbox-group--error" : "";
-  const layoutClassName = `checkbox-group--${layout}`;
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${layoutClassName} ${className}`.trim();
+  const layoutClass =
+    layout === "inline"
+      ? "flex flex-row flex-wrap gap-4"
+      : layout === "grid"
+      ? `grid gap-3`
+      : "flex flex-col gap-3";
+
+  const containerClass = `w-full ${layoutClass} ${className}`.trim();
 
   // Determine if max selections reached
   const maxReached = Boolean(maxSelections && value.length >= maxSelections);
 
   return (
     <div
-      className={combinedClassName}
+      className={containerClass}
       role="group"
       aria-invalid={error || props["aria-invalid"]}
       aria-describedby={props["aria-describedby"]}
@@ -242,97 +245,126 @@ export function CheckboxGroup({
           : undefined
       }
     >
-      {label && <div className="checkbox-group-label">{label}</div>}
+      {label && <div className="text-sm font-medium">{label}</div>}
       {description && (
-        <div className="checkbox-group-description">{description}</div>
+        <div className="text-muted-foreground text-sm">{description}</div>
       )}
 
-      <div className="checkbox-options">
-        {/* Select All Checkbox */}
-        {showSelectAll && enabledOptions.length > 0 && (
-          <label className="checkbox-option checkbox-option--select-all">
-            <input
-              type="checkbox"
-              checked={allSelected}
-              ref={(input) => {
-                if (input) {
-                  input.indeterminate = someSelected;
-                }
-              }}
-              onChange={(e) => handleSelectAll(e.target.checked)}
-              onBlur={handleBlur}
-              disabled={disabled}
-              className="checkbox-input"
-              aria-label={selectAllLabel}
-            />
-            <div className="checkbox-content">
-              <span className="checkbox-label">{selectAllLabel}</span>
-            </div>
-          </label>
-        )}
-
-        {/* Individual Checkboxes */}
-        {options.map((option) => {
-          const isChecked = value.includes(option.value);
-          const isDisabled =
-            disabled || option.disabled || (maxReached && !isChecked);
-          const checkboxId = `${name}-${option.value}`;
-
-          return (
-            <label
-              key={option.value}
-              className={`checkbox-option ${isDisabled ? "checkbox-option--disabled" : ""}`}
-              htmlFor={checkboxId}
-            >
+      {/* Select All Checkbox */}
+      {showSelectAll && enabledOptions.length > 0 && (
+        <label
+          className={`flex w-fit gap-2 items-center ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        >
+          <div className="flex w-full flex-row items-center gap-2">
+            <div className="relative inline-flex">
               <input
                 type="checkbox"
-                id={checkboxId}
-                name={name}
-                value={option.value}
-                checked={isChecked}
-                onChange={(e) => handleChange(option.value, e.target.checked)}
+                checked={allSelected}
+                ref={(input) => {
+                  if (input) {
+                    input.indeterminate = someSelected;
+                  }
+                }}
+                onChange={(e) => handleSelectAll(e.target.checked)}
                 onBlur={handleBlur}
-                disabled={isDisabled}
-                required={required && minSelections ? value.length < minSelections : false}
-                className="checkbox-input"
-                aria-describedby={
-                  option.description
-                    ? `${checkboxId}-description`
-                    : props["aria-describedby"]
-                }
+                disabled={disabled}
+                className="peer relative flex size-4 shrink-0 appearance-none items-center justify-center rounded-lg border border-input bg-transparent outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={selectAllLabel}
               />
-              <div className="checkbox-content">
+              {allSelected && (
+                <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
+                  <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+              )}
+              {someSelected && !allSelected && (
+                <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary">
+                  <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </span>
+              )}
+            </div>
+            <span className="text-sm font-medium">{selectAllLabel}</span>
+          </div>
+        </label>
+      )}
+
+      {/* Individual Checkboxes */}
+      {options.map((option) => {
+        const isChecked = value.includes(option.value);
+        const isDisabled =
+          disabled || option.disabled || (maxReached && !isChecked);
+        const checkboxId = `${name}-${option.value}`;
+
+        return (
+          <label
+            key={option.value}
+            className={`flex w-fit gap-2 items-center ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            htmlFor={checkboxId}
+          >
+            <div className="flex w-full flex-row items-center gap-2">
+              <div className="relative inline-flex">
+                <input
+                  type="checkbox"
+                  id={checkboxId}
+                  name={name}
+                  value={option.value}
+                  checked={isChecked}
+                  onChange={(e) => handleChange(option.value, e.target.checked)}
+                  onBlur={handleBlur}
+                  disabled={isDisabled}
+                  required={required && minSelections ? value.length < minSelections : false}
+                  className={`peer relative flex size-4 shrink-0 appearance-none items-center justify-center rounded-lg border border-input bg-transparent outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive ring-3 ring-destructive/20" : ""} ${isChecked ? "bg-primary border-primary" : ""}`}
+                  aria-describedby={
+                    option.description
+                      ? `${checkboxId}-description`
+                      : props["aria-describedby"]
+                  }
+                />
+                {isChecked && (
+                  <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
+                    <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-1 flex-col gap-0.5">
                 {renderOption ? (
                   renderOption(option)
                 ) : (
                   <>
-                    <span className="checkbox-label">{option.label}</span>
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      {option.label}
+                    </div>
                     {option.description && (
-                      <span
-                        className="checkbox-description"
+                      <p
+                        className="text-muted-foreground text-sm"
                         id={`${checkboxId}-description`}
                       >
                         {option.description}
-                      </span>
+                      </p>
                     )}
                   </>
                 )}
               </div>
-            </label>
-          );
-        })}
-      </div>
+            </div>
+          </label>
+        );
+      })}
 
       {/* Selection count feedback */}
       {(minSelections || maxSelections) && (
-        <div className="checkbox-group-feedback" aria-live="polite">
+        <div className="text-sm text-muted-foreground mt-2" aria-live="polite">
           {minSelections && value.length < minSelections && (
-            <span className="checkbox-group-feedback-min">
+            <span className="text-destructive">
               Select at least {minSelections} option{minSelections !== 1 ? "s" : ""}
             </span>
           )}
           {maxSelections && (
-            <span className="checkbox-group-feedback-max">
+            <span>
               {value.length}/{maxSelections} selected
             </span>
           )}

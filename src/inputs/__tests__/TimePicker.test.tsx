@@ -73,7 +73,7 @@ describe("TimePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".timepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).toBeInTheDocument();
     });
 
@@ -87,7 +87,7 @@ describe("TimePicker", () => {
         />
       );
 
-      const icon = screen.getByRole("textbox").parentElement?.querySelector(".timepicker-icon");
+      const icon = screen.getByRole("textbox").parentElement?.querySelector('svg');
       expect(icon).not.toBeInTheDocument();
     });
 
@@ -223,7 +223,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const dropdown = screen.getByText("Hour").closest(".timepicker-dropdown");
+        const dropdown = screen.getByText("Hour").parentElement;
         expect(dropdown).toBeInTheDocument();
 
         for (let i = 1; i <= 12; i++) {
@@ -250,7 +250,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const dropdown = screen.getByText("Hour").closest(".timepicker-dropdown");
+        const dropdown = screen.getByText("Hour").parentElement;
         expect(dropdown).toBeInTheDocument();
 
         for (let i = 0; i <= 23; i++) {
@@ -277,7 +277,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        const dropdown = screen.getByText("Minute").closest(".timepicker-dropdown");
+        const dropdown = screen.getByText("Minute").parentElement;
         expect(dropdown).toBeInTheDocument();
 
         // Should show 00, 15, 30, 45
@@ -331,7 +331,8 @@ describe("TimePicker", () => {
 
       await waitFor(() => {
         const hourButton = screen.getByRole("button", { name: "02 hours" });
-        expect(hourButton).toHaveClass("timepicker-option--selected");
+        expect(hourButton).toHaveClass("bg-primary");
+        expect(hourButton).toHaveClass("text-primary-foreground");
       });
     });
 
@@ -350,7 +351,8 @@ describe("TimePicker", () => {
 
       await waitFor(() => {
         const minuteButton = screen.getByRole("button", { name: "30 minutes" });
-        expect(minuteButton).toHaveClass("timepicker-option--selected");
+        expect(minuteButton).toHaveClass("bg-primary");
+        expect(minuteButton).toHaveClass("text-primary-foreground");
       });
     });
 
@@ -369,7 +371,8 @@ describe("TimePicker", () => {
 
       await waitFor(() => {
         const pmButton = screen.getByRole("button", { name: "PM" });
-        expect(pmButton).toHaveClass("timepicker-option--selected");
+        expect(pmButton).toHaveClass("bg-primary");
+        expect(pmButton).toHaveClass("text-primary-foreground");
       });
     });
   });
@@ -718,7 +721,8 @@ describe("TimePicker", () => {
         />
       );
 
-      expect(container.querySelector(".timepicker")).toBeInTheDocument();
+      const wrapper = container.querySelector('[class*="relative"]');
+      expect(wrapper).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -731,7 +735,8 @@ describe("TimePicker", () => {
         />
       );
 
-      expect(container.querySelector(".timepicker--error")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toHaveClass("border-red-500");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -744,7 +749,8 @@ describe("TimePicker", () => {
         />
       );
 
-      expect(container.querySelector(".timepicker--disabled")).toBeInTheDocument();
+      const input = screen.getByRole("textbox");
+      expect(input).toBeDisabled();
     });
 
     it("should apply open class when picker is open", async () => {
@@ -760,7 +766,7 @@ describe("TimePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       await waitFor(() => {
-        expect(container.querySelector(".timepicker--open")).toBeInTheDocument();
+        expect(screen.getByText("Hour")).toBeInTheDocument();
       });
     });
 

@@ -277,12 +277,7 @@ export function TimePicker({
     return mins;
   }, [minuteStep]);
 
-  const baseClassName = "timepicker";
-  const errorClassName = error ? "timepicker--error" : "";
-  const disabledClassName = disabled ? "timepicker--disabled" : "";
-  const openClassName = isOpen ? "timepicker--open" : "";
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${disabledClassName} ${openClassName} ${className}`.trim();
+  const combinedClassName = `relative ${className}`.trim();
 
   const displayValue = formatTimeValue(timeValue, use24Hour);
 
@@ -296,9 +291,9 @@ export function TimePicker({
       />
 
       {/* Custom time input */}
-      <div className="timepicker-input-wrapper">
+      <div className="relative">
         {showIcon && (
-          <span className="timepicker-icon" aria-hidden="true">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -318,7 +313,7 @@ export function TimePicker({
         <input
           ref={inputRef}
           type="text"
-          className="timepicker-input"
+          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
@@ -333,7 +328,7 @@ export function TimePicker({
         {clearable && value && !disabled && (
           <button
             type="button"
-            className="timepicker-clear"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             onClick={handleClear}
             aria-label="Clear time"
             tabIndex={-1}
@@ -345,14 +340,14 @@ export function TimePicker({
 
       {/* Time picker popup */}
       {isOpen && !disabled && (
-        <div className="timepicker-dropdown">
-          <div className="timepicker-selectors">
+        <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
+          <div className="flex gap-2">
             {/* Hour selector */}
-            <div className="timepicker-column">
-              <div className="timepicker-column-label">
+            <div className="flex flex-col flex-1">
+              <div className="text-xs font-medium text-muted-foreground mb-2 text-center">
                 {use24Hour ? "Hour" : "Hour"}
               </div>
-              <div className="timepicker-column-options">
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                 {hours.map((hour) => {
                   const displayHour = use24Hour ? hour : hour;
                   const isSelected = use24Hour
@@ -364,7 +359,7 @@ export function TimePicker({
                     <button
                       key={hour}
                       type="button"
-                      className={`timepicker-option ${isSelected ? "timepicker-option--selected" : ""}`}
+                      className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""}`}
                       onClick={() => {
                         if (use24Hour) {
                           const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
@@ -390,9 +385,9 @@ export function TimePicker({
             </div>
 
             {/* Minute selector */}
-            <div className="timepicker-column">
-              <div className="timepicker-column-label">Minute</div>
-              <div className="timepicker-column-options">
+            <div className="flex flex-col flex-1">
+              <div className="text-xs font-medium text-muted-foreground mb-2 text-center">Minute</div>
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                 {minutes.map((minute) => {
                   const isSelected = timeValue?.minute === minute;
 
@@ -400,7 +395,7 @@ export function TimePicker({
                     <button
                       key={minute}
                       type="button"
-                      className={`timepicker-option ${isSelected ? "timepicker-option--selected" : ""}`}
+                      className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""}`}
                       onClick={() => handleMinuteChange(minute)}
                       aria-label={`${String(minute).padStart(2, "0")} minutes`}
                     >
@@ -413,19 +408,19 @@ export function TimePicker({
 
             {/* Period selector (AM/PM) - only for 12-hour format */}
             {!use24Hour && (
-              <div className="timepicker-column timepicker-column--period">
-                <div className="timepicker-column-label">Period</div>
-                <div className="timepicker-column-options">
+              <div className="flex flex-col w-20">
+                <div className="text-xs font-medium text-muted-foreground mb-2 text-center">Period</div>
+                <div className="flex flex-col gap-1">
                   <button
                     type="button"
-                    className={`timepicker-option ${timeValue?.period === "AM" ? "timepicker-option--selected" : ""}`}
+                    className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${timeValue?.period === "AM" ? "bg-primary text-primary-foreground font-semibold" : ""}`}
                     onClick={() => handlePeriodChange("AM")}
                   >
                     AM
                   </button>
                   <button
                     type="button"
-                    className={`timepicker-option ${timeValue?.period === "PM" ? "timepicker-option--selected" : ""}`}
+                    className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${timeValue?.period === "PM" ? "bg-primary text-primary-foreground font-semibold" : ""}`}
                     onClick={() => handlePeriodChange("PM")}
                   >
                     PM

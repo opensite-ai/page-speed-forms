@@ -378,12 +378,7 @@ export function MultiSelect({
     }
   }, [isOpen]);
 
-  const baseClassName = "multi-select";
-  const errorClassName = error ? "multi-select--error" : "";
-  const disabledClassName = disabled ? "multi-select--disabled" : "";
-  const openClassName = isOpen ? "multi-select--open" : "";
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${disabledClassName} ${openClassName} ${className}`.trim();
+  const combinedClassName = `relative w-full ${className}`.trim();
 
   return (
     <div
@@ -414,7 +409,7 @@ export function MultiSelect({
 
       {/* Custom select trigger */}
       <div
-        className="multi-select-trigger"
+        className={`flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm cursor-pointer transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
         onClick={handleToggle}
         role="combobox"
         aria-expanded={isOpen}
@@ -425,20 +420,20 @@ export function MultiSelect({
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
       >
-        <div className="multi-select-values">
+        <div className="flex items-center flex-1 overflow-hidden">
           {selectedOptions.length > 0 ? (
-            <div className="multi-select-value-list">
+            <div className="flex flex-wrap gap-1">
               {selectedOptions.map((option) => (
-                <span key={option.value} className="multi-select-value-chip">
+                <span key={option.value} className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-xs font-medium">
                   {renderValue ? renderValue(option) : (
                     <>
-                      <span className="multi-select-value-label">
+                      <span className="max-w-40 overflow-hidden text-ellipsis whitespace-nowrap">
                         {option.label}
                       </span>
                       {!disabled && (
                         <button
                           type="button"
-                          className="multi-select-value-remove"
+                          className="flex items-center justify-center h-3.5 w-3.5 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-[0.625rem] p-0 transition-opacity hover:opacity-70"
                           onClick={(e) => handleRemoveValue(option.value, e)}
                           aria-label={`Remove ${option.label}`}
                           tabIndex={-1}
@@ -452,15 +447,15 @@ export function MultiSelect({
               ))}
             </div>
           ) : (
-            <span className="multi-select-placeholder">{placeholder}</span>
+            <span className="text-muted-foreground">{placeholder}</span>
           )}
         </div>
-        <div className="multi-select-icons">
-          {loading && <span className="multi-select-loading">⏳</span>}
+        <div className="flex items-center gap-1 ml-2">
+          {loading && <span className="text-xs">⏳</span>}
           {clearable && value.length > 0 && !disabled && !loading && (
             <button
               type="button"
-              className="multi-select-clear"
+              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
               onClick={handleClearAll}
               aria-label="Clear all selections"
               tabIndex={-1}
@@ -468,7 +463,7 @@ export function MultiSelect({
               ✕
             </button>
           )}
-          <span className="multi-select-arrow" aria-hidden="true">
+          <span className="text-muted-foreground text-xs leading-none" aria-hidden="true">
             {isOpen ? "▲" : "▼"}
           </span>
         </div>
@@ -476,13 +471,13 @@ export function MultiSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div id={dropdownId} className="multi-select-dropdown" role="listbox" aria-multiselectable="true">
+        <div id={dropdownId} className="absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md" role="listbox" aria-multiselectable="true">
           {searchable && (
-            <div className="multi-select-search">
+            <div className="p-2 border-b border-border">
               <input
                 ref={searchInputRef}
                 type="text"
-                className="multi-select-search-input"
+                className="w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -493,10 +488,10 @@ export function MultiSelect({
           )}
 
           {showSelectAll && filteredOptions.length > 0 && (
-            <div className="multi-select-actions">
+            <div className="flex gap-2 p-2 border-b border-border">
               <button
                 type="button"
-                className="multi-select-action-button"
+                className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleSelectAll}
                 disabled={disabled}
               >
@@ -505,7 +500,7 @@ export function MultiSelect({
               {value.length > 0 && (
                 <button
                   type="button"
-                  className="multi-select-action-button"
+                  className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleClearAll}
                   disabled={disabled}
                 >
@@ -516,14 +511,14 @@ export function MultiSelect({
           )}
 
           {isMaxReached && (
-            <div className="multi-select-max-notice">
+            <div className="px-3 py-2 text-xs font-medium text-amber-600 bg-amber-50 border-b border-border">
               Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""} reached
             </div>
           )}
 
-          <div className="multi-select-options">
+          <div className="max-h-64 overflow-y-auto p-1">
             {filteredOptions.length === 0 ? (
-              <div className="multi-select-no-options">No options found</div>
+              <div className="py-2 px-3 text-center text-sm text-muted-foreground">No options found</div>
             ) : optionGroups.length > 0 ? (
               // Render grouped options
               optionGroups.map((group, groupIndex) => {
@@ -533,8 +528,8 @@ export function MultiSelect({
                 if (groupOptions.length === 0) return null;
 
                 return (
-                  <div key={groupIndex} className="multi-select-optgroup">
-                    <div className="multi-select-optgroup-label">{group.label}</div>
+                  <div key={groupIndex} className="py-1">
+                    <div className="py-1.5 px-2 text-xs font-semibold text-muted-foreground">{group.label}</div>
                     {groupOptions.map((option) => {
                       const globalIndex = filteredOptions.indexOf(option);
                       const isSelected = value.includes(option.value);
@@ -544,7 +539,7 @@ export function MultiSelect({
                       return (
                         <div
                           key={option.value}
-                          className={`multi-select-option ${isSelected ? "multi-select-option--selected" : ""} ${isFocused ? "multi-select-option--focused" : ""} ${isDisabled ? "multi-select-option--disabled" : ""}`}
+                          className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                           onClick={() =>
                             !isDisabled && handleToggleOption(option.value)
                           }
@@ -552,10 +547,10 @@ export function MultiSelect({
                           aria-selected={isSelected}
                           aria-disabled={isDisabled}
                         >
-                          <span className="multi-select-option-checkbox">
+                          <span className="text-base leading-none">
                             {isSelected ? "☑" : "☐"}
                           </span>
-                          <span className="multi-select-option-label">
+                          <span className="flex-1">
                             {renderOption ? renderOption(option) : option.label}
                           </span>
                         </div>
@@ -574,16 +569,16 @@ export function MultiSelect({
                 return (
                   <div
                     key={option.value}
-                    className={`multi-select-option ${isSelected ? "multi-select-option--selected" : ""} ${isFocused ? "multi-select-option--focused" : ""} ${isDisabled ? "multi-select-option--disabled" : ""}`}
+                    className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                     onClick={() => !isDisabled && handleToggleOption(option.value)}
                     role="option"
                     aria-selected={isSelected}
                     aria-disabled={isDisabled}
                   >
-                    <span className="multi-select-option-checkbox">
+                    <span className="text-base leading-none">
                       {isSelected ? "☑" : "☐"}
                     </span>
-                    <span className="multi-select-option-label">
+                    <span className="flex-1">
                       {renderOption ? renderOption(option) : option.label}
                     </span>
                   </div>

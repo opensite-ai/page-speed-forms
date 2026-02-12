@@ -364,12 +364,7 @@ export function Select({
     }
   }, [isOpen]);
 
-  const baseClassName = "select";
-  const errorClassName = error ? "select--error" : "";
-  const disabledClassName = disabled ? "select--disabled" : "";
-  const openClassName = isOpen ? "select--open" : "";
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${disabledClassName} ${openClassName} ${className}`.trim();
+  const combinedClassName = `relative w-full ${className}`.trim();
 
   return (
     <div
@@ -399,7 +394,7 @@ export function Select({
 
       {/* Custom select trigger */}
       <div
-        className="select-trigger"
+        className={`flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
         onClick={handleToggle}
         role="combobox"
         aria-expanded={isOpen}
@@ -410,7 +405,7 @@ export function Select({
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : 0}
       >
-        <span className="select-value">
+        <span className="flex items-center flex-1 overflow-hidden text-ellipsis">
           {selectedOption ? (
             renderOption ? (
               renderOption(selectedOption)
@@ -418,15 +413,15 @@ export function Select({
               selectedOption.label
             )
           ) : (
-            <span className="select-placeholder">{placeholder}</span>
+            <span className="text-muted-foreground">{placeholder}</span>
           )}
         </span>
-        <div className="select-icons">
-          {loading && <span className="select-loading">⏳</span>}
+        <div className="flex items-center gap-1 ml-2">
+          {loading && <span className="text-xs">⏳</span>}
           {clearable && value && !disabled && !loading && (
             <button
               type="button"
-              className="select-clear"
+              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
               onClick={handleClear}
               aria-label="Clear selection"
               tabIndex={-1}
@@ -434,7 +429,7 @@ export function Select({
               ✕
             </button>
           )}
-          <span className="select-arrow" aria-hidden="true">
+          <span className="text-muted-foreground text-xs leading-none" aria-hidden="true">
             {isOpen ? "▲" : "▼"}
           </span>
         </div>
@@ -442,13 +437,13 @@ export function Select({
 
       {/* Dropdown */}
       {isOpen && (
-        <div id={dropdownId} className="select-dropdown" role="listbox">
+        <div id={dropdownId} className="absolute z-50 top-full mt-1 min-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md" role="listbox">
           {searchable && (
-            <div className="select-search">
+            <div className="p-2 border-b border-border">
               <input
                 ref={searchInputRef}
                 type="text"
-                className="select-search-input"
+                className="w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -458,9 +453,9 @@ export function Select({
             </div>
           )}
 
-          <div className="select-options">
+          <div className="max-h-64 overflow-y-auto p-1">
             {filteredOptions.length === 0 ? (
-              <div className="select-no-options">No options found</div>
+              <div className="py-2 px-3 text-center text-sm text-muted-foreground">No options found</div>
             ) : optionGroups.length > 0 ? (
               // Render grouped options
               optionGroups.map((group, groupIndex) => {
@@ -470,8 +465,8 @@ export function Select({
                 if (groupOptions.length === 0) return null;
 
                 return (
-                  <div key={groupIndex} className="select-optgroup">
-                    <div className="select-optgroup-label">{group.label}</div>
+                  <div key={groupIndex} className="py-1">
+                    <div className="py-1.5 px-2 text-xs font-semibold text-muted-foreground">{group.label}</div>
                     {groupOptions.map((option) => {
                       const globalIndex = filteredOptions.indexOf(option);
                       const isSelected = value === option.value;
@@ -481,7 +476,7 @@ export function Select({
                       return (
                         <div
                           key={option.value}
-                          className={`select-option ${isSelected ? "select-option--selected" : ""} ${isFocused ? "select-option--focused" : ""} ${isDisabled ? "select-option--disabled" : ""}`}
+                          className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium bg-accent" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                           onClick={() =>
                             !isDisabled && handleSelect(option.value)
                           }
@@ -506,7 +501,7 @@ export function Select({
                 return (
                   <div
                     key={option.value}
-                    className={`select-option ${isSelected ? "select-option--selected" : ""} ${isFocused ? "select-option--focused" : ""} ${isDisabled ? "select-option--disabled" : ""}`}
+                    className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium bg-accent" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                     onClick={() => !isDisabled && handleSelect(option.value)}
                     role="option"
                     aria-selected={isSelected}

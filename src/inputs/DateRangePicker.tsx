@@ -292,39 +292,39 @@ export function DateRangePicker({
     };
 
     return (
-      <div className="daterangepicker-calendar" role="grid" aria-label="Calendar">
-        <div className="daterangepicker-calendar-header">
+      <div role="grid" aria-label="Calendar">
+        <div className="flex items-center justify-between pb-2 border-b border-border">
           <button
             type="button"
-            className="daterangepicker-calendar-nav"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
             onClick={handlePrevMonth}
             aria-label="Previous month"
           >
             ←
           </button>
-          <div className="daterangepicker-calendar-month">
+          <div className="font-medium text-sm">
             {`${monthNames[month]} ${year}`}
           </div>
           <button
             type="button"
-            className="daterangepicker-calendar-nav"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
             onClick={handleNextMonth}
             aria-label="Next month"
           >
             →
           </button>
         </div>
-        <div className="daterangepicker-calendar-weekdays">
+        <div className="grid grid-cols-7 gap-1 mt-2">
           {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-            <div key={day} className="daterangepicker-calendar-weekday">
+            <div key={day} className="flex items-center justify-center h-8 w-full text-xs text-muted-foreground font-medium">
               {day}
             </div>
           ))}
         </div>
-        <div className="daterangepicker-calendar-days">
+        <div className="grid grid-cols-7 gap-1">
           {days.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${index}`} className="daterangepicker-calendar-day daterangepicker-calendar-day--empty" />;
+              return <div key={`empty-${index}`} />;
             }
 
             const isStart = rangeStart && date.toDateString() === rangeStart.toDateString();
@@ -339,7 +339,7 @@ export function DateRangePicker({
               <button
                 key={date.toISOString()}
                 type="button"
-                className={`daterangepicker-calendar-day ${isStart || isEnd ? "daterangepicker-calendar-day--selected" : ""} ${isInRange || isInHoverRange ? "daterangepicker-calendar-day--in-range" : ""} ${isToday ? "daterangepicker-calendar-day--today" : ""} ${disabled ? "daterangepicker-calendar-day--disabled" : ""}`}
+                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isStart || isEnd ? "bg-primary text-primary-foreground font-semibold" : ""} ${isInRange || isInHoverRange ? "bg-accent/50" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
                 onClick={() => !disabled && handleDateSelect(date)}
                 onMouseEnter={() => setHoverDate(date)}
                 onMouseLeave={() => setHoverDate(null)}
@@ -355,12 +355,7 @@ export function DateRangePicker({
     );
   };
 
-  const baseClassName = "daterangepicker";
-  const errorClassName = error ? "daterangepicker--error" : "";
-  const disabledClassName = disabled ? "daterangepicker--disabled" : "";
-  const openClassName = isOpen ? "daterangepicker--open" : "";
-  const combinedClassName =
-    `${baseClassName} ${errorClassName} ${disabledClassName} ${openClassName} ${className}`.trim();
+  const combinedClassName = `relative ${className}`.trim();
 
   const displayValue = rangeStart && rangeEnd
     ? `${formatDate(rangeStart, format)}${separator}${formatDate(rangeEnd, format)}`
@@ -383,9 +378,9 @@ export function DateRangePicker({
       />
 
       {/* Custom date range input */}
-      <div className="daterangepicker-input-wrapper">
+      <div className="relative">
         {showIcon && (
-          <span className="daterangepicker-icon" aria-hidden="true">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -403,7 +398,7 @@ export function DateRangePicker({
         )}
         <input
           type="text"
-          className="daterangepicker-input"
+          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
@@ -418,7 +413,7 @@ export function DateRangePicker({
         {clearable && (rangeStart || rangeEnd) && !disabled && (
           <button
             type="button"
-            className="daterangepicker-clear"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             onClick={handleClear}
             aria-label="Clear date range"
             tabIndex={-1}
@@ -430,10 +425,10 @@ export function DateRangePicker({
 
       {/* Calendar popup */}
       {isOpen && !disabled && (
-        <div className="daterangepicker-dropdown">
+        <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
           {renderCalendar()}
           {rangeStart && !rangeEnd && (
-            <div className="daterangepicker-hint">
+            <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border mt-2">
               Select end date
             </div>
           )}

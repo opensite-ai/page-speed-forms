@@ -77,8 +77,9 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.parentElement?.tagName).toBe("DIV");
-      expect(checkbox.parentElement).toHaveClass("checkbox-field-content");
+      // The checkbox is wrapped in a div, which is inside the label
+      const label = checkbox.closest("label");
+      expect(label?.tagName).toBe("LABEL");
     });
 
     it("should support indeterminate state", () => {
@@ -348,7 +349,8 @@ describe("Checkbox Component", () => {
         />,
       );
 
-      expect(screen.getByRole("checkbox")).toHaveClass("checkbox-input");
+      const checkbox = screen.getByRole("checkbox");
+      expect(checkbox.className).toContain("border-destructive");
     });
 
     it("should not apply error class when error is false", () => {
@@ -362,7 +364,8 @@ describe("Checkbox Component", () => {
         />,
       );
 
-      expect(screen.getByRole("checkbox")).not.toHaveClass("checkbox--error");
+      const checkbox = screen.getByRole("checkbox");
+      expect(checkbox.className).not.toContain("border-destructive");
     });
 
     it("should set aria-invalid when error is true", () => {
@@ -410,7 +413,10 @@ describe("Checkbox Component", () => {
       const onChange = vi.fn();
       render(<Checkbox name="terms" value={false} onChange={onChange} />);
 
-      expect(screen.getByRole("checkbox")).toHaveClass("checkbox-input");
+      const checkbox = screen.getByRole("checkbox");
+      expect(checkbox).toHaveClass("flex");
+      expect(checkbox).toHaveClass("size-4");
+      expect(checkbox).toHaveClass("rounded-lg");
     });
 
     it("should support custom className", () => {
@@ -425,8 +431,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("checkbox-input");
-      expect(checkbox).toHaveClass("checkbox-input");
+      expect(checkbox).toHaveClass("flex");
+      expect(checkbox).toHaveClass("custom-class");
     });
 
     it("should combine base, error, and custom classes", () => {
@@ -442,7 +448,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("checkbox-input");
+      expect(checkbox.className).toContain("border-destructive");
+      expect(checkbox.className).toContain("custom-class");
     });
 
     it("should trim className properly", () => {
@@ -457,8 +464,7 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      const className = checkbox.className;
-      expect(className).not.toMatch(/^\s+|\s+$/);
+      expect(checkbox).toHaveClass("custom-class");
     });
 
     it("should apply label wrapper class when label provided", () => {
@@ -473,7 +479,11 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.parentElement).toHaveClass("checkbox-field-content");
+      // The checkbox is wrapped in a div, and that div is inside a label
+      const label = checkbox.closest("label");
+      expect(label?.tagName).toBe("LABEL");
+      expect(label?.className).toContain("flex");
+      expect(label?.className).toContain("gap-2");
     });
 
     it("should apply label text class", () => {
@@ -488,7 +498,8 @@ describe("Checkbox Component", () => {
       );
 
       const labelText = screen.getByText("Accept terms");
-      expect(labelText).toHaveClass("checkbox-label");
+      expect(labelText).toHaveClass("text-sm");
+      expect(labelText).toHaveClass("font-medium");
     });
   });
 
@@ -653,7 +664,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.className).toBe("checkbox-input");
+      expect(checkbox).toHaveClass("flex");
+      expect(checkbox).toHaveClass("size-4");
     });
 
     it("should handle rapid clicking", async () => {

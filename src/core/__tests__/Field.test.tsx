@@ -151,7 +151,7 @@ describe("Field Component", () => {
       render(<TestFieldWrapper fieldName="email" label="Email Address" />);
 
       const label = screen.getByText("Email Address");
-      expect(label).toHaveClass("field-label");
+      expect(label).toHaveClass("block", "text-sm", "font-medium");
     });
   });
 
@@ -194,7 +194,7 @@ describe("Field Component", () => {
       );
 
       const description = screen.getByText("We'll never share your email");
-      expect(description).toHaveClass("field-description");
+      expect(description).toHaveClass("text-sm", "text-muted-foreground");
     });
 
     it("should not render description when not provided", () => {
@@ -272,7 +272,7 @@ describe("Field Component", () => {
 
       await waitFor(() => {
         const errorElement = screen.getByText("Email is required");
-        expect(errorElement).toHaveClass("field-error");
+        expect(errorElement).toHaveClass("text-sm", "font-medium", "text-red-500");
       });
     });
 

@@ -79,11 +79,12 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor-toolbar")).toBeInTheDocument();
+      const toolbar = container.querySelector('[class*="border-b"]');
+      expect(toolbar).toBeInTheDocument();
     });
 
     it("should not render toolbar when showToolbar is false", () => {
-      const { container } = render(
+      render(
         <RichTextEditor
           name="content"
           value=""
@@ -92,7 +93,7 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor-toolbar")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Bold" })).not.toBeInTheDocument();
     });
 
     it("should render default toolbar buttons", () => {
@@ -183,8 +184,10 @@ describe("RichTextEditor", () => {
         />
       );
 
-      const editorContainer = container.querySelector(".richtexteditor-editor") as HTMLElement;
-      expect(editorContainer.style.minHeight).toBe("300px");
+      // The style is applied to the inner wrapper div, not the outer container
+      const editor = screen.getByRole("textbox");
+      const styleWrapper = editor.parentElement as HTMLElement;
+      expect(styleWrapper).toHaveStyle({ minHeight: "300px" });
     });
 
     it("should apply custom maxHeight", () => {
@@ -197,9 +200,11 @@ describe("RichTextEditor", () => {
         />
       );
 
-      const editorContainer = container.querySelector(".richtexteditor-editor") as HTMLElement;
-      expect(editorContainer.style.maxHeight).toBe("500px");
-      expect(editorContainer.style.overflowY).toBe("auto");
+      // The style is applied to the inner wrapper div, not the outer container
+      const editor = screen.getByRole("textbox");
+      const styleWrapper = editor.parentElement as HTMLElement;
+      expect(styleWrapper).toHaveStyle({ maxHeight: "500px" });
+      expect(styleWrapper).toHaveStyle({ overflowY: "auto" });
     });
   });
 
@@ -713,7 +718,8 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor")).toBeInTheDocument();
+      const wrapper = container.querySelector('[class*="rounded-md"]');
+      expect(wrapper).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -726,7 +732,8 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor--error")).toBeInTheDocument();
+      const editorContainer = container.querySelector('[class*="rounded-md"]');
+      expect(editorContainer?.className).toContain("border-red-500");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -739,11 +746,12 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor--disabled")).toBeInTheDocument();
+      const editorContainer = container.querySelector('[class*="rounded-md"]');
+      expect(editorContainer?.className).toContain("opacity-50");
     });
 
     it("should apply mode class", () => {
-      const { container } = render(
+      render(
         <RichTextEditor
           name="content"
           value=""
@@ -752,11 +760,12 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor--wysiwyg")).toBeInTheDocument();
+      const editor = screen.getByRole("textbox");
+      expect(editor).toHaveAttribute("contenteditable", "true");
     });
 
     it("should apply markdown mode class", () => {
-      const { container } = render(
+      render(
         <RichTextEditor
           name="content"
           value=""
@@ -765,7 +774,8 @@ describe("RichTextEditor", () => {
         />
       );
 
-      expect(container.querySelector(".richtexteditor--markdown")).toBeInTheDocument();
+      const textarea = screen.getByRole("textbox");
+      expect(textarea.tagName).toBe("TEXTAREA");
     });
 
     it("should apply custom className", () => {

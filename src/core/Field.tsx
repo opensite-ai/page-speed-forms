@@ -54,21 +54,21 @@ export function Field({
     <div className={className} data-field={name}>
       {/* Label */}
       {label && (
-        <label htmlFor={name} className="field-label">
+        <label htmlFor={name} className="block text-sm font-medium mb-2">
           {label}
-          {required && <span className="field-required" aria-label="required"> *</span>}
+          {required && <span className="text-red-500 ml-0.5" aria-label="required"> *</span>}
         </label>
       )}
 
       {/* Description */}
       {description && (
-        <div id={descriptionId} className="field-description">
+        <div id={descriptionId} className="text-sm text-muted-foreground mb-2">
           {description}
         </div>
       )}
 
       {/* Field content (render prop or direct children) */}
-      <div className="field-input">
+      <div>
         {typeof children === "function" ? children(fieldState) : children}
       </div>
 
@@ -76,7 +76,7 @@ export function Field({
       {showError && hasError && (
         <div
           id={errorId}
-          className={errorClassName || "field-error"}
+          className={errorClassName || "text-sm font-medium text-red-500 mt-2"}
           role="alert"
           aria-live="polite"
         >

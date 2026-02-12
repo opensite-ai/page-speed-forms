@@ -52,7 +52,7 @@ describe("MultiSelect", () => {
         />
       );
 
-      const valueList = container.querySelector(".multi-select-value-list");
+      const valueList = container.querySelector(".flex.flex-wrap.gap-1");
       expect(valueList).toBeInTheDocument();
       expect(valueList?.textContent).toContain("JavaScript");
       expect(valueList?.textContent).toContain("TypeScript");
@@ -382,8 +382,8 @@ describe("MultiSelect", () => {
       const options = within(listbox).getAllByRole("option");
 
       // Unselected options should be disabled
-      expect(options[2]).toHaveClass("multi-select-option--disabled"); // Python
-      expect(options[3]).toHaveClass("multi-select-option--disabled"); // Go
+      expect(options[2]).toHaveClass("pointer-events-none", "opacity-50"); // Python
+      expect(options[3]).toHaveClass("pointer-events-none", "opacity-50"); // Go
     });
 
     it("should allow deselecting when max is reached", async () => {
@@ -486,7 +486,7 @@ describe("MultiSelect", () => {
       const listbox = await screen.findByRole("listbox");
       const options = within(listbox).getAllByRole("option");
 
-      expect(options[1]).toHaveClass("multi-select-option--disabled");
+      expect(options[1]).toHaveClass("pointer-events-none", "opacity-50");
       expect(options[1]).toHaveAttribute("aria-disabled", "true");
     });
 
@@ -657,7 +657,7 @@ describe("MultiSelect", () => {
         />
       );
 
-      expect(container.querySelector(".multi-select")).toBeInTheDocument();
+      expect(container.querySelector(".relative.w-full")).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -671,7 +671,8 @@ describe("MultiSelect", () => {
         />
       );
 
-      expect(container.querySelector(".multi-select--error")).toBeInTheDocument();
+      const trigger = container.querySelector("[role='combobox']");
+      expect(trigger).toHaveClass("border-red-500", "ring-1", "ring-red-500");
     });
 
     it("should apply custom className", () => {

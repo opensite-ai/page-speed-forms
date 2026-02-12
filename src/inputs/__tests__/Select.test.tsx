@@ -130,7 +130,7 @@ describe("Select", () => {
       const listbox = await screen.findByRole("listbox");
       const options = within(listbox).getAllByRole("option");
 
-      expect(options[1]).toHaveClass("select-option--disabled");
+      expect(options[1]).toHaveClass("pointer-events-none", "opacity-50");
       expect(options[1]).toHaveAttribute("aria-disabled", "true");
       expect(options[1]).toHaveTextContent("Canada");
     });
@@ -388,14 +388,14 @@ describe("Select", () => {
       // First ArrowDown should focus first option
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[0]).toHaveClass("select-option--focused");
+        expect(options[0]).toHaveClass("bg-accent", "text-accent-foreground");
       });
 
       // Second ArrowDown should focus second option
       await user.keyboard("{ArrowDown}");
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[1]).toHaveClass("select-option--focused");
+        expect(options[1]).toHaveClass("bg-accent", "text-accent-foreground");
       });
     });
 
@@ -477,7 +477,7 @@ describe("Select", () => {
 
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[0]).toHaveClass("select-option--focused");
+        expect(options[0]).toHaveClass("bg-accent", "text-accent-foreground");
       });
     });
 
@@ -510,7 +510,7 @@ describe("Select", () => {
 
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[2]).toHaveClass("select-option--focused"); // Mexico is index 2
+        expect(options[2]).toHaveClass("bg-accent", "text-accent-foreground"); // Mexico is index 2
       });
     });
   });
@@ -910,7 +910,7 @@ describe("Select", () => {
         />
       );
 
-      expect(container.querySelector(".select")).toBeInTheDocument();
+      expect(container.querySelector(".relative.w-full")).toBeInTheDocument();
     });
 
     it("should apply error class when error is true", () => {
@@ -924,7 +924,8 @@ describe("Select", () => {
         />
       );
 
-      expect(container.querySelector(".select--error")).toBeInTheDocument();
+      const trigger = container.querySelector("[role='combobox']");
+      expect(trigger).toHaveClass("border-red-500", "ring-1", "ring-red-500");
     });
 
     it("should apply disabled class when disabled is true", () => {
@@ -938,7 +939,8 @@ describe("Select", () => {
         />
       );
 
-      expect(container.querySelector(".select--disabled")).toBeInTheDocument();
+      const trigger = container.querySelector("[role='combobox']");
+      expect(trigger).toHaveClass("cursor-not-allowed", "opacity-50", "pointer-events-none");
     });
 
     it("should apply open class when dropdown is open", async () => {
@@ -955,7 +957,8 @@ describe("Select", () => {
       await user.click(screen.getByRole("combobox"));
 
       await waitFor(() => {
-        expect(container.querySelector(".select--open")).toBeInTheDocument();
+        // Check dropdown is visible
+        expect(screen.getByRole("listbox")).toBeInTheDocument();
       });
     });
 
