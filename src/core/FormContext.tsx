@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext } from "react";
+import * as React from "react";
 import type { UseFormReturn } from "./types";
 
 /**
@@ -11,6 +11,6 @@ import type { UseFormReturn } from "./types";
  *
  * @internal
  */
-export const FormContext = createContext<UseFormReturn<any> | null>(null);
+export const FormContext = React.createContext<UseFormReturn<any> | null>(null);
 
 FormContext.displayName = "FormContext";

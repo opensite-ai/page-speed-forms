@@ -1,679 +1,221 @@
 ![Page Speed React Forms](https://octane.cdn.ing/api/v1/images/transform?url=https://cdn.ing/assets/i/r/286339/nwqgw37pigfluhcmmjmpql3yj9y4/github.png&q=90)
 
-# ⚡️ @page-speed/forms
+# `@page-speed/forms`
 
-Type-safe form state management and validation for React applications.
-
-## Overview
-
-OpenSite Page Speed Forms is a high-performance library designed to streamline form state management, validation, and submission handling in React applications. This library is part of OpenSite AI's open-source ecosystem, built for performance and open collaboration. By emphasizing type safety and modularity, it aligns with OpenSite's goal to create scalable, open, and developer-friendly performance tooling.
+Type-safe, high-performance React form state and input components for OpenSite/DashTrack workloads.
 
 [![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
 [![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
 [![License](https://img.shields.io/npm/l/@page-speed/forms?style=flat-square)](./LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square)](./tsconfig.json)
-[![Tree-Shakeable](https://img.shields.io/badge/Tree%20Shakeable-Yes-brightgreen?style=flat-square)](#tree-shaking)
 
-Learn more at [OpenSite.ai Developers](https://opensite.ai/developers).
+## Highlights
 
-## Key Features
-
-- Type-safe form state management with TypeScript.
-- Flexible validation schemas supporting both synchronous and asynchronous validation.
-- Modular useForm and useField hooks for complete form and field control.
-- Built-in support for form submission and error handling.
-- Configurable validation modes: `onChange`, `onBlur`, and `onSubmit`.
+- Field-level reactivity via `@legendapp/state/react`
+- Typed `useForm` and `useField` APIs
+- Built-in input library (text, select, date, time, upload, rich text)
+- Tree-shakable subpath exports (`/core`, `/inputs`, `/validation`, `/upload`, `/integration`)
+- Validation rules and utilities (sync + async)
+- Valibot adapter in a separate entrypoint (`/validation/valibot`)
+- Tailwind token-based default UI aligned with ShadCN interaction patterns
 
 ## Installation
 
-To install OpenSite Page Speed Forms, ensure you have Node.js and npm installed, then run:
-
-```
+```bash
+pnpm add @page-speed/forms
+# or
 npm install @page-speed/forms
 ```
 
-Dependencies:
-- React
+Peer dependencies:
+- `react >= 16.8.0`
+- `react-dom >= 16.8.0`
 
 ## Quick Start
 
-Here is a basic example to get started with OpenSite Page Speed Forms in your React application:
+```tsx
+import * as React from "react";
+import { Form, Field, useForm } from "@page-speed/forms";
+import { TextInput, Select } from "@page-speed/forms/inputs";
+import { required, email } from "@page-speed/forms/validation/rules";
 
-```typescript
-import React from 'react';
-import { useForm, Form } from '@page-speed/forms';
-
-function MyForm() {
+export function ContactForm() {
   const form = useForm({
-    initialValues: { email: '' },
-    onSubmit: (values) => {
-      console.log('Form Submitted:', values);
-    }
+    initialValues: {
+      fullName: "",
+      email: "",
+      inquiryType: "",
+    },
+    validationSchema: {
+      fullName: required(),
+      email: [required(), email()],
+      inquiryType: required(),
+    },
+    onSubmit: async (values) => {
+      console.log(values);
+    },
   });
 
   return (
     <Form form={form}>
-      <input
-        name="email"
-        value={form.values.email}
-        onChange={(e) => form.setFieldValue('email', e.target.value)}
-        onBlur={() => form.setFieldTouched('email', true)}
-      />
-      <button type="submit">Submit</button>
+      <Field name="fullName" label="Full Name" required>
+        {({ field, meta }) => (
+          <TextInput
+            {...field}
+            placeholder="Your name"
+            error={Boolean(meta.touched && meta.error)}
+          />
+        )}
+      </Field>
+
+      <Field name="email" label="Email" required>
+        {({ field, meta }) => (
+          <TextInput
+            {...field}
+            type="email"
+            placeholder="you@example.com"
+            error={Boolean(meta.touched && meta.error)}
+          />
+        )}
+      </Field>
+
+      <Field name="inquiryType" label="Inquiry Type" required>
+        {({ field, meta }) => (
+          <Select
+            {...field}
+            options={[
+              { label: "General", value: "general" },
+              { label: "Sales", value: "sales" },
+              { label: "Support", value: "support" },
+            ]}
+            error={Boolean(meta.touched && meta.error)}
+          />
+        )}
+      </Field>
+
+      <button type="submit" disabled={form.isSubmitting}>
+        Submit
+      </button>
     </Form>
   );
 }
 ```
 
-## Configuration or Advanced Usage
+## Package Entry Points
 
-OpenSite Page Speed Forms can be customized with various options:
+### Main
+- `@page-speed/forms`
 
-```typescript
-const form = useForm({
-  initialValues: { email: '' },
-  validationSchema: {
-    email: (value) => value.includes('@') ? undefined : 'Invalid email'
-  },
-  validateOn: 'onBlur',
-  revalidateOn: 'onChange',
-  onSubmit: (values) => console.log(values),
-  onError: (errors) => console.error(errors),
-  debug: true
-});
+Exports:
+- `useForm`, `useField`, `Form`, `Field`, `FormContext`
+- core form/types interfaces
+
+### Inputs
+- `@page-speed/forms/inputs`
+
+Exports:
+- `TextInput`
+- `TextArea`
+- `Checkbox`
+- `CheckboxGroup`
+- `Radio`
+- `Select`
+- `MultiSelect`
+- `DatePicker`
+- `DateRangePicker`
+- `TimePicker`
+- `RichTextEditor`
+- `FileInput`
+
+### Validation
+- `@page-speed/forms/validation`
+- `@page-speed/forms/validation/rules`
+- `@page-speed/forms/validation/utils`
+- `@page-speed/forms/validation/valibot`
+
+### Upload and Integration
+- `@page-speed/forms/upload`
+- `@page-speed/forms/integration`
+
+## Input Notes
+
+### `TimePicker`
+`TimePicker` now uses a native `input[type="time"]` UX internally.
+
+- Accepts controlled values in `HH:mm` (24-hour) or `h:mm AM/PM` (12-hour)
+- Emits `HH:mm` when `use24Hour` is `true`
+- Emits `h:mm AM/PM` when `use24Hour` is `false`
+
+### `DatePicker` and `DateRangePicker`
+- Calendar popovers close on outside click
+- Compact month/day layout using tokenized Tailwind classes
+- `DateRangePicker` renders two months and highlights endpoints + in-range dates
+
+### `Select` and `MultiSelect`
+- Close on outside click
+- Search support
+- Option groups
+- Selected options inside the menu use muted highlight styles
+
+## Styling (Tailwind 4 + Semantic Tokens)
+
+This library ships with Tailwind utility classes and semantic token class names.
+
+It is **not** a BEM-only unstyled package anymore.
+
+### Base conventions
+
+- Inputs/triggers are transparent shells with semantic borders/rings
+- Fields with values (text-like controls) use `ring-2 ring-ring`
+- Error states use destructive border/ring
+- Dropdown selected rows use muted backgrounds
+
+### Autofill normalization
+
+Text-like controls apply autofill reset classes to avoid browser-injected background/text colors breaking your theme contrast.
+
+See `INPUT_AUTOFILL_RESET_CLASSES` in `src/utils.ts`.
+
+### Token requirements
+
+Ensure your app defines semantic tokens used in classes such as:
+- `background`, `foreground`, `border`, `input`, `ring`
+- `primary`, `primary-foreground`
+- `muted`, `muted-foreground`
+- `destructive`, `destructive-foreground`
+- `popover`, `popover-foreground`
+- `card`, `card-foreground`
+
+For complete styling guidance, see [`docs/STYLES.md`](./docs/STYLES.md).
+
+## Validation Utilities
+
+Use built-in rules:
+- `required`, `email`, `url`, `phone`
+- `minLength`, `maxLength`, `min`, `max`
+- `pattern`, `matches`, `oneOf`
+- `creditCard`, `postalCode`, `alpha`, `alphanumeric`, `numeric`, `integer`
+- `compose`
+
+Use utilities from `/validation/utils`:
+- `debounce`, `asyncValidator`, `crossFieldValidator`, `when`
+- `setErrorMessages`, `getErrorMessage`, `resetErrorMessages`
+
+## File Uploads
+
+`FileInput` supports validation, drag/drop, preview, and crop workflows.
+
+For full two-phase upload patterns and serializer usage, see:
+- [`docs/FILE_UPLOADS.md`](./docs/FILE_UPLOADS.md)
+- `@page-speed/forms/integration`
+
+## Development
+
+```bash
+pnpm test:ci
+pnpm build
+pnpm type-check
 ```
-
-## Advanced Validation Features
-
-### Cross-Field Validation
-
-Validate fields that depend on other field values using the `crossFieldValidator` utility or by accessing `allValues` in your validator:
-
-```typescript
-import { useForm, crossFieldValidator } from '@page-speed/forms/validation';
-
-// Method 1: Using crossFieldValidator helper
-const form = useForm({
-  initialValues: { password: '', confirmPassword: '' },
-  validationSchema: {
-    confirmPassword: crossFieldValidator(
-      ['password', 'confirmPassword'],
-      (values) => {
-        if (values.password !== values.confirmPassword) {
-          return 'Passwords must match';
-        }
-        return undefined;
-      }
-    )
-  }
-});
-
-// Method 2: Direct access to allValues
-const form = useForm({
-  initialValues: { password: '', confirmPassword: '' },
-  validationSchema: {
-    confirmPassword: (value, allValues) => {
-      if (value !== allValues.password) {
-        return 'Passwords must match';
-      }
-      return undefined;
-    }
-  }
-});
-```
-
-### Async Validation with Debouncing
-
-Optimize async validators (like API calls) with built-in debouncing to prevent excessive requests:
-
-```typescript
-import { useForm, asyncValidator } from '@page-speed/forms/validation';
-
-const checkUsernameAvailability = async (username: string) => {
-  const response = await fetch(`/api/check-username?username=${username}`);
-  const { available } = await response.json();
-  return available ? undefined : 'Username already taken';
-};
-
-const form = useForm({
-  initialValues: { username: '' },
-  validationSchema: {
-    // Debounce async validation by 500ms
-    username: asyncValidator(
-      checkUsernameAvailability,
-      { delay: 500, trailing: true }
-    )
-  }
-});
-```
-
-**Debounce Options:**
-- `delay`: Milliseconds to wait (default: 300ms)
-- `leading`: Validate immediately on first change (default: false)
-- `trailing`: Validate after delay expires (default: true)
-
-The `asyncValidator` wrapper also includes automatic race condition prevention, ensuring only the latest validation result is used.
-
-### Validation Rules Library
-
-Use pre-built, tree-shakable validation rules for common scenarios:
-
-```typescript
-import {
-  required,
-  email,
-  url,
-  phone,
-  minLength,
-  maxLength,
-  min,
-  max,
-  pattern,
-  matches,
-  oneOf,
-  creditCard,
-  postalCode,
-  alpha,
-  alphanumeric,
-  numeric,
-  integer,
-  compose
-} from '@page-speed/forms/validation/rules';
-
-const form = useForm({
-  initialValues: {
-    email: '',
-    password: '',
-    confirmPassword: '',
-    age: 0,
-    username: '',
-    cardNumber: ''
-  },
-  validationSchema: {
-    email: compose(
-      required({ message: 'Email is required' }),
-      email({ message: 'Invalid email format' })
-    ),
-    password: compose(
-      required(),
-      minLength(8, { message: 'Password must be at least 8 characters' })
-    ),
-    confirmPassword: matches('password', { message: 'Passwords must match' }),
-    age: compose(
-      required(),
-      numeric({ message: 'Age must be a number' }),
-      min(18, { message: 'Must be 18 or older' })
-    ),
-    username: compose(
-      required(),
-      alphanumeric({ message: 'Only letters and numbers allowed' }),
-      minLength(3),
-      maxLength(20)
-    ),
-    cardNumber: creditCard({ message: 'Invalid credit card number' })
-  }
-});
-```
-
-**Available Validators:**
-
-| Validator | Description | Example |
-|-----------|-------------|---------|
-| `required()` | Field must have a value | `required({ message: 'Required' })` |
-| `email()` | Valid email format (RFC 5322) | `email()` |
-| `url()` | Valid URL format | `url()` |
-| `phone()` | US phone number format | `phone()` |
-| `minLength(n)` | Minimum string/array length | `minLength(3)` |
-| `maxLength(n)` | Maximum string/array length | `maxLength(100)` |
-| `min(n)` | Minimum numeric value | `min(0)` |
-| `max(n)` | Maximum numeric value | `max(100)` |
-| `pattern(regex)` | Custom regex pattern | `pattern(/^[A-Z]+$/)` |
-| `matches(field)` | Match another field | `matches('password')` |
-| `oneOf(values)` | Value in allowed list | `oneOf(['a', 'b', 'c'])` |
-| `creditCard()` | Valid credit card (Luhn) | `creditCard()` |
-| `postalCode()` | US ZIP code format | `postalCode()` |
-| `alpha()` | Alphabetic characters only | `alpha()` |
-| `alphanumeric()` | Letters and numbers only | `alphanumeric()` |
-| `numeric()` | Valid number | `numeric()` |
-| `integer()` | Whole number | `integer()` |
-| `compose(...)` | Combine multiple validators | `compose(required(), email())` |
-
-### Custom Error Messages & Internationalization
-
-Customize error messages globally for internationalization support:
-
-```typescript
-import { setErrorMessages } from '@page-speed/forms/validation/utils';
-
-// Set custom messages (e.g., Spanish translations)
-setErrorMessages({
-  required: 'Este campo es obligatorio',
-  email: 'Por favor ingrese un correo electrónico válido',
-  minLength: ({ min }) => `Debe tener al menos ${min} caracteres`,
-  maxLength: ({ max }) => `No debe exceder ${max} caracteres`,
-  phone: 'Por favor ingrese un número de teléfono válido'
-});
-
-// Use with validation rules
-import { required, email, minLength } from '@page-speed/forms/validation/rules';
-
-const form = useForm({
-  initialValues: { email: '', password: '' },
-  validationSchema: {
-    email: compose(required(), email()),
-    password: compose(required(), minLength(8))
-  }
-});
-```
-
-**Message Template Functions:**
-
-Error messages support template functions with parameter interpolation:
-
-```typescript
-setErrorMessages({
-  minLength: ({ min }) => `Must be at least ${min} characters`,
-  max: ({ max }) => `Cannot exceed ${max}`,
-  matches: ({ field }) => `Must match ${field}`
-});
-```
-
-**Per-Field Custom Messages:**
-
-Override global messages on a per-field basis:
-
-```typescript
-const form = useForm({
-  initialValues: { email: '' },
-  validationSchema: {
-    email: required({ message: 'Please provide your email address' })
-  }
-});
-```
-
-### Conditional Validation
-
-Validate fields only when certain conditions are met:
-
-```typescript
-import { when, required, minLength } from '@page-speed/forms/validation';
-
-const form = useForm({
-  initialValues: { accountType: 'personal', companyName: '' },
-  validationSchema: {
-    // Only require company name for business accounts
-    companyName: when(
-      (allValues) => allValues.accountType === 'business',
-      compose(
-        required({ message: 'Company name is required for business accounts' }),
-        minLength(3)
-      )
-    )
-  }
-});
-```
-
-## Built-in Input Components
-
-`@page-speed/forms` includes a comprehensive set of accessible, production-ready input components that work seamlessly with the form hooks.
-
-### Basic Inputs
-
-#### TextInput
-Standard text input with support for various types (text, email, password, etc.):
-
-```typescript
-import { TextInput } from '@page-speed/forms/inputs';
-
-<Field name="email" label="Email">
-  {({ field }) => <TextInput {...field} type="email" placeholder="Enter email" />}
-</Field>
-```
-
-#### TextArea
-Multi-line text input:
-
-```typescript
-import { TextArea } from '@page-speed/forms/inputs';
-
-<Field name="description" label="Description">
-  {({ field }) => <TextArea {...field} rows={5} placeholder="Enter description" />}
-</Field>
-```
-
-#### Checkbox & CheckboxGroup
-Single checkbox or group of checkboxes:
-
-```typescript
-import { Checkbox, CheckboxGroup } from '@page-speed/forms/inputs';
-
-// Single checkbox
-<Field name="terms" label="Terms">
-  {({ field }) => <Checkbox {...field} label="I agree to the terms" />}
-</Field>
-
-// Checkbox group
-<Field name="interests" label="Interests">
-  {({ field }) => (
-    <CheckboxGroup
-      {...field}
-      options={[
-        { label: 'Sports', value: 'sports' },
-        { label: 'Music', value: 'music' },
-        { label: 'Travel', value: 'travel' }
-      ]}
-    />
-  )}
-</Field>
-```
-
-#### Radio
-Radio button group:
-
-```typescript
-import { Radio } from '@page-speed/forms/inputs';
-
-<Field name="plan" label="Select Plan">
-  {({ field }) => (
-    <Radio
-      {...field}
-      options={[
-        { label: 'Basic', value: 'basic' },
-        { label: 'Pro', value: 'pro' },
-        { label: 'Enterprise', value: 'enterprise' }
-      ]}
-    />
-  )}
-</Field>
-```
-
-#### Select
-Dropdown select with support for single and multi-select:
-
-```typescript
-import { Select } from '@page-speed/forms/inputs';
-
-// Single select
-<Field name="country" label="Country">
-  {({ field }) => (
-    <Select
-      {...field}
-      options={[
-        { label: 'United States', value: 'us' },
-        { label: 'Canada', value: 'ca' },
-        { label: 'United Kingdom', value: 'uk' }
-      ]}
-      searchable
-      clearable
-    />
-  )}
-</Field>
-
-// Multi-select
-<Field name="skills" label="Skills">
-  {({ field }) => (
-    <Select
-      {...field}
-      multiple
-      options={[
-        { label: 'JavaScript', value: 'js' },
-        { label: 'TypeScript', value: 'ts' },
-        { label: 'React', value: 'react' }
-      ]}
-      searchable
-    />
-  )}
-</Field>
-```
-
-### Advanced Inputs
-
-#### DatePicker
-Date selection with calendar popup:
-
-```typescript
-import { DatePicker } from '@page-speed/forms/inputs';
-
-<Field name="birthdate" label="Birth Date">
-  {({ field }) => (
-    <DatePicker
-      {...field}
-      placeholder="Select date"
-      dateFormat="MM/dd/yyyy"
-      minDate={new Date(1900, 0, 1)}
-      maxDate={new Date()}
-      clearable
-    />
-  )}
-</Field>
-```
-
-**Props:**
-- `dateFormat`: Date display format (default: "MM/dd/yyyy")
-- `minDate`, `maxDate`: Restrict selectable dates
-- `isDateDisabled`: Custom function to disable specific dates
-- `clearable`: Show clear button
-- `showTodayButton`: Show "Today" button
-
-#### TimePicker
-Time selection with hour/minute/period selectors:
-
-```typescript
-import { TimePicker } from '@page-speed/forms/inputs';
-
-<Field name="appointmentTime" label="Appointment Time">
-  {({ field }) => (
-    <TimePicker
-      {...field}
-      placeholder="Select time"
-      use24Hour={false}
-      minuteStep={15}
-      clearable
-    />
-  )}
-</Field>
-```
-
-**Props:**
-- `use24Hour`: Use 24-hour format (default: false)
-- `minuteStep`: Minute increment (default: 1)
-- `clearable`: Show clear button
-
-#### DateRangePicker
-Date range selection with start and end dates:
-
-```typescript
-import { DateRangePicker } from '@page-speed/forms/inputs';
-
-<Field name="dateRange" label="Date Range">
-  {({ field }) => (
-    <DateRangePicker
-      {...field}
-      placeholder="Select date range"
-      separator=" - "
-      minDate={new Date()}
-      clearable
-    />
-  )}
-</Field>
-```
-
-**Props:**
-- `separator`: String between start and end dates (default: " - ")
-- `minDate`, `maxDate`: Restrict selectable dates
-- `isDateDisabled`: Custom function to disable specific dates
-- `clearable`: Show clear button
-
-#### RichTextEditor
-WYSIWYG and Markdown editor with toolbar:
-
-```typescript
-import { RichTextEditor } from '@page-speed/forms/inputs';
-
-<Field name="content" label="Content">
-  {({ field }) => (
-    <RichTextEditor
-      {...field}
-      placeholder="Enter content..."
-      minHeight="200px"
-      maxHeight="600px"
-      allowModeSwitch
-      defaultMode="wysiwyg"
-    />
-  )}
-</Field>
-```
-
-**Props:**
-- `defaultMode`: "wysiwyg" or "markdown" (default: "wysiwyg")
-- `allowModeSwitch`: Enable mode toggle button
-- `minHeight`, `maxHeight`: Editor height constraints
-- `customButtons`: Add custom toolbar buttons
-
-**Features:**
-- WYSIWYG mode: Bold, Italic, Underline, Headings, Lists, Links
-- Markdown mode: Direct markdown editing
-- Automatic HTML ↔ Markdown conversion
-
-#### FileInput
-File upload with drag-and-drop, progress indicators, and image cropping:
-
-```typescript
-import { FileInput } from '@page-speed/forms/inputs';
-
-<Field name="avatar" label="Profile Picture">
-  {({ field }) => (
-    <FileInput
-      {...field}
-      accept="image/*"
-      maxSize={5 * 1024 * 1024} // 5MB
-      maxFiles={1}
-      showProgress
-      uploadProgress={uploadProgress}
-      enableCropping
-      cropAspectRatio={1}
-      onCropComplete={(file) => console.log('Cropped:', file)}
-    />
-  )}
-</Field>
-```
-
-**Props:**
-- `accept`: File type filter (e.g., "image/*", ".pdf")
-- `multiple`: Allow multiple files
-- `maxFiles`: Maximum number of files
-- `maxSize`: Maximum file size in bytes
-- `showPreview`: Show file previews
-- `showProgress`: Display upload progress bars
-- `uploadProgress`: Object mapping filenames to progress percentages
-- `enableCropping`: Enable image cropping for image files
-- `cropAspectRatio`: Crop aspect ratio (e.g., 16/9, 1 for square)
-- `onCropComplete`: Callback when cropping is complete
-
-**Features:**
-- Drag-and-drop support
-- File type and size validation
-- Image previews with thumbnails
-- Upload progress indicators with percentage
-- Interactive image cropping with zoom
-- Multiple file support
-- Accessible file selection
-
-### File Upload Implementation
-
-The `FileInput` component uses a **two-phase upload process** optimized for Rails API integration. Files are uploaded immediately to temporary storage and return unique tokens, which are then associated with your form submission.
-
-**Quick Example:**
-
-```tsx
-const [uploadTokens, setUploadTokens] = useState<string[]>([]);
-
-const handleFileUpload = async (files: File[]) => {
-  const formData = new FormData();
-  formData.append("contact_form_upload[file_upload]", files[0]);
-
-  const response = await fetch("/api/contact_form_uploads", {
-    method: "POST",
-    body: formData,
-  });
-
-  const data = await response.json();
-  setUploadTokens([data.token]);
-};
-
-// In your form submission:
-onSubmit: async (values) => {
-  await submitForm({
-    ...values,
-    contact_form_upload_tokens: uploadTokens,
-  });
-}
-```
-
-**Comprehensive Guide:**
-
-For complete file upload documentation, including:
-- Two-phase upload process and flow diagrams
-- Rails API integration with endpoint specifications
-- Multiple working examples (resume uploads, image galleries, document forms)
-- Progress tracking and error handling patterns
-- Image cropping implementation
-- File validation strategies
-- Best practices and common patterns
-- Troubleshooting guide
-
-See the **[File Upload Guide](./docs/FILE_UPLOADS.md)** for detailed information.
-
-## Styling
-
-All components in `@page-speed/forms` are **intentionally unstyled** to provide maximum flexibility and framework-agnostic design. Components use predictable BEM class names (e.g., `.text-input`, `.select-trigger`, `.field-label`) as styling hooks, allowing you to apply any design system or custom styles.
-
-**Quick Example:**
-
-```css
-/* Your custom CSS */
-.text-input {
-  height: 2.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
-.text-input--error {
-  border-color: #ef4444;
-}
-```
-
-**Comprehensive Guide:**
-
-For complete styling documentation, including:
-- BEM class reference for all components
-- Multiple styling approaches (Vanilla CSS, Tailwind, CSS Modules, CSS-in-JS)
-- Complete examples (shadcn/ui, Material Design, custom brands)
-- Best practices and common patterns
-- Dark mode support
-
-See the **[Styling Guide](./docs/STYLES.md)** for detailed information.
-
-## Performance Notes
-
-Performance is a core facet of everything we build at OpenSite AI. The library is optimized for minimal re-renders and efficient form state updates, ensuring your applications remain responsive and fast.
-
-## Contributing
-
-We welcome contributions from the community to enhance OpenSite Page Speed Forms. Please refer to our [GitHub repository](https://github.com/opensite-ai) for guidelines and more information on how to get involved.
 
 ## License
 
-Licensed under the BSD 3-Clause License. See the [LICENSE](./LICENSE) file for details.
-
-## Related Projects
-
-- [Domain Extractor](https://github.com/opensite-ai/domain_extractor)
-- [Page Speed Hooks](https://github.com/opensite-ai/page-speed-hooks)
-- Visit [opensite.ai](https://opensite.ai) for more tools and information.
+MIT. See [`LICENSE`](./LICENSE).
