@@ -21,7 +21,10 @@ export interface ToolbarButton {
 /**
  * RichTextEditor props interface
  */
-export interface RichTextEditorProps extends Omit<InputProps<string>, "onChange"> {
+export interface RichTextEditorProps extends Omit<
+  InputProps<string>,
+  "onChange"
+> {
   /**
    * Change handler - receives HTML or Markdown content
    */
@@ -129,7 +132,10 @@ function markdownToHtml(markdown: string): string {
   let html = markdown;
 
   // Escape HTML
-  html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  html = html
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
   // Headings
   html = html.replace(/^### (.*?)$/gm, "<h3>$1</h3>");
@@ -229,11 +235,19 @@ export function RichTextEditor({
   className = "",
   mode = "wysiwyg",
   allowModeSwitch = false,
-  placeholder = "Start typing...",
+  placeholder = "Your message...",
   minHeight = "200px",
   maxHeight,
   showToolbar = true,
-  toolbarButtons = ["bold", "italic", "underline", "heading", "bulletList", "orderedList", "link"],
+  toolbarButtons = [
+    "bold",
+    "italic",
+    "underline",
+    "heading",
+    "bulletList",
+    "orderedList",
+    "link",
+  ],
   ...props
 }: RichTextEditorProps) {
   const [currentMode, setCurrentMode] = React.useState<EditorMode>(mode);
@@ -345,7 +359,8 @@ export function RichTextEditor({
     },
   };
 
-  const combinedClassName = `rounded-md border border-input ${error ? "border-red-500 ring-1 ring-red-500" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`.trim();
+  const combinedClassName =
+    `rounded-md border border-input ${error ? "border-red-500 ring-1 ring-red-500" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`.trim();
 
   const editorStyle: React.CSSProperties = {
     minHeight,
@@ -370,8 +385,10 @@ export function RichTextEditor({
                 <button
                   key={buttonName}
                   type="button"
-                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                  onClick={() => editorRef.current && button.action(editorRef.current)}
+                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-muted cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() =>
+                    editorRef.current && button.action(editorRef.current)
+                  }
                   title={button.title}
                   disabled={disabled || currentMode === "markdown"}
                   aria-label={button.title}
@@ -384,7 +401,7 @@ export function RichTextEditor({
           {allowModeSwitch && (
             <button
               type="button"
-              className="flex items-center justify-center h-8 px-3 rounded border-none bg-transparent hover:bg-accent text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center justify-center h-8 px-3 rounded border-none bg-transparent hover:bg-muted text-xs font-medium cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleModeToggle}
               disabled={disabled}
               title={`Switch to ${currentMode === "wysiwyg" ? "Markdown" : "WYSIWYG"}`}
@@ -401,7 +418,7 @@ export function RichTextEditor({
         {currentMode === "wysiwyg" ? (
           <div
             ref={editorRef}
-            className="w-full p-3 text-base md:text-sm outline-none bg-transparent focus-visible:outline-none [&:empty:before]:content-[attr(data-placeholder)] [&:empty:before]:text-muted-foreground"
+            className="w-full p-3 text-base md:text-sm outline-none bg-transparent focus-visible:outline-none [&:empty:before]:content-[attr(data-placeholder)]"
             role="textbox"
             contentEditable={!disabled}
             onInput={handleWysiwygChange}
@@ -415,7 +432,7 @@ export function RichTextEditor({
         ) : (
           <textarea
             ref={textareaRef}
-            className="w-full p-3 text-base md:text-sm outline-none bg-transparent resize-none focus-visible:outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full p-3 text-base md:text-sm outline-none bg-transparent resize-none focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             value={content}
             onChange={handleMarkdownChange}
             onBlur={onBlur}

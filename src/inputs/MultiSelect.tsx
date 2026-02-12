@@ -41,8 +41,10 @@ export interface MultiSelectOptionGroup {
 /**
  * Additional props specific to MultiSelect
  */
-export interface MultiSelectProps
-  extends Omit<InputProps<string[]>, "onChange" | "onFocus"> {
+export interface MultiSelectProps extends Omit<
+  InputProps<string[]>,
+  "onChange" | "onFocus"
+> {
   /**
    * Change handler - receives array of selected values
    */
@@ -290,10 +292,9 @@ export function MultiSelect({
           const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
           if (enabledOptions.length > 0) {
             const currentIndexInFiltered = focusedIndex;
-            const nextIndex = (currentIndexInFiltered + 1) % enabledOptions.length;
-            setFocusedIndex(
-              filteredOptions.indexOf(enabledOptions[nextIndex])
-            );
+            const nextIndex =
+              (currentIndexInFiltered + 1) % enabledOptions.length;
+            setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextIndex]));
           }
         }
         break;
@@ -307,16 +308,18 @@ export function MultiSelect({
             const prevIndex =
               (currentIndexInFiltered - 1 + enabledOptions.length) %
               enabledOptions.length;
-            setFocusedIndex(
-              filteredOptions.indexOf(enabledOptions[prevIndex])
-            );
+            setFocusedIndex(filteredOptions.indexOf(enabledOptions[prevIndex]));
           }
         }
         break;
 
       case "Enter":
         e.preventDefault();
-        if (isOpen && focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+        if (
+          isOpen &&
+          focusedIndex >= 0 &&
+          focusedIndex < filteredOptions.length
+        ) {
           const focusedOption = filteredOptions[focusedIndex];
           if (!focusedOption.disabled) {
             handleToggleOption(focusedOption.value);
@@ -337,7 +340,11 @@ export function MultiSelect({
 
       case " ":
         // Space key to toggle option if focused
-        if (isOpen && focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+        if (
+          isOpen &&
+          focusedIndex >= 0 &&
+          focusedIndex < filteredOptions.length
+        ) {
           e.preventDefault();
           const focusedOption = filteredOptions[focusedIndex];
           if (!focusedOption.disabled) {
@@ -409,7 +416,7 @@ export function MultiSelect({
 
       {/* Custom select trigger */}
       <div
-        className={`flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm cursor-pointer transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+        className={`flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
         onClick={handleToggle}
         role="combobox"
         aria-expanded={isOpen}
@@ -424,8 +431,13 @@ export function MultiSelect({
           {selectedOptions.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {selectedOptions.map((option) => (
-                <span key={option.value} className="inline-flex items-center gap-1 rounded bg-secondary px-2 py-0.5 text-xs font-medium">
-                  {renderValue ? renderValue(option) : (
+                <span
+                  key={option.value}
+                  className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium"
+                >
+                  {renderValue ? (
+                    renderValue(option)
+                  ) : (
                     <>
                       <span className="max-w-40 overflow-hidden text-ellipsis whitespace-nowrap">
                         {option.label}
@@ -433,7 +445,7 @@ export function MultiSelect({
                       {!disabled && (
                         <button
                           type="button"
-                          className="flex items-center justify-center h-3.5 w-3.5 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-[0.625rem] p-0 transition-opacity hover:opacity-70"
+                          className="flex items-center justify-center h-3.5 w-3.5 rounded-sm border-none bg-transparent cursor-pointer text-[0.625rem] p-0 transition-opacity hover:opacity-70"
                           onClick={(e) => handleRemoveValue(option.value, e)}
                           aria-label={`Remove ${option.label}`}
                           tabIndex={-1}
@@ -447,7 +459,7 @@ export function MultiSelect({
               ))}
             </div>
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="relative">{placeholder}</span>
           )}
         </div>
         <div className="flex items-center gap-1 ml-2">
@@ -455,7 +467,7 @@ export function MultiSelect({
           {clearable && value.length > 0 && !disabled && !loading && (
             <button
               type="button"
-              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
+              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
               onClick={handleClearAll}
               aria-label="Clear all selections"
               tabIndex={-1}
@@ -463,7 +475,7 @@ export function MultiSelect({
               ✕
             </button>
           )}
-          <span className="text-muted-foreground text-xs leading-none" aria-hidden="true">
+          <span className="text-xs leading-none" aria-hidden="true">
             {isOpen ? "▲" : "▼"}
           </span>
         </div>
@@ -471,7 +483,12 @@ export function MultiSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div id={dropdownId} className="absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md" role="listbox" aria-multiselectable="true">
+        <div
+          id={dropdownId}
+          className="absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
+          role="listbox"
+          aria-multiselectable="true"
+        >
           {searchable && (
             <div className="p-2 border-b border-border">
               <input
@@ -491,7 +508,7 @@ export function MultiSelect({
             <div className="flex gap-2 p-2 border-b border-border">
               <button
                 type="button"
-                className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleSelectAll}
                 disabled={disabled}
               >
@@ -500,7 +517,7 @@ export function MultiSelect({
               {value.length > 0 && (
                 <button
                   type="button"
-                  className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleClearAll}
                   disabled={disabled}
                 >
@@ -511,35 +528,41 @@ export function MultiSelect({
           )}
 
           {isMaxReached && (
-            <div className="px-3 py-2 text-xs font-medium text-amber-600 bg-amber-50 border-b border-border">
-              Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""} reached
+            <div className="px-2 py-1 text-xs font-medium text-amber-600 bg-destructive/80 text-destructive-foreground border-b border-destructive">
+              Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""}{" "}
+              reached
             </div>
           )}
 
           <div className="max-h-64 overflow-y-auto p-1">
             {filteredOptions.length === 0 ? (
-              <div className="py-2 px-3 text-center text-sm text-muted-foreground">No options found</div>
+              <div className="px-2 py-1 text-center text-sm">
+                No options found
+              </div>
             ) : optionGroups.length > 0 ? (
               // Render grouped options
               optionGroups.map((group, groupIndex) => {
                 const groupOptions = group.options.filter((opt) =>
-                  filteredOptions.includes(opt)
+                  filteredOptions.includes(opt),
                 );
                 if (groupOptions.length === 0) return null;
 
                 return (
                   <div key={groupIndex} className="py-1">
-                    <div className="py-1.5 px-2 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                    <div className="py-1.5 px-2 text-xs font-semibold ">
+                      {group.label}
+                    </div>
                     {groupOptions.map((option) => {
                       const globalIndex = filteredOptions.indexOf(option);
                       const isSelected = value.includes(option.value);
                       const isFocused = globalIndex === focusedIndex;
-                      const isDisabled = option.disabled || (isMaxReached && !isSelected);
+                      const isDisabled =
+                        option.disabled || (isMaxReached && !isSelected);
 
                       return (
                         <div
                           key={option.value}
-                          className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                          className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                           onClick={() =>
                             !isDisabled && handleToggleOption(option.value)
                           }
@@ -564,13 +587,16 @@ export function MultiSelect({
               filteredOptions.map((option, index) => {
                 const isSelected = value.includes(option.value);
                 const isFocused = index === focusedIndex;
-                const isDisabled = option.disabled || (isMaxReached && !isSelected);
+                const isDisabled =
+                  option.disabled || (isMaxReached && !isSelected);
 
                 return (
                   <div
                     key={option.value}
-                    className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
-                    onClick={() => !isDisabled && handleToggleOption(option.value)}
+                    className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                    onClick={() =>
+                      !isDisabled && handleToggleOption(option.value)
+                    }
                     role="option"
                     aria-selected={isSelected}
                     aria-disabled={isDisabled}

@@ -56,13 +56,18 @@ export function Field({
       {label && (
         <label htmlFor={name} className="block text-sm font-medium mb-2">
           {label}
-          {required && <span className="text-red-500 ml-0.5" aria-label="required"> *</span>}
+          {required && (
+            <span className="text-red-500 ml-0.5" aria-label="required">
+              {" "}
+              *
+            </span>
+          )}
         </label>
       )}
 
       {/* Description */}
       {description && (
-        <div id={descriptionId} className="text-sm text-muted-foreground mb-2">
+        <div id={descriptionId} className="text-sm mb-2">
           {description}
         </div>
       )}

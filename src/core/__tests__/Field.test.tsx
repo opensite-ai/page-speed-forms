@@ -70,7 +70,7 @@ describe("Field Component", () => {
       render(
         <TestFieldWrapper fieldName="email">
           {({ field }) => <input data-testid="custom-input" {...field} />}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(screen.getByTestId("custom-input")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("Field Component", () => {
       render(
         <TestFieldWrapper fieldName="email">
           <input data-testid="direct-input" />
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(screen.getByTestId("direct-input")).toBeInTheDocument();
@@ -89,8 +89,8 @@ describe("Field Component", () => {
     it("should apply data-field attribute with field name", () => {
       render(<TestFieldWrapper fieldName="email" />);
 
-      const fieldContainer = screen.getByTestId("field-input").parentElement
-        ?.parentElement;
+      const fieldContainer =
+        screen.getByTestId("field-input").parentElement?.parentElement;
       expect(fieldContainer).toHaveAttribute("data-field", "email");
     });
 
@@ -113,7 +113,7 @@ describe("Field Component", () => {
       render(<TestComponent />);
 
       const fieldContainer = screen.getByText((_, element) =>
-        element?.hasAttribute("data-field")
+        element?.hasAttribute("data-field"),
       );
       expect(fieldContainer).toHaveClass("custom-field");
     });
@@ -165,11 +165,11 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           description="We'll never share your email"
-        />
+        />,
       );
 
       expect(
-        screen.getByText("We'll never share your email")
+        screen.getByText("We'll never share your email"),
       ).toBeInTheDocument();
     });
 
@@ -178,7 +178,7 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           description="We'll never share your email"
-        />
+        />,
       );
 
       const description = screen.getByText("We'll never share your email");
@@ -190,11 +190,11 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           description="We'll never share your email"
-        />
+        />,
       );
 
       const description = screen.getByText("We'll never share your email");
-      expect(description).toHaveClass("text-sm", "text-muted-foreground");
+      expect(description).toHaveClass("text-sm");
     });
 
     it("should not render description when not provided", () => {
@@ -216,9 +216,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -239,9 +240,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -261,9 +263,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -272,7 +275,11 @@ describe("Field Component", () => {
 
       await waitFor(() => {
         const errorElement = screen.getByText("Email is required");
-        expect(errorElement).toHaveClass("text-sm", "font-medium", "text-red-500");
+        expect(errorElement).toHaveClass(
+          "text-sm",
+          "font-medium",
+          "text-red-500",
+        );
       });
     });
 
@@ -281,9 +288,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       expect(screen.queryByText("Email is required")).not.toBeInTheDocument();
@@ -297,9 +305,10 @@ describe("Field Component", () => {
           fieldName="email"
           showError={false}
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -359,9 +368,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -381,9 +391,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -405,7 +416,7 @@ describe("Field Component", () => {
             capturedMeta = meta;
             return <input data-testid="field-input" {...field} />;
           }}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(capturedMeta).toHaveProperty("error");
@@ -423,13 +434,13 @@ describe("Field Component", () => {
     it("should support field-level validation via validate prop", async () => {
       const user = userEvent.setup();
       const validate = vi.fn((value: string) =>
-        !value ? "Field is required" : undefined
+        !value ? "Field is required" : undefined,
       );
 
       render(
         <TestFieldWrapper fieldName="email" validate={validate}>
           {({ field }) => <input data-testid="field-input" {...field} />}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       const input = screen.getByTestId("field-input");
@@ -445,9 +456,10 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
-        />
+        />,
       );
 
       const input = screen.getByTestId("field-input");
@@ -484,7 +496,7 @@ describe("Field Component", () => {
             capturedField = field;
             return <input data-testid="field-input" {...field} />;
           }}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(capturedField).toHaveProperty("name", "email");
@@ -502,7 +514,7 @@ describe("Field Component", () => {
             capturedMeta = meta;
             return <input data-testid="field-input" />;
           }}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(capturedMeta).toHaveProperty("error");
@@ -520,7 +532,7 @@ describe("Field Component", () => {
             capturedHelpers = helpers;
             return <input data-testid="field-input" />;
           }}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       expect(capturedHelpers).toHaveProperty("setValue");
@@ -535,7 +547,8 @@ describe("Field Component", () => {
         <TestFieldWrapper
           fieldName="email"
           validationSchema={{
-            email: (value: string) => (!value ? "Email is required" : undefined),
+            email: (value: string) =>
+              !value ? "Email is required" : undefined,
           }}
         >
           {({ field, meta }) => (
@@ -545,7 +558,7 @@ describe("Field Component", () => {
               className={meta.error && meta.touched ? "error-input" : ""}
             />
           )}
-        </TestFieldWrapper>
+        </TestFieldWrapper>,
       );
 
       const input = screen.getByTestId("field-input");
@@ -573,9 +586,7 @@ describe("Field Component", () => {
 
       expect(() => {
         render(
-          <Field name="email">
-            {({ field }) => <input {...field} />}
-          </Field>
+          <Field name="email">{({ field }) => <input {...field} />}</Field>,
         );
       }).toThrow("useField must be used within a FormContext");
 
@@ -592,9 +603,7 @@ describe("Field Component", () => {
         return (
           <Form form={form}>
             <Field name="email">
-              {({ field }) => (
-                <input data-testid="field-input" {...field} />
-              )}
+              {({ field }) => <input data-testid="field-input" {...field} />}
             </Field>
           </Form>
         );

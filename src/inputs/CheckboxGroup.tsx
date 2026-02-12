@@ -262,10 +262,10 @@ export function CheckboxGroup({
           : undefined
       }
     >
-      {label && <div className="text-sm font-medium">{label}</div>}
-      {description && (
-        <div className="text-muted-foreground text-sm">{description}</div>
-      )}
+      {label ? <div className="text-sm font-medium">{label}</div> : null}
+      {description ? (
+        <div className="text-xs opacity-70">{description}</div>
+      ) : null}
 
       {/* Select All Checkbox */}
       {showSelectAll && enabledOptions.length > 0 && (
@@ -299,9 +299,7 @@ export function CheckboxGroup({
             onBlur={handleBlur}
             disabled={isDisabled}
             required={
-              required && minSelections
-                ? value.length < minSelections
-                : false
+              required && minSelections ? value.length < minSelections : false
             }
             error={error}
             label={renderOption ? renderOption(option) : option.label}

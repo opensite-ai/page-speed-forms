@@ -41,8 +41,10 @@ export interface SelectOptionGroup {
 /**
  * Additional props specific to Select
  */
-export interface SelectProps
-  extends Omit<InputProps<string>, "onChange" | "onFocus"> {
+export interface SelectProps extends Omit<
+  InputProps<string>,
+  "onChange" | "onFocus"
+> {
   /**
    * Change handler - receives selected value
    */
@@ -265,10 +267,9 @@ export function Select({
           const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
           if (enabledOptions.length > 0) {
             const currentIndexInFiltered = focusedIndex;
-            const nextIndex = (currentIndexInFiltered + 1) % enabledOptions.length;
-            setFocusedIndex(
-              filteredOptions.indexOf(enabledOptions[nextIndex])
-            );
+            const nextIndex =
+              (currentIndexInFiltered + 1) % enabledOptions.length;
+            setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextIndex]));
           }
         }
         break;
@@ -282,16 +283,18 @@ export function Select({
             const prevIndex =
               (currentIndexInFiltered - 1 + enabledOptions.length) %
               enabledOptions.length;
-            setFocusedIndex(
-              filteredOptions.indexOf(enabledOptions[prevIndex])
-            );
+            setFocusedIndex(filteredOptions.indexOf(enabledOptions[prevIndex]));
           }
         }
         break;
 
       case "Enter":
         e.preventDefault();
-        if (isOpen && focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+        if (
+          isOpen &&
+          focusedIndex >= 0 &&
+          focusedIndex < filteredOptions.length
+        ) {
           const focusedOption = filteredOptions[focusedIndex];
           if (!focusedOption.disabled) {
             handleSelect(focusedOption.value);
@@ -324,9 +327,7 @@ export function Select({
           const char = e.key.toLowerCase();
           const matchingOption = filteredOptions.find((opt) => {
             const label =
-              typeof opt.label === "string"
-                ? opt.label
-                : String(opt.label);
+              typeof opt.label === "string" ? opt.label : String(opt.label);
             return label.toLowerCase().startsWith(char) && !opt.disabled;
           });
           if (matchingOption) {
@@ -394,7 +395,7 @@ export function Select({
 
       {/* Custom select trigger */}
       <div
-        className={`flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+        className={`flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""} ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
         onClick={handleToggle}
         role="combobox"
         aria-expanded={isOpen}
@@ -413,7 +414,7 @@ export function Select({
               selectedOption.label
             )
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="relative">{placeholder}</span>
           )}
         </span>
         <div className="flex items-center gap-1 ml-2">
@@ -421,7 +422,7 @@ export function Select({
           {clearable && value && !disabled && !loading && (
             <button
               type="button"
-              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent text-muted-foreground cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
+              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
               onClick={handleClear}
               aria-label="Clear selection"
               tabIndex={-1}
@@ -429,7 +430,7 @@ export function Select({
               ✕
             </button>
           )}
-          <span className="text-muted-foreground text-xs leading-none" aria-hidden="true">
+          <span className="text-xs leading-none" aria-hidden="true">
             {isOpen ? "▲" : "▼"}
           </span>
         </div>
@@ -437,7 +438,11 @@ export function Select({
 
       {/* Dropdown */}
       {isOpen && (
-        <div id={dropdownId} className="absolute z-50 top-full mt-1 min-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md" role="listbox">
+        <div
+          id={dropdownId}
+          className="absolute z-50 top-full mt-1 min-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
+          role="listbox"
+        >
           {searchable && (
             <div className="p-2 border-b border-border">
               <input
@@ -455,18 +460,22 @@ export function Select({
 
           <div className="max-h-64 overflow-y-auto p-1">
             {filteredOptions.length === 0 ? (
-              <div className="py-2 px-3 text-center text-sm text-muted-foreground">No options found</div>
+              <div className="py-2 px-3 text-center text-sm ">
+                No options found
+              </div>
             ) : optionGroups.length > 0 ? (
               // Render grouped options
               optionGroups.map((group, groupIndex) => {
                 const groupOptions = group.options.filter((opt) =>
-                  filteredOptions.includes(opt)
+                  filteredOptions.includes(opt),
                 );
                 if (groupOptions.length === 0) return null;
 
                 return (
                   <div key={groupIndex} className="py-1">
-                    <div className="py-1.5 px-2 text-xs font-semibold text-muted-foreground">{group.label}</div>
+                    <div className="py-1.5 px-2 text-xs font-semibold ">
+                      {group.label}
+                    </div>
                     {groupOptions.map((option) => {
                       const globalIndex = filteredOptions.indexOf(option);
                       const isSelected = value === option.value;
@@ -476,7 +485,7 @@ export function Select({
                       return (
                         <div
                           key={option.value}
-                          className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium bg-accent" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                          className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                           onClick={() =>
                             !isDisabled && handleSelect(option.value)
                           }
@@ -501,7 +510,7 @@ export function Select({
                 return (
                   <div
                     key={option.value}
-                    className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground ${isFocused ? "bg-accent text-accent-foreground" : ""} ${isSelected ? "font-medium bg-accent" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                    className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
                     onClick={() => !isDisabled && handleSelect(option.value)}
                     role="option"
                     aria-selected={isSelected}

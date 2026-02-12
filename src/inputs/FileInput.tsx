@@ -32,7 +32,10 @@ export interface CropArea {
 /**
  * FileInput component props
  */
-export interface FileInputProps extends Omit<InputProps<File[]>, "value" | "onChange"> {
+export interface FileInputProps extends Omit<
+  InputProps<File[]>,
+  "value" | "onChange"
+> {
   /**
    * Current file value(s)
    */
@@ -173,7 +176,7 @@ export function FileInput({
   value = [],
   onChange,
   onBlur,
-  placeholder = "Choose file(s)...",
+  placeholder = "Choose file...",
   disabled = false,
   required = false,
   error = false,
@@ -201,7 +204,8 @@ export function FileInput({
   } | null>(null);
   const [crop, setCrop] = React.useState({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<CropArea | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] =
+    React.useState<CropArea | null>(null);
 
   /**
    * Validate file against constraints
@@ -247,7 +251,7 @@ export function FileInput({
 
       return null;
     },
-    [accept, maxSize]
+    [accept, maxSize],
   );
 
   /**
@@ -297,7 +301,9 @@ export function FileInput({
           setCropperOpen(true);
         } else {
           // Add files directly
-          const updatedFiles = multiple ? [...value, ...validFiles] : validFiles;
+          const updatedFiles = multiple
+            ? [...value, ...validFiles]
+            : validFiles;
           onChange(updatedFiles.slice(0, maxFiles));
         }
       }
@@ -307,7 +313,15 @@ export function FileInput({
         inputRef.current.value = "";
       }
     },
-    [value, onChange, validateFile, maxFiles, multiple, enableCropping, onValidationError]
+    [
+      value,
+      onChange,
+      validateFile,
+      maxFiles,
+      multiple,
+      enableCropping,
+      onValidationError,
+    ],
   );
 
   /**
@@ -340,17 +354,21 @@ export function FileInput({
             0,
             0,
             cropArea.width,
-            cropArea.height
+            cropArea.height,
           );
 
           // Convert canvas to blob
-          canvas.toBlob((blob) => {
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error("Failed to create blob from canvas"));
-            }
-          }, "image/jpeg", 0.95);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error("Failed to create blob from canvas"));
+              }
+            },
+            "image/jpeg",
+            0.95,
+          );
         };
         image.onerror = () => {
           reject(new Error("Failed to load image"));
@@ -358,7 +376,7 @@ export function FileInput({
         image.src = imageUrl;
       });
     },
-    []
+    [],
   );
 
   /**
@@ -370,7 +388,7 @@ export function FileInput({
     try {
       const croppedBlob = await createCroppedImage(
         imageToCrop.url,
-        croppedAreaPixels
+        croppedAreaPixels,
       );
 
       // Notify parent of cropped image
@@ -379,11 +397,9 @@ export function FileInput({
       }
 
       // Create new file from blob
-      const croppedFile = new File(
-        [croppedBlob],
-        imageToCrop.file.name,
-        { type: "image/jpeg" }
-      );
+      const croppedFile = new File([croppedBlob], imageToCrop.file.name, {
+        type: "image/jpeg",
+      });
 
       // Update files
       const updatedFiles = multiple ? [...value, croppedFile] : [croppedFile];
@@ -399,7 +415,15 @@ export function FileInput({
     } catch (error) {
       console.error("Failed to crop image:", error);
     }
-  }, [imageToCrop, croppedAreaPixels, createCroppedImage, onCropComplete, value, onChange, multiple]);
+  }, [
+    imageToCrop,
+    croppedAreaPixels,
+    createCroppedImage,
+    onCropComplete,
+    value,
+    onChange,
+    multiple,
+  ]);
 
   /**
    * Handle crop cancel
@@ -436,7 +460,7 @@ export function FileInput({
     (_: any, croppedAreaPixels: CropArea) => {
       setCroppedAreaPixels(croppedAreaPixels);
     },
-    []
+    [],
   );
 
   /**
@@ -521,7 +545,7 @@ export function FileInput({
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   /**
@@ -573,7 +597,7 @@ export function FileInput({
 
       {/* Drop zone */}
       <div
-        className={`flex min-h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-input bg-transparent p-6 transition-colors hover:bg-accent/50 hover:border-ring ${dragActive ? "bg-accent border-ring" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${error ? "border-red-500" : ""}`}
+        className={`flex min-h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-input bg-transparent p-6 transition-colors hover:bg-primary/50 hover:border-ring ${dragActive ? "bg-primary text-primary-foreground border-ring" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${error ? "border-red-500" : ""}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -587,7 +611,6 @@ export function FileInput({
       >
         <div className="flex flex-col items-center gap-2 text-center">
           <svg
-            className="text-muted-foreground"
             width="48"
             height="48"
             viewBox="0 0 24 24"
@@ -607,13 +630,9 @@ export function FileInput({
               ? `${value.length} file(s) selected`
               : placeholder}
           </p>
-          {accept && (
-            <p className="text-xs text-muted-foreground">Accepted: {accept}</p>
-          )}
+          {accept && <p className="text-xs">Accepted: {accept}</p>}
           {maxSize && (
-            <p className="text-xs text-muted-foreground">
-              Max size: {formatFileSize(maxSize)}
-            </p>
+            <p className="text-xs ">Max size: {formatFileSize(maxSize)}</p>
           )}
         </div>
       </div>
@@ -625,7 +644,10 @@ export function FileInput({
             const previewUrl = showPreview ? getPreviewUrl(file) : null;
 
             return (
-              <li key={`${file.name}-${index}`} className="flex items-center gap-3 p-3 rounded-md border border-border bg-card hover:bg-accent/50 transition-colors">
+              <li
+                key={`${file.name}-${index}`}
+                className="flex items-center gap-3 p-3 rounded-md border border-border bg-card text-card-foreground hover:bg-primary/50 transition-colors"
+              >
                 {previewUrl && (
                   <img
                     src={previewUrl}
@@ -636,10 +658,10 @@ export function FileInput({
                   />
                 )}
                 <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-sm font-medium truncate">{file.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatFileSize(file.size)}
+                  <span className="text-sm font-medium truncate">
+                    {file.name}
                   </span>
+                  <span className="text-xs">{formatFileSize(file.size)}</span>
                   {/* Upload progress indicator */}
                   {showProgress && uploadProgress[file.name] !== undefined && (
                     <div className="flex items-center gap-2 mt-1">
@@ -656,7 +678,7 @@ export function FileInput({
                           style={{ width: `${uploadProgress[file.name]}%` }}
                         />
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs ">
                         {uploadProgress[file.name]}%
                       </span>
                     </div>
@@ -671,7 +693,7 @@ export function FileInput({
                       handleCrop(file);
                     }}
                     disabled={disabled}
-                    className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
                     aria-label={`Crop ${file.name}`}
                   >
                     <svg
@@ -697,7 +719,7 @@ export function FileInput({
                     handleRemove(index);
                   }}
                   disabled={disabled}
-                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
                   aria-label={`Remove ${file.name}`}
                 >
                   <svg
@@ -734,7 +756,7 @@ export function FileInput({
               <h3 className="text-lg font-semibold">Crop Image</h3>
               <button
                 type="button"
-                className="flex items-center justify-center h-8 w-8 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center justify-center h-8 w-8 rounded hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={handleCropCancel}
                 aria-label="Close"
               >
@@ -779,7 +801,10 @@ export function FileInput({
                     const containerWidth = 600;
                     const containerHeight = 400;
                     const cropWidth = cropAspectRatio
-                      ? Math.min(containerWidth * 0.8, containerHeight * 0.8 * cropAspectRatio)
+                      ? Math.min(
+                          containerWidth * 0.8,
+                          containerHeight * 0.8 * cropAspectRatio,
+                        )
                       : containerWidth * 0.8;
                     const cropHeight = cropAspectRatio
                       ? cropWidth / cropAspectRatio
@@ -815,7 +840,9 @@ export function FileInput({
                     width: cropAspectRatio
                       ? `${Math.min(80, 80 * cropAspectRatio)}%`
                       : "80%",
-                    aspectRatio: cropAspectRatio ? String(cropAspectRatio) : undefined,
+                    aspectRatio: cropAspectRatio
+                      ? String(cropAspectRatio)
+                      : undefined,
                   }}
                 >
                   <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
@@ -834,7 +861,10 @@ export function FileInput({
 
               {/* Zoom controls */}
               <div className="flex items-center gap-3 mt-4">
-                <label htmlFor="zoom-slider" className="text-sm font-medium whitespace-nowrap">
+                <label
+                  htmlFor="zoom-slider"
+                  className="text-sm font-medium whitespace-nowrap"
+                >
                   Zoom: {zoom.toFixed(1)}x
                 </label>
                 <input
@@ -854,7 +884,7 @@ export function FileInput({
             <div className="flex items-center justify-end gap-2 p-4 border-t border-border">
               <button
                 type="button"
-                className="inline-flex items-center justify-center h-9 rounded-md px-4 text-sm font-medium border border-input bg-transparent hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="inline-flex items-center justify-center h-9 rounded-md px-4 text-sm font-medium border border-input bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={handleCropCancel}
               >
                 Cancel

@@ -14,7 +14,10 @@ export interface DateRange {
 /**
  * DateRangePicker props interface
  */
-export interface DateRangePickerProps extends Omit<InputProps<DateRange>, "onChange"> {
+export interface DateRangePickerProps extends Omit<
+  InputProps<DateRange>,
+  "onChange"
+> {
   /**
    * Change handler - receives date range object
    */
@@ -105,7 +108,11 @@ function isDateInArray(date: Date, dates: Date[]): boolean {
 /**
  * Check if date is in range
  */
-function isDateInRange(date: Date, start: Date | null, end: Date | null): boolean {
+function isDateInRange(
+  date: Date,
+  start: Date | null,
+  end: Date | null,
+): boolean {
   if (!start || !end) return false;
   const time = date.getTime();
   return time >= start.getTime() && time <= end.getTime();
@@ -180,7 +187,9 @@ export function DateRangePicker({
   ...props
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedMonth, setSelectedMonth] = React.useState<Date>(value.start || new Date());
+  const [selectedMonth, setSelectedMonth] = React.useState<Date>(
+    value.start || new Date(),
+  );
   const [rangeStart, setRangeStart] = React.useState<Date | null>(value.start);
   const [rangeEnd, setRangeEnd] = React.useState<Date | null>(value.end);
   const [hoverDate, setHoverDate] = React.useState<Date | null>(null);
@@ -279,8 +288,18 @@ export function DateRangePicker({
     }
 
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     const handlePrevMonth = () => {
@@ -296,7 +315,7 @@ export function DateRangePicker({
         <div className="flex items-center justify-between pb-2 border-b border-border">
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
             onClick={handlePrevMonth}
             aria-label="Previous month"
           >
@@ -307,7 +326,7 @@ export function DateRangePicker({
           </div>
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
             onClick={handleNextMonth}
             aria-label="Next month"
           >
@@ -316,7 +335,10 @@ export function DateRangePicker({
         </div>
         <div className="grid grid-cols-7 gap-1 mt-2">
           {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-            <div key={day} className="flex items-center justify-center h-8 w-full text-xs text-muted-foreground font-medium">
+            <div
+              key={day}
+              className="flex items-center justify-center h-8 w-full text-xs font-medium"
+            >
               {day}
             </div>
           ))}
@@ -327,11 +349,20 @@ export function DateRangePicker({
               return <div key={`empty-${index}`} />;
             }
 
-            const isStart = rangeStart && date.toDateString() === rangeStart.toDateString();
-            const isEnd = rangeEnd && date.toDateString() === rangeEnd.toDateString();
-            const isInRange = rangeStart && rangeEnd && isDateInRange(date, rangeStart, rangeEnd);
-            const isInHoverRange = rangeStart && !rangeEnd && hoverDate &&
-              (date >= rangeStart && date <= hoverDate || date <= rangeStart && date >= hoverDate);
+            const isStart =
+              rangeStart && date.toDateString() === rangeStart.toDateString();
+            const isEnd =
+              rangeEnd && date.toDateString() === rangeEnd.toDateString();
+            const isInRange =
+              rangeStart &&
+              rangeEnd &&
+              isDateInRange(date, rangeStart, rangeEnd);
+            const isInHoverRange =
+              rangeStart &&
+              !rangeEnd &&
+              hoverDate &&
+              ((date >= rangeStart && date <= hoverDate) ||
+                (date <= rangeStart && date >= hoverDate));
             const isToday = date.toDateString() === new Date().toDateString();
             const disabled = isDisabled(date);
 
@@ -339,7 +370,7 @@ export function DateRangePicker({
               <button
                 key={date.toISOString()}
                 type="button"
-                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isStart || isEnd ? "bg-primary text-primary-foreground font-semibold" : ""} ${isInRange || isInHoverRange ? "bg-accent/50" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
+                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-primary hover:text-primary-foreground ${isStart || isEnd ? "bg-primary text-primary-foreground font-semibold" : ""} ${isInRange || isInHoverRange ? "bg-primary/70 text-primary-foreground" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
                 onClick={() => !disabled && handleDateSelect(date)}
                 onMouseEnter={() => setHoverDate(date)}
                 onMouseLeave={() => setHoverDate(null)}
@@ -357,11 +388,12 @@ export function DateRangePicker({
 
   const combinedClassName = `relative ${className}`.trim();
 
-  const displayValue = rangeStart && rangeEnd
-    ? `${formatDate(rangeStart, format)}${separator}${formatDate(rangeEnd, format)}`
-    : rangeStart
-    ? formatDate(rangeStart, format)
-    : "";
+  const displayValue =
+    rangeStart && rangeEnd
+      ? `${formatDate(rangeStart, format)}${separator}${formatDate(rangeEnd, format)}`
+      : rangeStart
+        ? formatDate(rangeStart, format)
+        : "";
 
   return (
     <div ref={containerRef} className={combinedClassName}>
@@ -380,7 +412,10 @@ export function DateRangePicker({
       {/* Custom date range input */}
       <div className="relative">
         {showIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true">
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -398,7 +433,7 @@ export function DateRangePicker({
         )}
         <input
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
@@ -413,7 +448,7 @@ export function DateRangePicker({
         {clearable && (rangeStart || rangeEnd) && !disabled && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
             onClick={handleClear}
             aria-label="Clear date range"
             tabIndex={-1}
@@ -428,7 +463,7 @@ export function DateRangePicker({
         <div className="absolute z-50 top-full mt-1 min-w-full rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
           {renderCalendar()}
           {rangeStart && !rangeEnd && (
-            <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border mt-2">
+            <div className="text-xs text-center pt-2 border-t border-border mt-2">
               Select end date
             </div>
           )}

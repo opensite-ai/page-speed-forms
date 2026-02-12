@@ -20,7 +20,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(screen.getByRole("combobox")).toBeInTheDocument();
@@ -35,10 +35,12 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           placeholder="Choose a country"
-        />
+        />,
       );
 
-      expect(screen.getByRole("combobox")).toHaveTextContent("Choose a country");
+      expect(screen.getByRole("combobox")).toHaveTextContent(
+        "Choose a country",
+      );
     });
 
     it("should render selected value", () => {
@@ -48,7 +50,7 @@ describe("Select", () => {
           value="ca"
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(screen.getByRole("combobox")).toHaveTextContent("Canada");
@@ -61,7 +63,7 @@ describe("Select", () => {
           value="us"
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const nativeSelect = container.querySelector('select[name="country"]');
@@ -77,7 +79,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
@@ -93,7 +95,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -122,7 +124,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -160,7 +162,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           optionGroups={optionGroups}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -183,7 +185,7 @@ describe("Select", () => {
     it("should handle empty options", async () => {
       const user = userEvent.setup();
       render(
-        <Select name="country" value="" onChange={() => {}} options={[]} />
+        <Select name="country" value="" onChange={() => {}} options={[]} />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -203,7 +205,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -223,7 +225,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -247,7 +249,7 @@ describe("Select", () => {
           value=""
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -267,7 +269,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -296,7 +298,7 @@ describe("Select", () => {
           value=""
           onChange={onChange}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -317,7 +319,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           disabled
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -335,7 +337,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -355,7 +357,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -375,7 +377,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -388,14 +390,14 @@ describe("Select", () => {
       // First ArrowDown should focus first option
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[0]).toHaveClass("bg-accent", "text-accent-foreground");
+        expect(options[0]).toHaveClass("bg-muted");
       });
 
       // Second ArrowDown should focus second option
       await user.keyboard("{ArrowDown}");
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[1]).toHaveClass("bg-accent", "text-accent-foreground");
+        expect(options[1]).toHaveClass("bg-muted");
       });
     });
 
@@ -408,7 +410,7 @@ describe("Select", () => {
           value=""
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -433,7 +435,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -459,7 +461,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -477,7 +479,7 @@ describe("Select", () => {
 
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[0]).toHaveClass("bg-accent", "text-accent-foreground");
+        expect(options[0]).toHaveClass("bg-muted");
       });
     });
 
@@ -495,7 +497,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={optionsWithDisabled}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -510,7 +512,7 @@ describe("Select", () => {
 
       await waitFor(() => {
         const options = within(listbox).getAllByRole("option");
-        expect(options[2]).toHaveClass("bg-accent", "text-accent-foreground"); // Mexico is index 2
+        expect(options[2]).toHaveClass("bg-muted"); // Mexico is index 2
       });
     });
   });
@@ -525,7 +527,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -544,13 +546,15 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable={false}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
 
       await waitFor(() => {
-        expect(screen.queryByPlaceholderText("Search...")).not.toBeInTheDocument();
+        expect(
+          screen.queryByPlaceholderText("Search..."),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -563,7 +567,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -588,7 +592,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -614,7 +618,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -652,7 +656,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -660,9 +664,12 @@ describe("Select", () => {
       const searchInput = await screen.findByPlaceholderText("Search...");
 
       // Wait for the setTimeout to complete (component uses setTimeout for focus)
-      await waitFor(() => {
-        expect(searchInput).toHaveFocus();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(searchInput).toHaveFocus();
+        },
+        { timeout: 2000 },
+      );
     });
   });
 
@@ -675,7 +682,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           clearable
-        />
+        />,
       );
 
       expect(screen.getByLabelText("Clear selection")).toBeInTheDocument();
@@ -689,10 +696,12 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           clearable={false}
-        />
+        />,
       );
 
-      expect(screen.queryByLabelText("Clear selection")).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("Clear selection"),
+      ).not.toBeInTheDocument();
     });
 
     it("should not render clear button when no value", () => {
@@ -703,10 +712,12 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           clearable
-        />
+        />,
       );
 
-      expect(screen.queryByLabelText("Clear selection")).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("Clear selection"),
+      ).not.toBeInTheDocument();
     });
 
     it("should call onChange with empty string when clear button is clicked", async () => {
@@ -719,7 +730,7 @@ describe("Select", () => {
           onChange={onChange}
           options={defaultOptions}
           clearable
-        />
+        />,
       );
 
       await user.click(screen.getByLabelText("Clear selection"));
@@ -736,7 +747,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           clearable
-        />
+        />,
       );
 
       await user.click(screen.getByLabelText("Clear selection"));
@@ -753,10 +764,12 @@ describe("Select", () => {
           options={defaultOptions}
           clearable
           loading
-        />
+        />,
       );
 
-      expect(screen.queryByLabelText("Clear selection")).not.toBeInTheDocument();
+      expect(
+        screen.queryByLabelText("Clear selection"),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -769,7 +782,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           loading
-        />
+        />,
       );
 
       expect(screen.getByText("⏳")).toBeInTheDocument();
@@ -783,7 +796,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           loading={false}
-        />
+        />,
       );
 
       expect(screen.queryByText("⏳")).not.toBeInTheDocument();
@@ -799,7 +812,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           disabled
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -815,7 +828,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           required
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -830,7 +843,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           error
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -845,7 +858,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           aria-describedby="country-error"
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -864,7 +877,7 @@ describe("Select", () => {
             options={defaultOptions}
           />
           <button>Outside</button>
-        </div>
+        </div>,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -890,7 +903,7 @@ describe("Select", () => {
           onChange={() => {}}
           onFocus={onFocus}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -907,7 +920,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(container.querySelector(".relative.w-full")).toBeInTheDocument();
@@ -921,7 +934,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           error
-        />
+        />,
       );
 
       const trigger = container.querySelector("[role='combobox']");
@@ -936,11 +949,15 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           disabled
-        />
+        />,
       );
 
       const trigger = container.querySelector("[role='combobox']");
-      expect(trigger).toHaveClass("cursor-not-allowed", "opacity-50", "pointer-events-none");
+      expect(trigger).toHaveClass(
+        "cursor-not-allowed",
+        "opacity-50",
+        "pointer-events-none",
+      );
     });
 
     it("should apply open class when dropdown is open", async () => {
@@ -951,7 +968,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -970,7 +987,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           className="custom-class"
-        />
+        />,
       );
 
       expect(container.querySelector(".custom-class")).toBeInTheDocument();
@@ -985,7 +1002,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -1001,7 +1018,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -1020,7 +1037,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -1038,7 +1055,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -1056,7 +1073,7 @@ describe("Select", () => {
           value="ca"
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -1075,7 +1092,7 @@ describe("Select", () => {
           value=""
           onChange={onChange}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -1103,7 +1120,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           renderOption={renderOption}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -1125,7 +1142,7 @@ describe("Select", () => {
           onChange={() => {}}
           options={defaultOptions}
           renderOption={renderOption}
-        />
+        />,
       );
 
       expect(screen.getByText("Canada 🌍")).toBeInTheDocument();
@@ -1141,7 +1158,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       const trigger = screen.getByRole("combobox");
@@ -1166,7 +1183,7 @@ describe("Select", () => {
           onChange={onChange}
           options={defaultOptions}
           searchable
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));
@@ -1188,7 +1205,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={defaultOptions}
-        />
+        />,
       );
 
       expect(screen.getByRole("combobox")).toHaveTextContent("Select...");
@@ -1211,7 +1228,7 @@ describe("Select", () => {
           value=""
           onChange={() => {}}
           options={longOptions}
-        />
+        />,
       );
 
       await user.click(screen.getByRole("combobox"));

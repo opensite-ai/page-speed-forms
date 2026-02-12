@@ -53,14 +53,6 @@ export interface RadioProps extends Omit<
   layout?: "inline" | "stacked";
 
   /**
-   * Visual variant for radio options
-   * - "boxed": bordered card with ring on hover/selected, radio circle on right
-   * - "inline": minimal style, radio circle on left
-   * @default "inline"
-   */
-  radioVariant?: "boxed" | "inline";
-
-  /**
    * Group-level label
    */
   label?: React.ReactNode;
@@ -133,7 +125,6 @@ export function Radio({
   error = false,
   className = "",
   layout = "stacked",
-  radioVariant = "inline",
   label,
   options,
   ...props
@@ -185,12 +176,17 @@ export function Radio({
     onBlur?.();
   };
 
-  const containerClass = cn(
-    "w-full gap-3",
-    layout === "stacked" && "flex flex-col",
-    layout === "inline" && "flex flex-row flex-wrap",
-    className,
-  );
+  const useChoiceCard: boolean = React.useMemo(() => {
+    return options.some((option) => option.description);
+  }, [options]);
+
+  const containerClass = React.useMemo(() => {
+    return cn(
+      "w-full gap-3 grid grid-cols-1",
+      layout === "inline" && "md:grid-cols-2",
+      className,
+    );
+  }, [layout, className]);
 
   return (
     <div
@@ -207,7 +203,8 @@ export function Radio({
         const isDisabled = disabled || option.disabled;
         const radioId = `${name}-${option.value}`;
 
-        const hasDescription = option.description != null && option.description !== "";
+        const hasDescription =
+          option.description != null && option.description !== "";
 
         const radioIndicator = (
           <div className="relative inline-flex items-center justify-center">
@@ -239,9 +236,7 @@ export function Radio({
                 "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-1",
               )}
             >
-              {isChecked && (
-                <div className="size-3 rounded-full bg-primary" />
-              )}
+              {isChecked && <div className="size-3 rounded-full bg-primary" />}
             </div>
           </div>
         );
@@ -250,10 +245,7 @@ export function Radio({
           <div className="flex flex-col gap-0.5">
             <div className="text-sm font-medium">{option.label}</div>
             {hasDescription && (
-              <p
-                className="text-xs opacity-75"
-                id={`${radioId}-description`}
-              >
+              <p className="text-xs opacity-75" id={`${radioId}-description`}>
                 {option.description}
               </p>
             )}
@@ -265,8 +257,8 @@ export function Radio({
             key={option.value}
             className={cn(
               "w-full h-full flex gap-3 p-3 duration-200",
-              radioVariant === "boxed" && "border rounded-lg hover:ring-2",
-              radioVariant === "boxed" && isChecked && "ring-2",
+              useChoiceCard && "border rounded-lg hover:ring-2",
+              useChoiceCard && isChecked && "ring-2",
               isDisabled
                 ? "opacity-50 cursor-not-allowed hover:ring-0"
                 : "cursor-pointer",
@@ -276,11 +268,9 @@ export function Radio({
             tabIndex={isDisabled ? -1 : 0}
           >
             <div className="flex w-full flex-row items-center gap-2">
-              {radioVariant === "inline" && radioIndicator}
-              <div className="flex flex-1 flex-col gap-0.5">
-                {labelContent}
-              </div>
-              {radioVariant === "boxed" && radioIndicator}
+              {!useChoiceCard && radioIndicator}
+              <div className="flex flex-1 flex-col gap-0.5">{labelContent}</div>
+              {useChoiceCard && radioIndicator}
             </div>
           </label>
         );

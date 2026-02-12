@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { cn } from "../utils";
 
 /**
  * Time value format
@@ -60,7 +61,10 @@ export interface TimePickerProps extends Omit<InputProps<string>, "onChange"> {
 /**
  * Parse time string to TimeValue
  */
-function parseTimeString(timeStr: string, use24Hour: boolean): TimeValue | null {
+function parseTimeString(
+  timeStr: string,
+  use24Hour: boolean,
+): TimeValue | null {
   if (!timeStr) return null;
 
   try {
@@ -284,16 +288,15 @@ export function TimePicker({
   return (
     <div ref={containerRef} className={combinedClassName}>
       {/* Hidden native input for form submission */}
-      <input
-        type="hidden"
-        name={name}
-        value={value}
-      />
+      <input type="hidden" name={name} value={value} />
 
       {/* Custom time input */}
       <div className="relative">
         {showIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true">
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -313,7 +316,7 @@ export function TimePicker({
         <input
           ref={inputRef}
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
           value={displayValue}
           onClick={handleToggle}
           onBlur={onBlur}
@@ -328,7 +331,7 @@ export function TimePicker({
         {clearable && value && !disabled && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
             onClick={handleClear}
             aria-label="Clear time"
             tabIndex={-1}
@@ -344,14 +347,15 @@ export function TimePicker({
           <div className="flex gap-2">
             {/* Hour selector */}
             <div className="flex flex-col flex-1">
-              <div className="text-xs font-medium text-muted-foreground mb-2 text-center">
+              <div className="text-xs font-medium mb-2 text-center">
                 {use24Hour ? "Hour" : "Hour"}
               </div>
               <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                 {hours.map((hour) => {
                   const displayHour = use24Hour ? hour : hour;
                   const isSelected = use24Hour
-                    ? timeValue?.hour === (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) &&
+                    ? timeValue?.hour ===
+                        (hour === 0 ? 12 : hour > 12 ? hour - 12 : hour) &&
                       timeValue?.period === (hour >= 12 ? "PM" : "AM")
                     : timeValue?.hour === hour;
 
@@ -359,10 +363,18 @@ export function TimePicker({
                     <button
                       key={hour}
                       type="button"
-                      className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""}`}
+                      className={cn(
+                        "flex items-center justify-center h-8 w-full rounded",
+                        "border-none bg-transparent cursor-pointer text-sm transition-colors",
+                        "hover:bg-primary hover:text-primary-foreground",
+                        isSelected
+                          ? "bg-primary text-primary-foreground font-semibold"
+                          : "",
+                      )}
                       onClick={() => {
                         if (use24Hour) {
-                          const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+                          const hour12 =
+                            hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
                           const period = hour >= 12 ? "PM" : "AM";
                           const newTime: TimeValue = {
                             hour: hour12,
@@ -386,7 +398,7 @@ export function TimePicker({
 
             {/* Minute selector */}
             <div className="flex flex-col flex-1">
-              <div className="text-xs font-medium text-muted-foreground mb-2 text-center">Minute</div>
+              <div className="text-xs font-medium mb-2 text-center">Minute</div>
               <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
                 {minutes.map((minute) => {
                   const isSelected = timeValue?.minute === minute;
@@ -395,7 +407,14 @@ export function TimePicker({
                     <button
                       key={minute}
                       type="button"
-                      className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""}`}
+                      className={cn(
+                        "flex items-center justify-center h-8 w-full",
+                        "rounded border-none bg-transparent cursor-pointer text-sm transition-colors",
+                        "hover:bg-primary hover:text-primary-foreground",
+                        isSelected
+                          ? "bg-primary text-primary-foreground font-semibold"
+                          : "",
+                      )}
                       onClick={() => handleMinuteChange(minute)}
                       aria-label={`${String(minute).padStart(2, "0")} minutes`}
                     >
@@ -409,18 +428,34 @@ export function TimePicker({
             {/* Period selector (AM/PM) - only for 12-hour format */}
             {!use24Hour && (
               <div className="flex flex-col w-20">
-                <div className="text-xs font-medium text-muted-foreground mb-2 text-center">Period</div>
+                <div className="text-xs font-medium mb-2 text-center">
+                  Period
+                </div>
                 <div className="flex flex-col gap-1">
                   <button
                     type="button"
-                    className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${timeValue?.period === "AM" ? "bg-primary text-primary-foreground font-semibold" : ""}`}
+                    className={cn(
+                      "flex items-center justify-center h-8 w-full",
+                      "rounded border-none bg-transparent cursor-pointer text-sm",
+                      "transition-colors hover:bg-primary hover:text-primary-foreground",
+                      timeValue?.period === "AM"
+                        ? "bg-muted font-semibold"
+                        : "",
+                    )}
                     onClick={() => handlePeriodChange("AM")}
                   >
                     AM
                   </button>
                   <button
                     type="button"
-                    className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${timeValue?.period === "PM" ? "bg-primary text-primary-foreground font-semibold" : ""}`}
+                    className={cn(
+                      "flex items-center justify-center h-8 w-full",
+                      "rounded border-none bg-transparent cursor-pointer text-sm",
+                      "transition-colors hover:bg-primary hover:text-primary-foreground",
+                      timeValue?.period === "PM"
+                        ? "bg-muted font-semibold"
+                        : "",
+                    )}
                     onClick={() => handlePeriodChange("PM")}
                   >
                     PM
