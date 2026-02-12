@@ -13,12 +13,12 @@ export interface RadioOption {
   value: string;
 
   /**
-   * Display label for the option
+   * Display label for the option (primary text)
    */
   label: React.ReactNode;
 
   /**
-   * Optional description text below the label
+   * Optional description text below the label (secondary text)
    */
   description?: React.ReactNode;
 
@@ -72,8 +72,9 @@ export interface RadioProps
  * - Controlled input behavior
  * - Keyboard navigation (arrow keys)
  * - Inline or stacked layout
- * - Optional descriptions for each option
+ * - Optional descriptions for each option (with nil guard)
  * - Individual option disabled state
+ * - Card-based styling with proper visual hierarchy
  * - All native radio attributes supported
  *
  * @example
@@ -130,7 +131,7 @@ export function Radio({
   };
 
   const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLDivElement>,
+    e: React.KeyboardEvent<HTMLLabelElement>,
     currentIndex: number
   ) => {
     if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -197,37 +198,40 @@ export function Radio({
           return (
             <label
               key={option.value}
-              className={`radio-option ${isDisabled ? "radio-option--disabled" : ""}`}
+              className={`radio-option ${isChecked ? "radio-option--checked" : ""} ${isDisabled ? "radio-option--disabled" : ""}`}
               htmlFor={radioId}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              tabIndex={0}
             >
-              <input
-                type="radio"
-                id={radioId}
-                name={name}
-                value={option.value}
-                checked={isChecked}
-                onChange={(e) => handleChange(e.target.value)}
-                onBlur={handleBlur}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                disabled={isDisabled}
-                required={required}
-                className="radio-input"
-                aria-describedby={
-                  option.description
-                    ? `${radioId}-description`
-                    : props["aria-describedby"]
-                }
-              />
-              <div className="radio-content">
-                <span className="radio-label">{option.label}</span>
-                {option.description && (
-                  <span
-                    className="radio-description"
-                    id={`${radioId}-description`}
-                  >
-                    {option.description}
-                  </span>
-                )}
+              <div className="radio-option-content">
+                <div className="radio-option-text">
+                  <span className="radio-label">{option.label}</span>
+                  {option.description && (
+                    <span
+                      className="radio-description"
+                      id={`${radioId}-description`}
+                    >
+                      {option.description}
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="radio"
+                  id={radioId}
+                  name={name}
+                  value={option.value}
+                  checked={isChecked}
+                  onChange={(e) => handleChange(e.target.value)}
+                  onBlur={handleBlur}
+                  disabled={isDisabled}
+                  required={required}
+                  className="radio-input"
+                  aria-describedby={
+                    option.description
+                      ? `${radioId}-description`
+                      : props["aria-describedby"]
+                  }
+                />
               </div>
             </label>
           );
