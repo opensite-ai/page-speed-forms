@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { cn } from "../utils";
+import { Checkbox } from "./Checkbox";
 
 /**
  * CheckboxGroup option type
@@ -31,8 +33,10 @@ export interface CheckboxGroupOption {
 /**
  * Additional props specific to CheckboxGroup
  */
-export interface CheckboxGroupProps
-  extends Omit<InputProps<string[]>, "onChange" | "placeholder"> {
+export interface CheckboxGroupProps extends Omit<
+  InputProps<string[]>,
+  "onChange" | "placeholder"
+> {
   /**
    * Change handler - receives array of selected values
    */
@@ -182,10 +186,24 @@ export function CheckboxGroup({
   const enabledOptions = options.filter((opt) => !opt.disabled);
   const enabledValues = enabledOptions.map((opt) => opt.value);
   const selectedEnabledCount = value.filter((v) =>
-    enabledValues.includes(v)
+    enabledValues.includes(v),
   ).length;
   const allSelected = selectedEnabledCount === enabledOptions.length;
   const someSelected = selectedEnabledCount > 0 && !allSelected;
+
+  const checkboxVariant: "boxed" | "inline" = React.useMemo(() => {
+    if (options.some((opt) => opt.description)) {
+      return "boxed";
+    }
+    return "inline";
+  }, [options]);
+
+  const countableValue: number = React.useMemo(() => {
+    if (value?.length > 0) {
+      return value.length;
+    }
+    return 0;
+  }, [value]);
 
   // Handle individual checkbox change
   const handleChange = (optionValue: string, checked: boolean) => {
@@ -217,17 +235,16 @@ export function CheckboxGroup({
     onBlur?.();
   };
 
-  const layoutClass =
-    layout === "inline"
-      ? "flex flex-row flex-wrap gap-4"
-      : layout === "grid"
-      ? `grid gap-3`
-      : "flex flex-col gap-3";
-
-  const containerClass = `w-full ${layoutClass} ${className}`.trim();
-
   // Determine if max selections reached
-  const maxReached = Boolean(maxSelections && value.length >= maxSelections);
+  const maxReached = Boolean(maxSelections && countableValue >= maxSelections);
+
+  const containerClass = cn(
+    "w-full gap-3",
+    layout === "stacked" && "flex flex-col",
+    layout === "inline" && "flex flex-row flex-wrap",
+    layout === "grid" && "grid",
+    className,
+  );
 
   return (
     <div
@@ -252,43 +269,18 @@ export function CheckboxGroup({
 
       {/* Select All Checkbox */}
       {showSelectAll && enabledOptions.length > 0 && (
-        <label
-          className={`flex w-fit gap-2 items-center ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-        >
-          <div className="flex w-full flex-row items-center gap-2">
-            <div className="relative inline-flex">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                ref={(input) => {
-                  if (input) {
-                    input.indeterminate = someSelected;
-                  }
-                }}
-                onChange={(e) => handleSelectAll(e.target.checked)}
-                onBlur={handleBlur}
-                disabled={disabled}
-                className="peer relative flex size-4 shrink-0 appearance-none items-center justify-center rounded-lg border border-input bg-transparent outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label={selectAllLabel}
-              />
-              {allSelected && (
-                <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
-                  <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-              )}
-              {someSelected && !allSelected && (
-                <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary">
-                  <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                  </svg>
-                </span>
-              )}
-            </div>
-            <span className="text-sm font-medium">{selectAllLabel}</span>
-          </div>
-        </label>
+        <Checkbox
+          name={`${name}-select-all`}
+          id={`${name}-select-all`}
+          value={allSelected}
+          onChange={handleSelectAll}
+          onBlur={handleBlur}
+          indeterminate={someSelected}
+          label={selectAllLabel}
+          checkboxVariant="inline"
+          disabled={disabled}
+          aria-label={selectAllLabel}
+        />
       )}
 
       {/* Individual Checkboxes */}
@@ -296,76 +288,49 @@ export function CheckboxGroup({
         const isChecked = value.includes(option.value);
         const isDisabled =
           disabled || option.disabled || (maxReached && !isChecked);
-        const checkboxId = `${name}-${option.value}`;
 
         return (
-          <label
+          <Checkbox
             key={option.value}
-            className={`flex w-fit gap-2 items-center ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-            htmlFor={checkboxId}
-          >
-            <div className="flex w-full flex-row items-center gap-2">
-              <div className="relative inline-flex">
-                <input
-                  type="checkbox"
-                  id={checkboxId}
-                  name={name}
-                  value={option.value}
-                  checked={isChecked}
-                  onChange={(e) => handleChange(option.value, e.target.checked)}
-                  onBlur={handleBlur}
-                  disabled={isDisabled}
-                  required={required && minSelections ? value.length < minSelections : false}
-                  className={`peer relative flex size-4 shrink-0 appearance-none items-center justify-center rounded-lg border border-input bg-transparent outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive ring-3 ring-destructive/20" : ""} ${isChecked ? "bg-primary border-primary" : ""}`}
-                  aria-describedby={
-                    option.description
-                      ? `${checkboxId}-description`
-                      : props["aria-describedby"]
-                  }
-                />
-                {isChecked && (
-                  <span className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
-                    <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-1 flex-col gap-0.5">
-                {renderOption ? (
-                  renderOption(option)
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      {option.label}
-                    </div>
-                    {option.description && (
-                      <p
-                        className="text-muted-foreground text-sm"
-                        id={`${checkboxId}-description`}
-                      >
-                        {option.description}
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </label>
+            name={name}
+            id={`${name}-${option.value}`}
+            value={isChecked}
+            onChange={(checked) => handleChange(option.value, checked)}
+            onBlur={handleBlur}
+            disabled={isDisabled}
+            required={
+              required && minSelections
+                ? value.length < minSelections
+                : false
+            }
+            error={error}
+            label={renderOption ? renderOption(option) : option.label}
+            description={renderOption ? undefined : option.description}
+            checkboxVariant={checkboxVariant}
+          />
         );
       })}
 
       {/* Selection count feedback */}
       {(minSelections || maxSelections) && (
-        <div className="text-sm text-muted-foreground mt-2" aria-live="polite">
-          {minSelections && value.length < minSelections && (
-            <span className="text-destructive">
-              Select at least {minSelections} option{minSelections !== 1 ? "s" : ""}
+        <div
+          className={cn(
+            "text-sm p-2 rounded-lg border font-semibold mt-2",
+            minSelections && countableValue < minSelections
+              ? "border-destructive bg-destructive/80 text-destructive-foreground"
+              : "border-border bg-card text-card-foreground",
+          )}
+          aria-live="polite"
+        >
+          {minSelections && countableValue < minSelections && (
+            <span>
+              Select at least {minSelections} option
+              {minSelections !== 1 ? "s" : ""}
             </span>
           )}
           {maxSelections && (
             <span>
-              {value.length}/{maxSelections} selected
+              {countableValue}/{maxSelections} selected
             </span>
           )}
         </div>

@@ -638,10 +638,11 @@ describe("CheckboxGroup Component", () => {
         />
       );
 
-      // CheckboxGroup applies error class to individual checkboxes
+      // CheckboxGroup passes error to Checkbox, which applies border-destructive on the indicator div
       const checkboxes = screen.getAllByRole("checkbox");
       checkboxes.forEach((checkbox) => {
-        expect(checkbox.className).toContain("border-destructive");
+        const indicator = checkbox.nextElementSibling;
+        expect(indicator?.className).toContain("border-destructive");
       });
     });
 

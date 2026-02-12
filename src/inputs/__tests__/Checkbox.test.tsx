@@ -350,7 +350,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.className).toContain("border-destructive");
+      const indicator = checkbox.nextElementSibling;
+      expect(indicator?.className).toContain("border-destructive");
     });
 
     it("should not apply error class when error is false", () => {
@@ -365,7 +366,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.className).not.toContain("border-destructive");
+      const indicator = checkbox.nextElementSibling;
+      expect(indicator?.className).not.toContain("border-destructive");
     });
 
     it("should set aria-invalid when error is true", () => {
@@ -409,17 +411,18 @@ describe("Checkbox Component", () => {
   // ============================================================================
 
   describe("CSS Classes", () => {
-    it("should apply base className", () => {
+    it("should apply base indicator classes", () => {
       const onChange = vi.fn();
       render(<Checkbox name="terms" value={false} onChange={onChange} />);
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("flex");
-      expect(checkbox).toHaveClass("size-4");
-      expect(checkbox).toHaveClass("rounded-lg");
+      const indicator = checkbox.nextElementSibling;
+      expect(indicator).toHaveClass("rounded-full");
+      expect(indicator).toHaveClass("border-2");
+      expect(indicator).toHaveClass("size-6");
     });
 
-    it("should support custom className", () => {
+    it("should support custom className on wrapper", () => {
       const onChange = vi.fn();
       render(
         <Checkbox
@@ -431,11 +434,11 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("flex");
-      expect(checkbox).toHaveClass("custom-class");
+      const wrapper = checkbox.parentElement;
+      expect(wrapper).toHaveClass("custom-class");
     });
 
-    it("should combine base, error, and custom classes", () => {
+    it("should combine error and custom classes", () => {
       const onChange = vi.fn();
       render(
         <Checkbox
@@ -448,8 +451,10 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox.className).toContain("border-destructive");
-      expect(checkbox.className).toContain("custom-class");
+      const indicator = checkbox.nextElementSibling;
+      expect(indicator?.className).toContain("border-destructive");
+      const wrapper = checkbox.parentElement;
+      expect(wrapper).toHaveClass("custom-class");
     });
 
     it("should trim className properly", () => {
@@ -464,7 +469,8 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("custom-class");
+      const wrapper = checkbox.parentElement;
+      expect(wrapper).toHaveClass("custom-class");
     });
 
     it("should apply label wrapper class when label provided", () => {
@@ -479,11 +485,10 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      // The checkbox is wrapped in a div, and that div is inside a label
       const label = checkbox.closest("label");
       expect(label?.tagName).toBe("LABEL");
       expect(label?.className).toContain("flex");
-      expect(label?.className).toContain("gap-2");
+      expect(label?.className).toContain("gap-3");
     });
 
     it("should apply label text class", () => {
@@ -664,8 +669,9 @@ describe("Checkbox Component", () => {
       );
 
       const checkbox = screen.getByRole("checkbox");
-      expect(checkbox).toHaveClass("flex");
-      expect(checkbox).toHaveClass("size-4");
+      const indicator = checkbox.nextElementSibling;
+      expect(indicator).toHaveClass("rounded-full");
+      expect(indicator).toHaveClass("size-6");
     });
 
     it("should handle rapid clicking", async () => {

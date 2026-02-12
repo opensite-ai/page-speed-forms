@@ -6,7 +6,10 @@ import type { InputProps } from "../core/types";
 /**
  * DatePicker props interface
  */
-export interface DatePickerProps extends Omit<InputProps<Date | null>, "onChange"> {
+export interface DatePickerProps extends Omit<
+  InputProps<Date | null>,
+  "onChange"
+> {
   /**
    * Change handler - receives selected date or null
    */
@@ -190,7 +193,9 @@ export function DatePicker({
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
-  const [selectedMonth, setSelectedMonth] = React.useState<Date>(value || new Date());
+  const [selectedMonth, setSelectedMonth] = React.useState<Date>(
+    value || new Date(),
+  );
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -289,8 +294,18 @@ export function DatePicker({
     }
 
     const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     const handlePrevMonth = () => {
@@ -306,7 +321,7 @@ export function DatePicker({
         <div className="flex items-center justify-between pb-2 border-b border-border">
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
             onClick={handlePrevMonth}
             aria-label="Previous month"
           >
@@ -317,7 +332,7 @@ export function DatePicker({
           </div>
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-accent cursor-pointer"
+            className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground cursor-pointer"
             onClick={handleNextMonth}
             aria-label="Next month"
           >
@@ -326,7 +341,10 @@ export function DatePicker({
         </div>
         <div className="grid grid-cols-7 gap-1 mt-2">
           {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-            <div key={day} className="flex items-center justify-center h-8 w-full text-xs text-muted-foreground font-medium">
+            <div
+              key={day}
+              className="flex items-center justify-center h-8 w-full text-xs font-medium"
+            >
               {day}
             </div>
           ))}
@@ -337,7 +355,8 @@ export function DatePicker({
               return <div key={`empty-${index}`} />;
             }
 
-            const isSelected = value && date.toDateString() === value.toDateString();
+            const isSelected =
+              value && date.toDateString() === value.toDateString();
             const isToday = date.toDateString() === new Date().toDateString();
             const disabled = isDisabled(date);
 
@@ -345,7 +364,7 @@ export function DatePicker({
               <button
                 key={date.toISOString()}
                 type="button"
-                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-accent hover:text-accent-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
+                className={`flex items-center justify-center h-8 w-full rounded border-none bg-transparent cursor-pointer text-sm transition-colors hover:bg-primary hover:text-primary-foreground ${isSelected ? "bg-primary text-primary-foreground font-semibold" : ""} ${isToday ? "border border-primary" : ""} ${disabled ? "cursor-not-allowed opacity-50 pointer-events-none" : ""}`}
                 onClick={() => !disabled && handleDateSelect(date)}
                 disabled={disabled}
                 aria-label={formatDate(date, format)}
@@ -373,7 +392,10 @@ export function DatePicker({
       {/* Custom date input */}
       <div className="relative">
         {showIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" aria-hidden="true">
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -392,7 +414,7 @@ export function DatePicker({
         <input
           ref={inputRef}
           type="text"
-          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
+          className={`flex h-9 w-full rounded-md border border-input bg-transparent ${showIcon ? "pl-10" : "pl-3"} ${clearable && value ? "pr-10" : "pr-3"} py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ${error ? "border-red-500 ring-1 ring-red-500" : ""}`}
           value={inputValue}
           onChange={handleInputChange}
           onClick={handleToggle}
@@ -408,7 +430,7 @@ export function DatePicker({
         {clearable && value && !disabled && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
             onClick={handleClear}
             aria-label="Clear date"
             tabIndex={-1}

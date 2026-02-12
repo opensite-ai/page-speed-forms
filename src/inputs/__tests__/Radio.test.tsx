@@ -667,10 +667,11 @@ describe("Radio Component", () => {
         />
       );
 
-      // Radio applies error class to individual radio inputs
+      // Radio applies error class to the indicator div (sibling of sr-only input)
       const radios = screen.getAllByRole("radio");
       radios.forEach((radio) => {
-        expect(radio.className).toContain("border-destructive");
+        const indicator = radio.nextElementSibling;
+        expect(indicator?.className).toContain("border-destructive");
       });
     });
 

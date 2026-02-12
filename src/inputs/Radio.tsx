@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import { cn } from "../utils";
 
 /**
  * Radio option type
@@ -31,8 +32,10 @@ export interface RadioOption {
 /**
  * Additional props specific to Radio
  */
-export interface RadioProps
-  extends Omit<InputProps<string>, "onChange" | "placeholder"> {
+export interface RadioProps extends Omit<
+  InputProps<string>,
+  "onChange" | "placeholder"
+> {
   /**
    * Change handler - receives selected value
    */
@@ -48,6 +51,14 @@ export interface RadioProps
    * @default "stacked"
    */
   layout?: "inline" | "stacked";
+
+  /**
+   * Visual variant for radio options
+   * - "boxed": bordered card with ring on hover/selected, radio circle on right
+   * - "inline": minimal style, radio circle on left
+   * @default "inline"
+   */
+  radioVariant?: "boxed" | "inline";
 
   /**
    * Group-level label
@@ -122,6 +133,7 @@ export function Radio({
   error = false,
   className = "",
   layout = "stacked",
+  radioVariant = "inline",
   label,
   options,
   ...props
@@ -132,7 +144,7 @@ export function Radio({
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLLabelElement>,
-    currentIndex: number
+    currentIndex: number,
   ) => {
     if (e.key === "ArrowDown" || e.key === "ArrowRight") {
       e.preventDefault();
@@ -173,8 +185,12 @@ export function Radio({
     onBlur?.();
   };
 
-  const layoutClass = layout === "inline" ? "flex flex-row flex-wrap gap-4" : "grid w-full gap-2";
-  const containerClass = `${layoutClass} ${className}`.trim();
+  const containerClass = cn(
+    "w-full gap-3",
+    layout === "stacked" && "flex flex-col",
+    layout === "inline" && "flex flex-row flex-wrap",
+    className,
+  );
 
   return (
     <div
@@ -191,58 +207,80 @@ export function Radio({
         const isDisabled = disabled || option.disabled;
         const radioId = `${name}-${option.value}`;
 
+        const hasDescription = option.description != null && option.description !== "";
+
+        const radioIndicator = (
+          <div className="relative inline-flex items-center justify-center">
+            <input
+              type="radio"
+              id={radioId}
+              name={name}
+              value={option.value}
+              checked={isChecked}
+              onChange={(e) => handleChange(e.target.value)}
+              onBlur={handleBlur}
+              disabled={isDisabled}
+              required={required}
+              className="peer sr-only"
+              aria-describedby={
+                hasDescription
+                  ? `${radioId}-description`
+                  : props["aria-describedby"]
+              }
+            />
+            <div
+              className={cn(
+                "flex shrink-0 items-center justify-center rounded-full border-2 transition-colors size-6",
+                !error && isChecked && "border-primary bg-transparent",
+                !error && !isChecked && "border-input bg-transparent",
+                error && isChecked && "border-destructive bg-transparent",
+                error && !isChecked && "border-destructive bg-transparent",
+                isDisabled && "opacity-50",
+                "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-1",
+              )}
+            >
+              {isChecked && (
+                <div className="size-3 rounded-full bg-primary" />
+              )}
+            </div>
+          </div>
+        );
+
+        const labelContent = (
+          <div className="flex flex-col gap-0.5">
+            <div className="text-sm font-medium">{option.label}</div>
+            {hasDescription && (
+              <p
+                className="text-xs opacity-75"
+                id={`${radioId}-description`}
+              >
+                {option.description}
+              </p>
+            )}
+          </div>
+        );
+
         return (
           <label
             key={option.value}
-            className={`flex w-fit gap-2 items-center ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={cn(
+              "w-full h-full flex gap-3 p-3 duration-200",
+              radioVariant === "boxed" && "border rounded-lg hover:ring-2",
+              radioVariant === "boxed" && isChecked && "ring-2",
+              isDisabled
+                ? "opacity-50 cursor-not-allowed hover:ring-0"
+                : "cursor-pointer",
+            )}
             htmlFor={radioId}
             onKeyDown={(e) => handleKeyDown(e, index)}
             tabIndex={isDisabled ? -1 : 0}
           >
             <div className="flex w-full flex-row items-center gap-2">
+              {radioVariant === "inline" && radioIndicator}
               <div className="flex flex-1 flex-col gap-0.5">
-                {option.description ? (
-                  <>
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      {option.label}
-                    </div>
-                    <p
-                      className="text-muted-foreground text-sm"
-                      id={`${radioId}-description`}
-                    >
-                      {option.description}
-                    </p>
-                  </>
-                ) : (
-                  <span className="text-sm font-medium">{option.label}</span>
-                )}
+                {labelContent}
               </div>
-              <div className="relative">
-                <input
-                  type="radio"
-                  id={radioId}
-                  name={name}
-                  value={option.value}
-                  checked={isChecked}
-                  onChange={(e) => handleChange(e.target.value)}
-                  onBlur={handleBlur}
-                  disabled={isDisabled}
-                  required={required}
-                  className={`peer relative flex aspect-square size-4 shrink-0 appearance-none rounded-full border border-input outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : ""} ${isChecked ? "border-primary bg-primary" : "bg-transparent"}`}
-                  aria-describedby={
-                    option.description
-                      ? `${radioId}-description`
-                      : props["aria-describedby"]
-                  }
-                />
-                {isChecked && (
-                  <span className="pointer-events-none absolute top-1/2 left-1/2 flex size-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-primary-foreground">
-                    <svg className="size-2 fill-current" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" />
-                    </svg>
-                  </span>
-                )}
-              </div>
+              {radioVariant === "boxed" && radioIndicator}
             </div>
           </label>
         );
