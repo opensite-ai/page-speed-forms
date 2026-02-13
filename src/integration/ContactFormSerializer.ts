@@ -136,7 +136,9 @@ function camelToSnake(str: string): string {
  * Check if a field name is a standard Rails contact field.
  */
 function isStandardField(fieldName: string): boolean {
-  return STANDARD_FIELDS.includes(fieldName as (typeof STANDARD_FIELDS)[number]);
+  return STANDARD_FIELDS.includes(
+    fieldName as (typeof STANDARD_FIELDS)[number],
+  );
 }
 
 /**
@@ -231,7 +233,7 @@ function formatDateForRails(value: unknown): string | undefined {
  */
 export function serializeForRails(
   values: FormValues,
-  config: RailsApiConfig
+  config: RailsApiConfig,
 ): SerializedFormData {
   const standardFields: Record<string, unknown> = {};
   const customFields: Record<string, unknown> = {};
@@ -245,9 +247,12 @@ export function serializeForRails(
     if (typeof value === "string" && value.startsWith("upload_")) {
       continue;
     }
-    if (Array.isArray(value) && value.every(
-      (item) => typeof item === "string" && item.startsWith("upload_")
-    )) {
+    if (
+      Array.isArray(value) &&
+      value.every(
+        (item) => typeof item === "string" && item.startsWith("upload_"),
+      )
+    ) {
       continue;
     }
 
@@ -261,7 +266,14 @@ export function serializeForRails(
           standardFields[snakeKey] = formatted;
         }
       } else {
-        standardFields[snakeKey] = value;
+        // Handle array values for standard fields
+        // Standard fields expect scalar values (strings), but some field types
+        // like checkbox-group produce arrays. Convert arrays to comma-separated strings.
+        if (Array.isArray(value)) {
+          standardFields[snakeKey] = value.join(", ");
+        } else {
+          standardFields[snakeKey] = value;
+        }
       }
     } else {
       // Custom fields
