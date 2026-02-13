@@ -199,7 +199,8 @@ export function DateRangePicker({
   const [rangeStart, setRangeStart] = React.useState<Date | null>(value.start);
   const [rangeEnd, setRangeEnd] = React.useState<Date | null>(value.end);
   const [hoverDate, setHoverDate] = React.useState<Date | null>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLInputElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Sync range with controlled value prop
   React.useEffect(() => {
@@ -259,12 +260,24 @@ export function DateRangePicker({
   };
 
   const closeCalendar = React.useCallback(() => {
-    if (!isOpen) return;
     setIsOpen(false);
     onBlur?.();
-  }, [isOpen, onBlur]);
+  }, [onBlur]);
 
-  useOnClickOutside(containerRef, closeCalendar, "pointerdown", true);
+  useOnClickOutside([triggerRef, dropdownRef], closeCalendar, undefined, {
+    capture: true,
+  });
+
+  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
+    const nextTarget = event?.relatedTarget as Node | null;
+    const focusStayedInside =
+      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
+      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
+
+    if (!nextTarget || !focusStayedInside) {
+      onBlur?.();
+    }
+  };
 
   const dayGridStyle: React.CSSProperties = {
     gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
@@ -416,7 +429,7 @@ export function DateRangePicker({
         : "";
 
   return (
-    <div ref={containerRef} className={combinedClassName}>
+    <div className={combinedClassName} onBlur={handleBlur}>
       {/* Hidden inputs for form submission */}
       <input
         type="hidden"
@@ -452,6 +465,7 @@ export function DateRangePicker({
           </span>
         )}
         <input
+          ref={triggerRef}
           type="text"
           className={cn(
             "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
@@ -465,7 +479,6 @@ export function DateRangePicker({
           )}
           value={displayValue}
           onClick={handleToggle}
-          onBlur={onBlur}
           disabled={disabled}
           required={required}
           placeholder={placeholder}
@@ -489,7 +502,10 @@ export function DateRangePicker({
 
       {/* Calendar popup */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
+        <div
+          ref={dropdownRef}
+          className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3"
+        >
           <div role="grid" aria-label="Calendar">
             <div className="grid gap-4" style={monthsGridStyle}>
               {renderMonth(selectedMonth, { prev: true })}

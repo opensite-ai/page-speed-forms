@@ -22,6 +22,8 @@ export { useField } from "./useField";
 // Components
 export { Form } from "./Form";
 export { Field } from "./Field";
+export { FormFeedback } from "./form-feedback";
+export type { FormFeedbackProps } from "./form-feedback";
 
 // Context
 export { FormContext } from "./FormContext";
@@ -35,6 +37,9 @@ export type {
   ValidationSchema,
   ValidationMode,
   SubmissionStatus,
+  FormSubmissionBehavior,
+  NewFormSubmissionActionConfig,
+  FormSubmissionConfig,
   FormHelpers,
   SubmitHandler,
   ErrorHandler,

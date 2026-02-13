@@ -343,6 +343,43 @@ export interface UseFieldReturn<T = any> {
   };
 }
 
+export type FormSubmissionBehavior =
+  | "showConfirmation"
+  | "redirect"
+  | "renderCustomComponent";
+
+export interface NewFormSubmissionActionConfig {
+  /**
+   * Whether to render the "new submission" action.
+   * If omitted, defaults to true when `label` is provided.
+   */
+  enable?: boolean;
+
+  /**
+   * Optional custom button label.
+   */
+  label?: string;
+}
+
+export interface FormSubmissionConfig {
+  /**
+   * Post-submit UI behavior.
+   * @default "showConfirmation"
+   */
+  behavior?: FormSubmissionBehavior;
+
+  /**
+   * Optional custom component rendered after successful submission when
+   * behavior is "renderCustomComponent".
+   */
+  customComponent?: ReactNode;
+
+  /**
+   * Optional configuration for allowing a fresh submission in the same session.
+   */
+  newFormSubmissionAction?: NewFormSubmissionActionConfig;
+}
+
 /**
  * Form component props
  */
@@ -377,6 +414,36 @@ export interface FormProps<T extends FormValues = FormValues> {
    * @default true
    */
   noValidate?: boolean;
+
+  /**
+   * Optional submission behavior configuration.
+   */
+  submissionConfig?: FormSubmissionConfig;
+
+  /**
+   * Optional success message shown after successful submission.
+   */
+  successMessage?: ReactNode;
+
+  /**
+   * Optional submission error shown below the form actions.
+   */
+  submissionError?: ReactNode;
+
+  /**
+   * Additional className for success feedback.
+   */
+  successMessageClassName?: string;
+
+  /**
+   * Additional className for error feedback.
+   */
+  errorMessageClassName?: string;
+
+  /**
+   * Optional callback invoked when the user starts a new submission.
+   */
+  onNewSubmission?: () => void;
 }
 
 /**

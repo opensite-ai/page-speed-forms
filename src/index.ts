@@ -51,6 +51,7 @@ export {
   useField,
   Form,
   Field,
+  FormFeedback,
   FormContext,
 } from "./core";
 
@@ -62,6 +63,9 @@ export type {
   ValidationSchema,
   ValidationMode,
   SubmissionStatus,
+  FormSubmissionBehavior,
+  NewFormSubmissionActionConfig,
+  FormSubmissionConfig,
   FormHelpers,
   SubmitHandler,
   ErrorHandler,
@@ -76,4 +80,5 @@ export type {
   FormProps,
   FieldProps,
   InputProps,
+  FormFeedbackProps,
 } from "./core";

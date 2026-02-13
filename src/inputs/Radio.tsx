@@ -291,7 +291,7 @@ export function Radio({
               )}
             >
               {!useChoiceCard && radioIndicator}
-              <div className="flex flex-1 flex-col gap-0.5">{labelContent}</div>
+              {labelContent}
               {useChoiceCard && radioIndicator}
             </div>
           </label>

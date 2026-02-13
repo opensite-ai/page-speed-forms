@@ -169,8 +169,8 @@ export function DatePicker({
   const [selectedMonth, setSelectedMonth] = React.useState<Date>(
     value || new Date(),
   );
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   // Sync selected month with controlled value prop
   React.useEffect(() => {
@@ -209,12 +209,24 @@ export function DatePicker({
   };
 
   const closeCalendar = React.useCallback(() => {
-    if (!isOpen) return;
     setIsOpen(false);
     onBlur?.();
-  }, [isOpen, onBlur]);
+  }, [onBlur]);
 
-  useOnClickOutside(containerRef, closeCalendar, "pointerdown", true);
+  useOnClickOutside([inputRef, dropdownRef], closeCalendar, undefined, {
+    capture: true,
+  });
+
+  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
+    const nextTarget = event?.relatedTarget as Node | null;
+    const focusStayedInside =
+      (!!inputRef.current && inputRef.current.contains(nextTarget)) ||
+      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
+
+    if (!nextTarget || !focusStayedInside) {
+      onBlur?.();
+    }
+  };
 
   const dayGridStyle: React.CSSProperties = {
     gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
@@ -342,7 +354,7 @@ export function DatePicker({
   const combinedClassName = cn("relative", className);
 
   return (
-    <div ref={containerRef} className={combinedClassName}>
+    <div className={combinedClassName} onBlur={handleBlur}>
       {/* Hidden native date input for form submission */}
       <input
         type="hidden"
@@ -387,7 +399,6 @@ export function DatePicker({
           )}
           value={displayValue}
           onClick={handleToggle}
-          onBlur={onBlur}
           disabled={disabled}
           required={required}
           placeholder={placeholder}
@@ -411,7 +422,10 @@ export function DatePicker({
 
       {/* Calendar popup */}
       {isOpen && !disabled && (
-        <div className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3">
+        <div
+          ref={dropdownRef}
+          className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3"
+        >
           {renderCalendar()}
         </div>
       )}

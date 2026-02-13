@@ -22,6 +22,12 @@ export type {
   SelectOption,
   SelectOptionGroup,
 } from "./Select";
+export { MultiSelect } from "./MultiSelect";
+export type {
+  MultiSelectProps,
+  MultiSelectOption,
+  MultiSelectOptionGroup,
+} from "./MultiSelect";
 export { FileInput } from "./FileInput";
 export type {
   FileInputProps,

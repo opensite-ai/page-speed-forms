@@ -79,11 +79,21 @@ const LabelGroup = ({
 
   if (!primaryElement && !secondaryElement) return null;
 
+  // Legend should remain a direct child of fieldset for proper semantics.
+  if (variant === "legend") {
+    return (
+      <>
+        {primaryElement}
+        {secondaryElement}
+      </>
+    );
+  }
+
   return (
-    <>
+    <div className="flex flex-1 flex-col gap-0.5">
       {primaryElement}
       {secondaryElement}
-    </>
+    </div>
   );
 };
 

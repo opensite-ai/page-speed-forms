@@ -187,7 +187,8 @@ export function MultiSelect({
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
-  const selectRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const dropdownId = `${name}-dropdown`;
 
@@ -364,27 +365,30 @@ export function MultiSelect({
   // Handle blur
   const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
     const nextTarget = event?.relatedTarget as Node | null;
-    if (!nextTarget || !selectRef.current?.contains(nextTarget)) {
+    const focusStayedInside =
+      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
+      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
+
+    if (!nextTarget || !focusStayedInside) {
       onBlur?.();
     }
   };
 
   const closeDropdown = React.useCallback(() => {
-    if (!isOpen) return;
-
     setIsOpen(false);
     setSearchQuery("");
     setFocusedIndex(-1);
     onBlur?.();
-  }, [isOpen, onBlur]);
+  }, [onBlur]);
 
-  useOnClickOutside(selectRef, closeDropdown, "pointerdown", true);
+  useOnClickOutside([triggerRef, dropdownRef], closeDropdown, undefined, {
+    capture: true,
+  });
 
   const combinedClassName = cn("relative w-full", className);
 
   return (
     <div
-      ref={selectRef}
       className={combinedClassName}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
@@ -411,6 +415,7 @@ export function MultiSelect({
 
       {/* Custom select trigger */}
       <div
+        ref={triggerRef}
         className={cn(
           "flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm",
           "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -485,6 +490,7 @@ export function MultiSelect({
       {/* Dropdown */}
       {isOpen && (
         <div
+          ref={dropdownRef}
           id={dropdownId}
           className="absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
           role="listbox"
@@ -566,7 +572,12 @@ export function MultiSelect({
                       return (
                         <div
                           key={option.value}
-                          className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                          className={cn(
+                            "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted",
+                            isFocused && "bg-muted",
+                            isSelected && "font-medium",
+                            isDisabled && "pointer-events-none opacity-50",
+                          )}
                           onClick={() =>
                             !isDisabled && handleToggleOption(option.value)
                           }
@@ -597,7 +608,12 @@ export function MultiSelect({
                 return (
                   <div
                     key={option.value}
-                    className={`relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+                    className={cn(
+                      "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted",
+                      isFocused && "bg-muted",
+                      isSelected && "font-medium bg-muted",
+                      isDisabled && "pointer-events-none opacity-50",
+                    )}
                     onClick={() =>
                       !isDisabled && handleToggleOption(option.value)
                     }

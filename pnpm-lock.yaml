@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@opensite/hooks':
-        specifier: 2.0.6
-        version: 2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.7
+        version: 2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -560,8 +560,8 @@ packages:
       expo-sqlite:
         optional: true
 
-  '@opensite/hooks@2.0.6':
-    resolution: {integrity: sha512-03+SOMrCVRvKX9/Z1kVZRlDonVBQ8+frGdvKW5i4tz4y0w7Kzvb4CCTmCU1W3CW0liKD0qHuV/dtpMusuPdfiA==}
+  '@opensite/hooks@2.0.7':
+    resolution: {integrity: sha512-75hhChQip01TKegxV32ZyjV+4XkLC46q0Ta4Nz6+To2c/veQ+onyvKNVVyZlOWlRBnaDjqtM95mhxL7u87mISg==}
     engines: {node: '>=18.0.0', pnpm: '>=9.0.0'}
     peerDependencies:
       react: '>=17.0.0'
@@ -2022,7 +2022,7 @@ snapshots:
       - react
     optional: true
 
-  '@opensite/hooks@2.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@opensite/hooks@2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

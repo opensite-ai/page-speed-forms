@@ -189,7 +189,8 @@ export function Select({
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
-  const selectRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const dropdownId = `${name}-dropdown`;
 
@@ -345,27 +346,34 @@ export function Select({
   // Handle blur
   const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
     const nextTarget = event?.relatedTarget as Node | null;
-    if (!nextTarget || !selectRef.current?.contains(nextTarget)) {
+    const focusStayedInside =
+      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
+      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
+
+    if (!nextTarget || !focusStayedInside) {
       onBlur?.();
     }
   };
 
   const closeDropdown = React.useCallback(() => {
-    if (!isOpen) return;
-
     setIsOpen(false);
     setSearchQuery("");
     setFocusedIndex(-1);
     onBlur?.();
-  }, [isOpen, onBlur]);
+  }, [onBlur]);
 
-  useOnClickOutside(selectRef, closeDropdown, "pointerdown", true);
+  // Shared dismiss-layer pattern:
+  // - include trigger + dropdown refs (works for inline and portaled dropdowns)
+  // - rely on hook default eventType (pointerdown with mousedown fallback)
+  // - capture phase handles outside interactions before bubbling handlers
+  useOnClickOutside([triggerRef, dropdownRef], closeDropdown, undefined, {
+    capture: true,
+  });
 
   const combinedClassName = cn("relative w-full", className);
 
   return (
     <div
-      ref={selectRef}
       className={combinedClassName}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
@@ -391,6 +399,7 @@ export function Select({
 
       {/* Custom select trigger */}
       <div
+        ref={triggerRef}
         className={cn(
           "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm",
           "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -441,6 +450,7 @@ export function Select({
       {/* Dropdown */}
       {isOpen && (
         <div
+          ref={dropdownRef}
           id={dropdownId}
           className="absolute z-50 top-full mt-1 min-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
           role="listbox"
