@@ -2,6 +2,24 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
+import {
+  FileUpload,
+  FileUploadDropzone,
+  FileUploadItem,
+  FileUploadItemDelete,
+  FileUploadItemMetadata,
+  FileUploadItemPreview,
+  FileUploadList,
+} from "../components/ui/file-upload";
+import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { cn } from "../lib/utils";
 
 /**
  * File validation error details
@@ -121,55 +139,11 @@ export interface FileInputProps extends Omit<
 /**
  * FileInput component for file selection with validation, progress tracking, and image cropping
  *
- * Features:
- * - Drag-and-drop file upload
- * - File type and size validation
- * - Image preview thumbnails
- * - Upload progress indicators
- * - Image cropping with aspect ratio control
- * - Multiple file support
- *
- * @example
- * ```tsx
- * <FileInput
- *   name="resume"
- *   accept=".pdf,.doc,.docx"
- *   maxSize={5 * 1024 * 1024}
- *   value={files}
- *   onChange={(files) => setFiles(files)}
- *   error={hasError}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With upload progress
- * <FileInput
- *   name="photos"
- *   accept="image/*"
- *   multiple
- *   value={files}
- *   onChange={setFiles}
- *   showProgress
- *   uploadProgress={progress}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With image cropping
- * <FileInput
- *   name="avatar"
- *   accept="image/*"
- *   value={files}
- *   onChange={setFiles}
- *   enableCropping
- *   cropAspectRatio={1}
- *   onCropComplete={(blob, file) => {
- *     // Handle cropped image
- *   }}
- * />
- * ```
+ * Built on the DiceUI-style FileUpload primitive with form-specific behavior:
+ * - Rails/token upload workflow compatibility
+ * - External upload progress support
+ * - Validation + accessibility wiring
+ * - Optional image cropping modal
  */
 export function FileInput({
   name,
@@ -195,8 +169,11 @@ export function FileInput({
   onFileRemove,
   ...props
 }: FileInputProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [dragActive, setDragActive] = React.useState(false);
+  const normalizedValue = React.useMemo(() => {
+    const safeValue = Array.isArray(value) ? value : [];
+    return multiple ? safeValue : safeValue.slice(0, 1);
+  }, [multiple, value]);
+
   const [cropperOpen, setCropperOpen] = React.useState(false);
   const [imageToCrop, setImageToCrop] = React.useState<{
     file: File;
@@ -212,21 +189,19 @@ export function FileInput({
    */
   const validateFile = React.useCallback(
     (file: File): FileValidationError | null => {
-      // Validate file type
       if (accept) {
-        const acceptedTypes = accept.split(",").map((t) => t.trim());
+        const acceptedTypes = accept.split(",").map((type) => type.trim());
         const isValidType = acceptedTypes.some((type) => {
           if (type.startsWith(".")) {
-            // Extension match
             return file.name.toLowerCase().endsWith(type.toLowerCase());
-          } else if (type.endsWith("/*")) {
-            // MIME type wildcard match (e.g., "image/*")
-            const baseType = type.split("/")[0];
-            return file.type.startsWith(baseType + "/");
-          } else {
-            // Exact MIME type match
-            return file.type === type;
           }
+
+          if (type.endsWith("/*")) {
+            const baseType = type.split("/")[0];
+            return file.type.startsWith(`${baseType}/`);
+          }
+
+          return file.type === type;
         });
 
         if (!isValidType) {
@@ -238,10 +213,10 @@ export function FileInput({
         }
       }
 
-      // Validate file size
       if (file.size > maxSize) {
         const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+
         return {
           file,
           error: "size",
@@ -254,73 +229,104 @@ export function FileInput({
     [accept, maxSize],
   );
 
-  /**
-   * Handle file selection from input or drop
-   */
-  const handleFiles = React.useCallback(
-    (fileList: FileList | null) => {
-      if (!fileList || fileList.length === 0) return;
+  const mapRejectedFileError = React.useCallback(
+    (file: File, message: string): FileValidationError => {
+      const normalizedMessage = message.toLowerCase();
 
-      const newFiles = Array.from(fileList);
-      const validationErrors: FileValidationError[] = [];
-      const validFiles: File[] = [];
-
-      // Validate each file
-      for (const file of newFiles) {
-        const validationError = validateFile(file);
-        if (validationError) {
-          validationErrors.push(validationError);
-        } else {
-          validFiles.push(file);
-        }
+      if (
+        normalizedMessage.includes("maximum") &&
+        normalizedMessage.includes("files")
+      ) {
+        return { file, error: "count", message };
       }
 
-      // Check max files constraint
-      const totalFiles = value.length + validFiles.length;
-      if (totalFiles > maxFiles) {
-        validationErrors.push({
-          file: validFiles[0], // Use first file as reference
-          error: "count",
-          message: `Maximum ${maxFiles} file(s) allowed. Attempting to add ${validFiles.length} to existing ${value.length}.`,
+      if (
+        normalizedMessage.includes("size") ||
+        normalizedMessage.includes("large")
+      ) {
+        return { file, error: "size", message };
+      }
+
+      if (
+        normalizedMessage.includes("type") ||
+        normalizedMessage.includes("accept")
+      ) {
+        return { file, error: "type", message };
+      }
+
+      if (file.size > maxSize) {
+        return { file, error: "size", message };
+      }
+
+      return { file, error: "type", message };
+    },
+    [maxSize],
+  );
+
+  const handleFileValidate = React.useCallback(
+    (file: File) => {
+      const validationError = validateFile(file);
+      return validationError?.message ?? null;
+    },
+    [validateFile],
+  );
+
+  const handleFileReject = React.useCallback(
+    (file: File, message: string) => {
+      const validationError = mapRejectedFileError(file, message);
+      onValidationError?.([validationError]);
+    },
+    [mapRejectedFileError, onValidationError],
+  );
+
+  const handleBlur = React.useCallback(() => {
+    onBlur?.();
+  }, [onBlur]);
+
+  const fileIdentity = React.useCallback((file: File) => {
+    return `${file.name}-${file.size}-${file.lastModified}`;
+  }, []);
+
+  const handleValueChange = React.useCallback(
+    (incomingFiles: File[]) => {
+      const nextFiles = multiple ? incomingFiles : incomingFiles.slice(-1);
+
+      if (onFileRemove && nextFiles.length < normalizedValue.length) {
+        const nextFileIds = new Set(nextFiles.map((file) => fileIdentity(file)));
+        normalizedValue.forEach((file, index) => {
+          if (!nextFileIds.has(fileIdentity(file))) {
+            onFileRemove(file, index);
+          }
         });
       }
 
-      // Notify validation errors
-      if (validationErrors.length > 0 && onValidationError) {
-        onValidationError(validationErrors);
-      }
+      if (enableCropping && !multiple) {
+        const nextImageFile = nextFiles[0];
+        const previousFile = normalizedValue[0];
+        const isNewSingleImage = Boolean(
+          nextImageFile &&
+            nextImageFile.type.startsWith("image/") &&
+            nextImageFile !== previousFile,
+        );
 
-      // Handle valid files
-      if (validFiles.length > 0 && totalFiles <= maxFiles) {
-        // If cropping is enabled and file is an image, open cropper for first image
-        const firstImage = validFiles.find((f) => f.type.startsWith("image/"));
-        if (enableCropping && firstImage && !multiple) {
-          // Open cropper for single image
-          const previewUrl = URL.createObjectURL(firstImage);
-          setImageToCrop({ file: firstImage, url: previewUrl });
+        if (isNewSingleImage) {
+          const previewUrl = URL.createObjectURL(nextImageFile!);
+          setImageToCrop({ file: nextImageFile!, url: previewUrl });
           setCropperOpen(true);
-        } else {
-          // Add files directly
-          const updatedFiles = multiple
-            ? [...value, ...validFiles]
-            : validFiles;
-          onChange(updatedFiles.slice(0, maxFiles));
+          return;
         }
       }
 
-      // Reset input value to allow same file selection again
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
+      onChange(nextFiles);
     },
     [
-      value,
-      onChange,
-      validateFile,
+      enableCropping,
       maxFiles,
       multiple,
-      enableCropping,
-      onValidationError,
+      normalizedValue,
+      onChange,
+      onFileRemove,
+      fileIdentity,
     ],
   );
 
@@ -340,11 +346,9 @@ export function FileInput({
             return;
           }
 
-          // Set canvas size to crop area
           canvas.width = cropArea.width;
           canvas.height = cropArea.height;
 
-          // Draw cropped image
           ctx.drawImage(
             image,
             cropArea.x,
@@ -357,7 +361,6 @@ export function FileInput({
             cropArea.height,
           );
 
-          // Convert canvas to blob
           canvas.toBlob(
             (blob) => {
               if (blob) {
@@ -370,9 +373,11 @@ export function FileInput({
             0.95,
           );
         };
+
         image.onerror = () => {
           reject(new Error("Failed to load image"));
         };
+
         image.src = imageUrl;
       });
     },
@@ -391,38 +396,51 @@ export function FileInput({
         croppedAreaPixels,
       );
 
-      // Notify parent of cropped image
       if (onCropComplete) {
         onCropComplete(croppedBlob, imageToCrop.file);
       }
 
-      // Create new file from blob
       const croppedFile = new File([croppedBlob], imageToCrop.file.name, {
         type: "image/jpeg",
       });
 
-      // Update files
-      const updatedFiles = multiple ? [...value, croppedFile] : [croppedFile];
+      let updatedFiles: File[];
+      if (!multiple) {
+        updatedFiles = [croppedFile];
+      } else {
+        const existingIndex = normalizedValue.findIndex(
+          (file) => file === imageToCrop.file,
+        );
+
+        if (existingIndex === -1) {
+          updatedFiles = [...normalizedValue, croppedFile].slice(0, maxFiles);
+        } else {
+          updatedFiles = normalizedValue.map((file, index) =>
+            index === existingIndex ? croppedFile : file,
+          );
+        }
+      }
+
       onChange(updatedFiles);
 
-      // Close cropper
       setCropperOpen(false);
       URL.revokeObjectURL(imageToCrop.url);
       setImageToCrop(null);
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCroppedAreaPixels(null);
-    } catch (error) {
-      console.error("Failed to crop image:", error);
+    } catch (cropError) {
+      console.error("Failed to crop image:", cropError);
     }
   }, [
-    imageToCrop,
-    croppedAreaPixels,
     createCroppedImage,
-    onCropComplete,
-    value,
-    onChange,
+    croppedAreaPixels,
+    imageToCrop,
+    maxFiles,
     multiple,
+    normalizedValue,
+    onChange,
+    onCropComplete,
   ]);
 
   /**
@@ -439,261 +457,161 @@ export function FileInput({
     setCroppedAreaPixels(null);
   }, [imageToCrop]);
 
-  /**
-   * Handle crop change
-   */
-  const onCropChange = React.useCallback((crop: { x: number; y: number }) => {
-    setCrop(crop);
+  const handleCrop = React.useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setImageToCrop({ file, url: previewUrl });
+    setCropperOpen(true);
   }, []);
 
-  /**
-   * Handle zoom change
-   */
-  const onZoomChange = React.useCallback((zoom: number) => {
-    setZoom(zoom);
+  const onCropChange = React.useCallback((nextCrop: { x: number; y: number }) => {
+    setCrop(nextCrop);
   }, []);
 
-  /**
-   * Handle crop complete (receives pixel coordinates)
-   */
+  const onZoomChange = React.useCallback((nextZoom: number) => {
+    setZoom(nextZoom);
+  }, []);
+
   const onCropCompleteInternal = React.useCallback(
-    (_: any, croppedAreaPixels: CropArea) => {
-      setCroppedAreaPixels(croppedAreaPixels);
+    (_: unknown, nextCroppedAreaPixels: CropArea) => {
+      setCroppedAreaPixels(nextCroppedAreaPixels);
     },
     [],
   );
 
-  /**
-   * Handle input change event
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(e.target.files);
-  };
-
-  /**
-   * Handle file removal
-   */
-  const handleRemove = (index: number) => {
-    const fileToRemove = value[index];
-    const updatedFiles = value.filter((_, i) => i !== index);
-    onChange(updatedFiles);
-
-    if (onFileRemove && fileToRemove) {
-      onFileRemove(fileToRemove, index);
-    }
-  };
-
-  /**
-   * Handle crop button click for existing file
-   */
-  const handleCrop = (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    const previewUrl = URL.createObjectURL(file);
-    setImageToCrop({ file, url: previewUrl });
-    setCropperOpen(true);
-  };
-
-  /**
-   * Handle drag events
-   */
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  /**
-   * Handle drop event
-   */
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (disabled) return;
-
-    handleFiles(e.dataTransfer.files);
-  };
-
-  /**
-   * Trigger file input click
-   */
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
-
-  /**
-   * Handle keyboard interaction
-   */
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleClick();
-    }
-  };
-
-  /**
-   * Format file size for display
-   */
-  const formatFileSize = (bytes: number): string => {
+  const formatFileSize = React.useCallback((bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
+    const unit = 1024;
+    const units = ["Bytes", "KB", "MB", "GB"];
+    const index = Math.floor(Math.log(bytes) / Math.log(unit));
+    return Math.round((bytes / Math.pow(unit, index)) * 100) / 100 + " " + units[index];
+  }, []);
 
-  /**
-   * Generate file preview URL for images
-   */
-  const getPreviewUrl = (file: File): string | null => {
-    if (file.type.startsWith("image/")) {
-      return URL.createObjectURL(file);
-    }
-    return null;
-  };
-
-  // Cleanup preview URLs on unmount and when files change
   React.useEffect(() => {
     return () => {
-      value.forEach((file) => {
-        const previewUrl = getPreviewUrl(file);
-        if (previewUrl) {
-          URL.revokeObjectURL(previewUrl);
-        }
-      });
-      // Cleanup crop image URL if present
       if (imageToCrop) {
         URL.revokeObjectURL(imageToCrop.url);
       }
     };
-  }, [value, imageToCrop]);
+  }, [imageToCrop]);
 
-  const combinedClassName = `${className}`.trim();
+  const fileCountLabel =
+    normalizedValue.length > 0
+      ? `${normalizedValue.length} file(s) selected`
+      : placeholder;
 
   return (
-    <div className={combinedClassName}>
-      {/* Hidden file input */}
-      <input
-        ref={inputRef}
-        type="file"
+    <>
+      <FileUpload
         name={name}
-        onChange={handleChange}
-        onBlur={onBlur}
+        value={normalizedValue}
+        onValueChange={handleValueChange}
+        onFileValidate={handleFileValidate}
+        onFileReject={handleFileReject}
         accept={accept}
+        maxSize={maxSize}
+        maxFiles={multiple ? maxFiles : undefined}
         multiple={multiple}
         disabled={disabled}
-        required={required && value.length === 0}
-        aria-invalid={error || props["aria-invalid"]}
-        aria-describedby={props["aria-describedby"]}
-        aria-required={required || props["aria-required"]}
-        style={{ display: "none" }}
-      />
-
-      {/* Drop zone */}
-      <div
-        className={`flex min-h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-input bg-transparent p-6 transition-colors hover:bg-primary/50 hover:border-ring ${dragActive ? "bg-primary text-primary-foreground border-ring" : ""} ${disabled ? "cursor-not-allowed opacity-50" : ""} ${error ? "border-destructive" : ""}`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label={placeholder}
-        aria-disabled={disabled}
+        required={required && normalizedValue.length === 0}
+        invalid={Boolean(error || props["aria-invalid"])}
+        label="File upload"
+        className={cn(className)}
+        inputProps={{
+          ...props,
+          onBlur: handleBlur,
+          style: { display: "none" },
+          "aria-invalid": error || props["aria-invalid"],
+          "aria-required": required || props["aria-required"],
+          "aria-describedby": props["aria-describedby"],
+        }}
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          <p className="text-sm font-medium">
-            {value.length > 0
-              ? `${value.length} file(s) selected`
-              : placeholder}
-          </p>
-          {accept && <p className="text-xs">Accepted: {accept}</p>}
-          {maxSize && (
-            <p className="text-xs ">Max size: {formatFileSize(maxSize)}</p>
+        <FileUploadDropzone
+          role="button"
+          aria-label={placeholder}
+          className={cn(
+            "flex min-h-32 w-full cursor-pointer items-center justify-center border-input bg-transparent p-6 transition-colors",
+            "hover:bg-accent/50 hover:border-ring",
+            "data-[dragging]:bg-accent data-[dragging]:border-ring",
+            disabled && "cursor-not-allowed opacity-50",
+            error && "border-destructive",
           )}
-        </div>
-      </div>
+        >
+          <div className="flex flex-col items-center gap-2 text-center">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
 
-      {/* File list */}
-      {value.length > 0 && (
-        <ul className="flex flex-col gap-2 mt-4" role="list">
-          {value.map((file, index) => {
-            const previewUrl = showPreview ? getPreviewUrl(file) : null;
+            <p className="text-sm font-medium">{fileCountLabel}</p>
+            {accept && <p className="text-xs">Accepted: {accept}</p>}
+            <p className="text-xs">Max size: {formatFileSize(maxSize)}</p>
+          </div>
+        </FileUploadDropzone>
+
+        <FileUploadList className="mt-4">
+          {normalizedValue.map((file, index) => {
+            const progressValue = uploadProgress[file.name];
+            const hasProgress =
+              showProgress && typeof progressValue === "number";
 
             return (
-              <li
+              <FileUploadItem
                 key={`${file.name}-${index}`}
-                className="flex items-center gap-3 p-3 rounded-md border border-border bg-card text-card-foreground hover:bg-primary/50 transition-colors"
+                value={file}
+                className="flex items-center gap-3 border-border bg-card text-card-foreground hover:bg-primary/50 transition-colors"
               >
-                {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt={file.name}
-                    className="w-12 h-12 rounded object-cover"
-                    width="48"
-                    height="48"
-                  />
-                )}
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-sm font-medium truncate">
-                    {file.name}
-                  </span>
+                {showPreview ? (
+                  <FileUploadItemPreview className="h-12 w-12 rounded [&>img]:h-full [&>img]:w-full [&>img]:object-cover [&>svg]:size-6" />
+                ) : null}
+
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <FileUploadItemMetadata className="min-w-0" />
                   <span className="text-xs">{formatFileSize(file.size)}</span>
-                  {/* Upload progress indicator */}
-                  {showProgress && uploadProgress[file.name] !== undefined && (
-                    <div className="flex items-center gap-2 mt-1">
+
+                  {hasProgress ? (
+                    <div className="mt-1 flex items-center gap-2">
                       <div
-                        className="h-1.5 bg-muted rounded-full overflow-hidden flex-1"
+                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-accent/40"
                         role="progressbar"
-                        aria-valuenow={uploadProgress[file.name]}
+                        aria-valuenow={progressValue}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-label={`Upload progress: ${uploadProgress[file.name]}%`}
+                        aria-label={`Upload progress: ${progressValue}%`}
                       >
                         <div
                           className="h-full bg-primary transition-all"
-                          style={{ width: `${uploadProgress[file.name]}%` }}
+                          style={{ width: `${progressValue}%` }}
                         />
                       </div>
-                      <span className="text-xs ">
-                        {uploadProgress[file.name]}%
-                      </span>
+                      <span className="text-xs">{progressValue}%</span>
                     </div>
-                  )}
+                  ) : null}
                 </div>
-                {/* Crop button for images when cropping is enabled */}
-                {enableCropping && file.type.startsWith("image/") && (
-                  <button
+
+                {enableCropping && file.type.startsWith("image/") ? (
+                  <Button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    variant="ghost"
+                    size="icon"
+                    onClick={(event) => {
+                      event.stopPropagation();
                       handleCrop(file);
                     }}
                     disabled={disabled}
-                    className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
+                    className="h-8 w-8 p-0"
                     aria-label={`Crop ${file.name}`}
                   >
                     <svg
@@ -710,21 +628,67 @@ export function FileInput({
                       <path d="M6.13 1L6 16a2 2 0 0 0 2 2h15" />
                       <path d="M1 6.13L16 6a2 2 0 0 1 2 2v15" />
                     </svg>
-                  </button>
-                )}
-                <button
+                  </Button>
+                ) : null}
+
+                <FileUploadItemDelete asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={disabled}
+                    className="h-8 w-8 p-0"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </Button>
+                </FileUploadItemDelete>
+              </FileUploadItem>
+            );
+          })}
+        </FileUploadList>
+      </FileUpload>
+
+      <Dialog
+        open={cropperOpen && Boolean(imageToCrop)}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCropCancel();
+          }
+        }}
+      >
+        {imageToCrop ? (
+          <DialogContent
+            showCloseButton={false}
+            className="max-w-3xl gap-0 p-0"
+            aria-describedby={undefined}
+          >
+            <DialogHeader className="flex-row items-center justify-between border-b border-border px-4 py-3">
+              <DialogTitle>Crop Image</DialogTitle>
+              <DialogClose asChild>
+                <Button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemove(index);
-                  }}
-                  disabled={disabled}
-                  className="flex items-center justify-center h-8 w-8 rounded border-none bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
-                  aria-label={`Remove ${file.name}`}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                  aria-label="Close"
                 >
                   <svg
-                    width="20"
-                    height="20"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -736,41 +700,17 @@ export function FileInput({
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      {/* Image cropper modal */}
-      {cropperOpen && imageToCrop && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={handleCropCancel}
-            aria-label="Close cropper"
-          />
-          <div className="relative bg-popover border border-border rounded-lg shadow-lg max-w-3xl w-full mx-4">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 className="text-lg font-semibold">Crop Image</h3>
-              <button
-                type="button"
-                className="flex items-center justify-center h-8 w-8 rounded hover:bg-primary hover:text-primary-foreground transition-colors"
-                onClick={handleCropCancel}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
+                </Button>
+              </DialogClose>
+            </DialogHeader>
 
             <div className="p-4">
               <div
-                className="relative w-full h-96 bg-muted rounded-md overflow-hidden"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  const startX = e.clientX - crop.x;
-                  const startY = e.clientY - crop.y;
+                className="relative h-96 w-full overflow-hidden rounded-md bg-accent/40"
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  const startX = event.clientX - crop.x;
+                  const startY = event.clientY - crop.y;
 
                   const handleMouseMove = (moveEvent: MouseEvent) => {
                     onCropChange({
@@ -791,15 +731,16 @@ export function FileInput({
                 <img
                   src={imageToCrop.url}
                   alt="Crop preview"
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 h-full w-full object-contain"
                   style={{
                     transform: `translate(${crop.x}px, ${crop.y}px) scale(${zoom})`,
                   }}
                   draggable={false}
-                  onLoad={(e) => {
-                    const img = e.currentTarget;
+                  onLoad={(event) => {
+                    const image = event.currentTarget;
                     const containerWidth = 600;
                     const containerHeight = 400;
+
                     const cropWidth = cropAspectRatio
                       ? Math.min(
                           containerWidth * 0.8,
@@ -810,32 +751,26 @@ export function FileInput({
                       ? cropWidth / cropAspectRatio
                       : containerHeight * 0.8;
 
-                    // Calculate crop area in pixels
+                    const imageWidth = image.naturalWidth;
+                    const imageHeight = image.naturalHeight;
                     const scale = zoom;
-                    const imgWidth = img.naturalWidth;
-                    const imgHeight = img.naturalHeight;
-
-                    // Calculate center point
                     const centerX = containerWidth / 2;
                     const centerY = containerHeight / 2;
 
-                    // Calculate crop area relative to image
                     const cropX = (centerX - crop.x - cropWidth / 2) / scale;
                     const cropY = (centerY - crop.y - cropHeight / 2) / scale;
 
-                    // Store crop area for saving
                     onCropCompleteInternal(null, {
                       x: Math.max(0, cropX),
                       y: Math.max(0, cropY),
-                      width: Math.min(cropWidth / scale, imgWidth),
-                      height: Math.min(cropHeight / scale, imgHeight),
+                      width: Math.min(cropWidth / scale, imageWidth),
+                      height: Math.min(cropHeight / scale, imageHeight),
                     });
                   }}
                 />
 
-                {/* Crop overlay */}
                 <div
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-2 border-primary rounded pointer-events-none"
+                  className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded border-2 border-primary"
                   style={{
                     width: cropAspectRatio
                       ? `${Math.min(80, 80 * cropAspectRatio)}%`
@@ -859,11 +794,10 @@ export function FileInput({
                 </div>
               </div>
 
-              {/* Zoom controls */}
-              <div className="flex items-center gap-3 mt-4">
+              <div className="mt-4 flex items-center gap-3">
                 <label
                   htmlFor="zoom-slider"
-                  className="text-sm font-medium whitespace-nowrap"
+                  className="whitespace-nowrap text-sm font-medium"
                 >
                   Zoom: {zoom.toFixed(1)}x
                 </label>
@@ -874,33 +808,25 @@ export function FileInput({
                   max="3"
                   step="0.1"
                   value={zoom}
-                  onChange={(e) => onZoomChange(parseFloat(e.target.value))}
-                  className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                  onChange={(event) => onZoomChange(parseFloat(event.target.value))}
+                  className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-accent/60"
                   aria-label="Zoom level"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 p-4 border-t border-border">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center h-9 rounded-md px-4 text-sm font-medium border border-input bg-transparent hover:bg-primary hover:text-primary-foreground transition-colors"
-                onClick={handleCropCancel}
-              >
+            <div className="flex items-center justify-end gap-2 border-t border-border p-4">
+              <Button type="button" variant="outline" onClick={handleCropCancel}>
                 Cancel
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center h-9 rounded-md px-4 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                onClick={handleCropSave}
-              >
+              </Button>
+              <Button type="button" onClick={handleCropSave}>
                 Save
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
-    </div>
+          </DialogContent>
+        ) : null}
+      </Dialog>
+    </>
   );
 }
 

@@ -123,7 +123,6 @@ Exports:
 - `DatePicker`
 - `DateRangePicker`
 - `TimePicker`
-- `RichTextEditor`
 - `FileInput`
 
 ### Validation
@@ -154,7 +153,7 @@ Exports:
 - Close on outside click
 - Search support
 - Option groups
-- Selected options inside the menu use muted highlight styles
+- Selected options inside the menu use accent highlight styles
 
 ## Styling (Tailwind 4 + Semantic Tokens)
 

@@ -49,9 +49,3 @@ export type {
   DateRangePickerProps,
   DateRange,
 } from "./DateRangePicker";
-export { RichTextEditor } from "./RichTextEditor";
-export type {
-  RichTextEditorProps,
-  EditorMode,
-  ToolbarButton,
-} from "./RichTextEditor";

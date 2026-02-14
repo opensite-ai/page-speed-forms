@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DateRangePicker, DateRange } from "../DateRangePicker";
 
@@ -442,7 +442,7 @@ describe("DateRangePicker", () => {
         const inRangeButton = screen.getByRole("button", {
           name: "06/17/2024",
         });
-        expect(inRangeButton).toHaveClass("bg-muted");
+        expect(inRangeButton).toHaveClass("bg-accent");
       });
     });
 
@@ -513,7 +513,7 @@ describe("DateRangePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       const june20 = screen.getByRole("button", { name: "06/20/2024" });
-      await user.click(june20);
+      fireEvent.click(june20);
 
       expect(onChange).toHaveBeenCalledWith({
         start: expect.any(Date),
@@ -542,7 +542,7 @@ describe("DateRangePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       const june15 = screen.getByRole("button", { name: "06/15/2024" });
-      await user.click(june15);
+      fireEvent.click(june15);
 
       expect(onChange).toHaveBeenCalledWith({
         start: expect.any(Date), // Should be June 15 now
@@ -571,7 +571,7 @@ describe("DateRangePicker", () => {
       await user.click(screen.getByRole("textbox"));
 
       const june25 = screen.getByRole("button", { name: "06/25/2024" });
-      await user.click(june25);
+      fireEvent.click(june25);
 
       expect(onChange).toHaveBeenCalledWith({
         start: expect.any(Date),
@@ -704,7 +704,7 @@ describe("DateRangePicker", () => {
 
       // Dates between start and hover should have in-range class
       const june17 = screen.getByRole("button", { name: "06/17/2024" });
-      expect(june17).toHaveClass("bg-muted");
+      expect(june17).toHaveClass("bg-accent");
     });
   });
 

@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { Checkbox } from "./Checkbox";
+import { FieldDescription } from "../components/ui/field";
 import { LabelGroup } from "../core/label-group";
 import { cn } from "../lib/utils";
 
@@ -313,9 +314,9 @@ export function CheckboxGroup({
 
       {/* Selection count feedback */}
       {(minSelections || maxSelections) && (
-        <div
+        <FieldDescription
           className={cn(
-            "text-sm p-2 rounded-lg border font-semibold mt-2",
+            "p-2 rounded-lg border font-semibold mt-2 leading-snug",
             minSelections && countableValue < minSelections
               ? "border-destructive bg-destructive/80 text-destructive-foreground"
               : "border-border bg-card text-card-foreground",
@@ -333,7 +334,7 @@ export function CheckboxGroup({
               {countableValue}/{maxSelections} selected
             </span>
           )}
-        </div>
+        </FieldDescription>
       )}
     </fieldset>
   );

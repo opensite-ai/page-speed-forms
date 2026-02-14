@@ -3,7 +3,11 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { Switch as SwitchPrimitive } from "../components/ui/switch";
-import { Label } from "../components/ui/label";
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 /**
@@ -106,37 +110,34 @@ export function Switch({
 
   // Without label, return just the switch
   if (!label) {
-    return <div className={className}>{switchElement}</div>;
+    return <Field className={className}>{switchElement}</Field>;
   }
 
-  // With label, wrap in label element
+  // With label, compose with Field primitives for consistent structure
   return (
-    <label
-      htmlFor={switchId}
-      className={cn(
-        "flex items-center gap-3 cursor-pointer",
-        disabled && "opacity-50 cursor-not-allowed",
-        className,
-      )}
-    >
-      {switchElement}
-      <div className="flex flex-col gap-1">
-        <Label
-          htmlFor={switchId}
-          className="cursor-pointer font-medium leading-none"
-        >
-          {label}
-        </Label>
-        {description && (
-          <p
-            id={`${switchId}-description`}
-            className="text-sm opacity-70 leading-snug"
-          >
-            {description}
-          </p>
+    <Field className="gap-0" invalid={Boolean(error)}>
+      <FieldLabel
+        htmlFor={switchId}
+        className={cn(
+          "flex items-center gap-3 cursor-pointer select-auto font-normal leading-normal",
+          disabled && "opacity-50 cursor-not-allowed",
+          className,
         )}
-      </div>
-    </label>
+      >
+        {switchElement}
+        <Field className="gap-1">
+          <span className="text-sm font-medium leading-none">{label}</span>
+          {description && (
+            <FieldDescription
+              id={`${switchId}-description`}
+              className="leading-snug"
+            >
+              {description}
+            </FieldDescription>
+          )}
+        </Field>
+      </FieldLabel>
+    </Field>
   );
 }
 

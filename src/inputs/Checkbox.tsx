@@ -3,7 +3,11 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { Checkbox as CheckboxPrimitive } from "../components/ui/checkbox";
-import { Label } from "../components/ui/label";
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 /**
@@ -133,49 +137,44 @@ export function Checkbox({
 
   // Without label, return just the checkbox
   if (!label) {
-    return <div className={className}>{checkbox}</div>;
+    return <Field className={className}>{checkbox}</Field>;
   }
 
-  // With label, wrap in label element
+  // With label, wrap in FieldLabel for semantic association and click behavior
   return (
-    <label
-      htmlFor={checkboxId}
-      className={cn(
-        "flex gap-3 p-3 duration-200",
-        showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-ring/50",
-        showChoiceCard && value && "ring-2 ring-ring",
-        showChoiceCard && error && "border-destructive",
-        disabled
-          ? "opacity-50 cursor-not-allowed"
-          : "cursor-pointer",
-        className,
-      )}
-    >
-      <div
+    <Field className="gap-0" invalid={Boolean(error)}>
+      <FieldLabel
+        htmlFor={checkboxId}
         className={cn(
-          "flex w-full gap-3",
-          showChoiceCard ? "items-start" : "items-center",
+          "flex gap-3 p-3 duration-200 select-auto font-normal leading-normal",
+          showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-ring/50",
+          showChoiceCard && value && "ring-2 ring-ring",
+          showChoiceCard && error && "border-destructive",
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+          className,
         )}
       >
-        {checkbox}
-        <div className="flex flex-col gap-1">
-          <Label
-            htmlFor={checkboxId}
-            className="cursor-pointer font-medium leading-none"
-          >
-            {label}
-          </Label>
-          {description && (
-            <p
-              id={`${checkboxId}-description`}
-              className="text-sm opacity-70 leading-snug"
-            >
-              {description}
-            </p>
+        <div
+          className={cn(
+            "flex w-full gap-3",
+            showChoiceCard ? "items-start" : "items-center",
           )}
+        >
+          {checkbox}
+          <Field className="flex-1 gap-1">
+            <span className="text-sm font-medium leading-none">{label}</span>
+            {description && (
+              <FieldDescription
+                id={`${checkboxId}-description`}
+                className="leading-snug"
+              >
+                {description}
+              </FieldDescription>
+            )}
+          </Field>
         </div>
-      </div>
-    </label>
+      </FieldLabel>
+    </Field>
   );
 }
 

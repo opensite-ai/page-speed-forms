@@ -2,6 +2,10 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
+import {
+  FieldDescription,
+  FieldLabel,
+} from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 export type LabelGroupProps = {
@@ -31,24 +35,24 @@ const LabelGroup = ({
     primaryClassName,
   );
 
-  const requiredIndicator = required ? (
-    <span className="text-destructive pl-0.5" aria-label="required">
-      *
-    </span>
-  ) : null;
+  const requiredIndicator =
+    required && variant !== "label" ? (
+      <span className="text-destructive pl-0.5" aria-label="required">
+        *
+      </span>
+    ) : null;
 
   let primaryElement: ReactNode = null;
   if (primary) {
     if (variant === "label") {
       primaryElement = (
-        <label
+        <FieldLabel
           htmlFor={labelHtmlFor}
-          data-slot="field-label"
+          required={required}
           className={primaryClasses}
         >
           {primary}
-          {requiredIndicator}
-        </label>
+        </FieldLabel>
       );
     } else if (variant === "legend") {
       primaryElement = (
@@ -68,13 +72,12 @@ const LabelGroup = ({
   }
 
   const secondaryElement = secondary ? (
-    <p
-      data-slot="field-description"
+    <FieldDescription
       id={secondaryId}
-      className={cn("text-sm leading-normal font-normal", secondaryClassName)}
+      className={cn("leading-normal font-normal", secondaryClassName)}
     >
       {secondary}
-    </p>
+    </FieldDescription>
   ) : null;
 
   if (!primaryElement && !secondaryElement) return null;

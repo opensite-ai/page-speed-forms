@@ -2,19 +2,10 @@
 
 import { useDirection } from "@radix-ui/react-direction";
 import { Slot } from "@radix-ui/react-slot";
-import {
-  FileArchiveIcon,
-  FileAudioIcon,
-  FileCodeIcon,
-  FileCogIcon,
-  FileIcon,
-  FileTextIcon,
-  FileVideoIcon,
-} from "lucide-react";
 import * as React from "react";
 import { cn } from "../../lib/utils";
-import { useAsRef } from "@/src/hooks/use-as-ref";
-import { useLazyRef } from "@/src/hooks/use-lazy-ref";
+import { useAsRef } from "../../hooks/use-as-ref";
+import { useLazyRef } from "../../hooks/use-lazy-ref";
 
 const ROOT_NAME = "FileUpload";
 const DROPZONE_NAME = "FileUploadDropzone";
@@ -26,6 +17,104 @@ const ITEM_METADATA_NAME = "FileUploadItemMetadata";
 const ITEM_PROGRESS_NAME = "FileUploadItemProgress";
 const ITEM_DELETE_NAME = "FileUploadItemDelete";
 const CLEAR_NAME = "FileUploadClear";
+
+function BaseFileIcon({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("size-5", className)}
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function FileVideoIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <rect x="8" y="12" width="6" height="4" rx="1" />
+      <path d="m14 13 3-1.5v5L14 15" />
+    </BaseFileIcon>
+  );
+}
+
+function FileAudioIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <path d="M10 16a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" />
+      <path d="M13 17V11l3-1" />
+    </BaseFileIcon>
+  );
+}
+
+function FileTextIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="8" y1="13" x2="16" y2="13" />
+      <line x1="8" y1="17" x2="14" y2="17" />
+    </BaseFileIcon>
+  );
+}
+
+function FileCodeIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <polyline points="11 14 9 16 11 18" />
+      <polyline points="13 14 15 16 13 18" />
+    </BaseFileIcon>
+  );
+}
+
+function FileArchiveIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <rect x="9" y="11" width="6" height="2" />
+      <path d="M12 13v5" />
+    </BaseFileIcon>
+  );
+}
+
+function FileCogIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <circle cx="12" cy="16" r="2" />
+      <path d="m12 12 .4.9m2.7 1.1 .9.4m-.9 2.7-.9.4m-2.7 1.1-.4.9m-2.3-.9-.4-.9m-2.7-1.1-.9-.4m.9-2.7.9-.4m2.7-1.1.4-.9" />
+    </BaseFileIcon>
+  );
+}
+
+function FileIcon() {
+  return (
+    <BaseFileIcon>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </BaseFileIcon>
+  );
+}
 
 function formatBytes(bytes: number) {
   if (bytes === 0) return "0 B";
@@ -205,6 +294,19 @@ interface FileUploadProps
   invalid?: boolean;
   multiple?: boolean;
   required?: boolean;
+  inputProps?: Omit<
+    React.ComponentProps<"input">,
+    | "type"
+    | "id"
+    | "ref"
+    | "tabIndex"
+    | "accept"
+    | "name"
+    | "disabled"
+    | "multiple"
+    | "required"
+    | "onChange"
+  >;
 }
 
 function FileUpload(props: FileUploadProps) {
@@ -228,6 +330,7 @@ function FileUpload(props: FileUploadProps) {
     invalid = false,
     multiple = false,
     required = false,
+    inputProps,
     children,
     className,
     ...rootProps
@@ -636,6 +739,13 @@ function FileUpload(props: FileUploadProps) {
   );
 
   const RootPrimitive = asChild ? Slot : "div";
+  const inputAriaDescribedBy = [
+    contextValue.dropzoneId,
+    inputProps?.["aria-describedby"],
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
 
   return (
     <StoreContext.Provider value={store}>
@@ -651,8 +761,12 @@ function FileUpload(props: FileUploadProps) {
           <input
             type="file"
             id={inputId}
-            aria-labelledby={labelId}
-            aria-describedby={dropzoneId}
+            aria-labelledby={
+              inputProps?.["aria-labelledby"]
+                ? `${labelId} ${inputProps["aria-labelledby"]}`
+                : labelId
+            }
+            aria-describedby={inputAriaDescribedBy || undefined}
             ref={inputRef}
             tabIndex={-1}
             accept={accept}
@@ -662,6 +776,7 @@ function FileUpload(props: FileUploadProps) {
             multiple={multiple}
             required={required}
             onChange={onInputChange}
+            {...inputProps}
           />
           <div id={labelId} className="sr-only">
             {label ?? "File upload"}
@@ -775,12 +890,15 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 
       if (event.defaultPrevented) return;
 
+      if (context.disabled) return;
+
       event.preventDefault();
       store.dispatch({ type: "SET_DRAG_OVER", dragOver: false });
 
       const files = Array.from(event.dataTransfer.files);
       const inputElement = context.inputRef.current;
       if (!inputElement) return;
+      if (typeof DataTransfer === "undefined") return;
 
       const dataTransfer = new DataTransfer();
       for (const file of files) {
@@ -798,6 +916,8 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       propsRef.current.onPaste?.(event);
 
       if (event.defaultPrevented) return;
+
+      if (context.disabled) return;
 
       event.preventDefault();
       store.dispatch({ type: "SET_DRAG_OVER", dragOver: false });
@@ -820,6 +940,7 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
 
       const inputElement = context.inputRef.current;
       if (!inputElement) return;
+      if (typeof DataTransfer === "undefined") return;
 
       const dataTransfer = new DataTransfer();
       for (const file of files) {
@@ -861,10 +982,10 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       data-invalid={invalid ? "" : undefined}
       data-slot="file-upload-dropzone"
       dir={context.dir}
-      tabIndex={context.disabled ? undefined : 0}
+      tabIndex={context.disabled ? -1 : 0}
       {...dropzoneProps}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-disabled:pointer-events-none data-dragging:border-primary/30 data-invalid:border-destructive data-dragging:bg-accent/30 data-invalid:ring-destructive/20",
+        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-disabled:pointer-events-none data-dragging:border-primary/30 data-dragging:bg-accent/30 data-invalid:ring-destructive/20",
         className,
       )}
       onClick={onClick}
@@ -1157,7 +1278,7 @@ function FileUploadItemMetadata(props: FileUploadItemMetadataProps) {
           <span
             id={itemContext.sizeId}
             className={cn(
-              "truncate text-muted-foreground text-xs",
+              "truncate text-xs opacity-70",
               size === "sm" && "text-[11px] leading-snug",
             )}
           >

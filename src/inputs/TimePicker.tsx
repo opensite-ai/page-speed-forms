@@ -3,6 +3,8 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
+import { Input } from "../components/ui/input";
+import { Button } from "../components/ui/button";
 
 /**
  * Legacy time value shape retained for backward-compatible type exports.
@@ -211,13 +213,10 @@ export function TimePicker({
             </svg>
           </span>
         )}
-        <input
+        <Input
           ref={inputRef}
           type="time"
           className={cn(
-            "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
             "appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none",
             INPUT_AUTOFILL_RESET_CLASSES,
             showIcon ? "pl-10" : "pl-3",
@@ -238,15 +237,30 @@ export function TimePicker({
           {...props}
         />
         {clearable && value && !disabled && (
-          <button
+          <Button
             type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
             onClick={handleClear}
             aria-label="Clear time"
             tabIndex={-1}
           >
-            ✕
-          </button>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </Button>
         )}
       </div>
     </div>

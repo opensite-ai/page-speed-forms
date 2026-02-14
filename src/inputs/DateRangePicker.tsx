@@ -1,9 +1,16 @@
 "use client";
 
 import * as React from "react";
+import type { DayButtonProps, Matcher } from "react-day-picker";
 import type { InputProps } from "../core/types";
-import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
+import { Calendar } from "../components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
 import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
+
 /**
  * Date range value
  */
@@ -98,78 +105,30 @@ function formatDate(date: Date | null, format: string): string {
     .replace("yy", String(year).slice(2));
 }
 
-/**
- * Check if date is in disabled dates array
- */
-function isDateInArray(date: Date, dates: Date[]): boolean {
-  const dateStr = date.toDateString();
-  return dates.some((d) => d.toDateString() === dateStr);
+function toDayTimestamp(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-/**
- * Check if date is in range
- */
-function isDateInRange(
-  date: Date,
-  start: Date | null,
-  end: Date | null,
-): boolean {
+function isSameDay(date: Date, target: Date | null): boolean {
+  if (!target) return false;
+  return toDayTimestamp(date) === toDayTimestamp(target);
+}
+
+function isDateInRange(date: Date, start: Date | null, end: Date | null): boolean {
   if (!start || !end) return false;
-  const time = date.getTime();
-  return time >= start.getTime() && time <= end.getTime();
-}
 
-function addMonths(date: Date, delta: number): Date {
-  return new Date(date.getFullYear(), date.getMonth() + delta, 1);
+  const value = toDayTimestamp(date);
+  const startTs = toDayTimestamp(start);
+  const endTs = toDayTimestamp(end);
+
+  return value >= Math.min(startTs, endTs) && value <= Math.max(startTs, endTs);
 }
 
 /**
  * DateRangePicker - Accessible date range selection component
  *
- * A lightweight date range picker with calendar popup for selecting start and end dates.
- * Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Dual calendar view for range selection
- * - Full accessibility support (ARIA attributes, keyboard navigation)
- * - Error state styling
- * - Controlled input behavior
- * - Date range constraints (min/max dates)
- * - Disabled dates support
- * - Clearable selection
- * - Custom date format display
- * - Visual range highlighting
- * - Icon display toggle
- * - Click outside to close
- *
- * @example
- * ```tsx
- * const form = useForm({ initialValues: { dateRange: { start: null, end: null } } });
- *
- * <DateRangePicker
- *   {...form.getFieldProps('dateRange')}
- *   placeholder="Select date range"
- *   format="MM/dd/yyyy"
- *   clearable
- *   showIcon
- *   error={!!form.errors.dateRange}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With date constraints
- * <DateRangePicker
- *   name="vacation"
- *   value={vacationRange}
- *   onChange={setVacationRange}
- *   minDate={new Date()}
- *   maxDate={addDays(new Date(), 365)}
- *   separator=" to "
- * />
- * ```
- *
- * @see https://opensite.ai/developers/page-speed/forms/date-range-picker
+ * Uses ShadCN Calendar + Popover primitives while preserving the existing
+ * public API and interaction semantics.
  */
 export function DateRangePicker({
   name,
@@ -199,247 +158,193 @@ export function DateRangePicker({
   const [rangeStart, setRangeStart] = React.useState<Date | null>(value.start);
   const [rangeEnd, setRangeEnd] = React.useState<Date | null>(value.end);
   const [hoverDate, setHoverDate] = React.useState<Date | null>(null);
-  const triggerRef = React.useRef<HTMLInputElement>(null);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Sync range with controlled value prop
   React.useEffect(() => {
     setRangeStart(value.start);
     setRangeEnd(value.end);
+
     if (value.start) {
       setSelectedMonth(value.start);
     }
   }, [value]);
 
-  // Handle date selection
-  const handleDateSelect = (date: Date) => {
-    if (!rangeStart || (rangeStart && rangeEnd)) {
-      // Start new range
-      setRangeStart(date);
-      setRangeEnd(null);
-      onChange({ start: date, end: null });
-    } else {
-      // Complete range
-      if (date < rangeStart) {
-        // Selected date is before start, swap them
+  const disabledMatchers = React.useMemo<Matcher[]>(() => {
+    const matchers: Matcher[] = [];
+
+    if (minDate) {
+      matchers.push({ before: minDate });
+    }
+
+    if (maxDate) {
+      matchers.push({ after: maxDate });
+    }
+
+    if (disabledDates.length > 0) {
+      matchers.push(disabledDates);
+    }
+
+    if (isDateDisabled) {
+      matchers.push(isDateDisabled);
+    }
+
+    return matchers;
+  }, [disabledDates, isDateDisabled, maxDate, minDate]);
+
+  const handleDateSelect = React.useCallback(
+    (date: Date) => {
+      if (!rangeStart || rangeEnd) {
+        setRangeStart(date);
+        setRangeEnd(null);
+        setHoverDate(null);
+        setSelectedMonth(date);
+        onChange({ start: date, end: null });
+        onBlur?.();
+        return;
+      }
+
+      if (toDayTimestamp(date) < toDayTimestamp(rangeStart)) {
         setRangeStart(date);
         setRangeEnd(rangeStart);
+        setHoverDate(null);
+        setSelectedMonth(date);
         onChange({ start: date, end: rangeStart });
         setIsOpen(false);
-      } else {
-        // Selected date is after start
-        setRangeEnd(date);
-        onChange({ start: rangeStart, end: date });
+        onBlur?.();
+        return;
+      }
+
+      setRangeEnd(date);
+      setHoverDate(null);
+      setSelectedMonth(date);
+      onChange({ start: rangeStart, end: date });
+      setIsOpen(false);
+      onBlur?.();
+    },
+    [onBlur, onChange, rangeEnd, rangeStart],
+  );
+
+  const handleClear = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setRangeStart(null);
+      setRangeEnd(null);
+      setHoverDate(null);
+      setIsOpen(false);
+      onChange({ start: null, end: null });
+      inputRef.current?.focus();
+    },
+    [onChange],
+  );
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (disabled) {
         setIsOpen(false);
+        return;
       }
-    }
-    onBlur?.();
-  };
 
-  // Handle clear button
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange({ start: null, end: null });
-    setRangeStart(null);
-    setRangeEnd(null);
-  };
-
-  // Toggle calendar popup
-  const handleToggle = () => {
-    if (disabled) return;
-    setIsOpen((prev) => {
-      const newIsOpen = !prev;
-      // Mark as interacted when user opens the calendar
-      if (newIsOpen && !hasInteracted) {
-        setHasInteracted(true);
+      if (nextOpen) {
+        if (!hasInteracted) {
+          setHasInteracted(true);
+        }
+        setIsOpen(true);
+        return;
       }
-      return newIsOpen;
-    });
-  };
 
-  // Check if a date should be disabled
-  const isDisabled = (date: Date): boolean => {
-    if (minDate && date < minDate) return true;
-    if (maxDate && date > maxDate) return true;
-    if (isDateInArray(date, disabledDates)) return true;
-    if (isDateDisabled && isDateDisabled(date)) return true;
-    return false;
-  };
+      if (isOpen && hasInteracted) {
+        onBlur?.();
+      }
 
-  const closeCalendar = React.useCallback(() => {
-    // Guard: Only proceed if calendar is actually open
-    if (!isOpen) return;
+      setHoverDate(null);
+      setIsOpen(false);
+    },
+    [disabled, hasInteracted, isOpen, onBlur],
+  );
 
-    setIsOpen(false);
-    // Only trigger onBlur validation for click-outside if user has interacted
-    if (hasInteracted) {
+  const handleInputBlur = React.useCallback(() => {
+    if (!isOpen) {
       onBlur?.();
     }
-  }, [isOpen, hasInteracted, onBlur]);
+  }, [isOpen, onBlur]);
 
-  useOnClickOutside([triggerRef, dropdownRef], closeCalendar, undefined, {
-    capture: true,
-  });
-
-  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
-    const nextTarget = event?.relatedTarget as Node | null;
-    const focusStayedInside =
-      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
-      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
-
-    if (!nextTarget || !focusStayedInside) {
-      // Always call onBlur for real DOM blur events (standard form behavior)
-      onBlur?.();
+  const handleInputClick = React.useCallback(() => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
     }
-  };
+  }, [hasInteracted]);
 
-  const dayGridStyle: React.CSSProperties = {
-    gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-  };
-  const monthsGridStyle: React.CSSProperties = {
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-  };
+  const RangeDayButton = React.useCallback(
+    ({
+      day,
+      modifiers,
+      className: dayClassName,
+      children,
+      onClick,
+      onMouseEnter,
+      onMouseLeave,
+      ...rest
+    }: DayButtonProps) => {
+      const date = day.date;
+      const isStart = isSameDay(date, rangeStart);
+      const isEnd = isSameDay(date, rangeEnd);
+      const isRangeEndpoint = isStart || isEnd;
+      const isInCommittedRange = isDateInRange(date, rangeStart, rangeEnd);
+      const isInHoverRange =
+        !!rangeStart &&
+        !rangeEnd &&
+        !!hoverDate &&
+        isDateInRange(date, rangeStart, hoverDate);
+      const isRangeHighlight = (isInCommittedRange || isInHoverRange) && !isRangeEndpoint;
+      const isToday = isSameDay(date, new Date());
 
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+      return (
+        <button
+          type="button"
+          {...rest}
+          className={cn(
+            "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
+            "hover:bg-accent",
+            isRangeEndpoint && "bg-primary text-primary-foreground font-semibold",
+            isRangeHighlight && "bg-accent",
+            !isRangeEndpoint && !isRangeHighlight && isToday && "border border-primary",
+            modifiers.disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+            dayClassName,
+          )}
+          onClick={(event) => {
+            onClick?.(event);
+            if (modifiers.disabled) return;
+            handleDateSelect(date);
+          }}
+          onMouseEnter={(event) => {
+            onMouseEnter?.(event);
+            if (modifiers.disabled) {
+              setHoverDate(null);
+              return;
+            }
+            setHoverDate(date);
+          }}
+          onMouseLeave={(event) => {
+            onMouseLeave?.(event);
+            setHoverDate(null);
+          }}
+        >
+          {children ?? date.getDate()}
+        </button>
+      );
+    },
+    [handleDateSelect, hoverDate, rangeEnd, rangeStart],
+  );
 
   const hasValue = Boolean(rangeStart || rangeEnd);
-
-  const renderMonth = (
-    monthDate: Date,
-    controls?: { prev?: boolean; next?: boolean },
-  ) => {
-    const year = monthDate.getFullYear();
-    const month = monthDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-
-    const days: (Date | null)[] = [];
-    for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push(null);
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
-    }
-
-    return (
-      <div className="w-[240px] max-w-full">
-        <div className="flex items-center justify-between pb-3">
-          {controls?.prev ? (
-            <button
-              type="button"
-              className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
-              onClick={() => setSelectedMonth((prev) => addMonths(prev, -1))}
-              aria-label="Previous month"
-            >
-              &#8249;
-            </button>
-          ) : (
-            <div className="h-8 w-8" aria-hidden="true" />
-          )}
-          <div className="font-medium text-sm">
-            {`${monthNames[month]} ${year}`}
-          </div>
-          {controls?.next ? (
-            <button
-              type="button"
-              className="flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent hover:bg-muted cursor-pointer transition-colors"
-              onClick={() => setSelectedMonth((prev) => addMonths(prev, 1))}
-              aria-label="Next month"
-            >
-              &#8250;
-            </button>
-          ) : (
-            <div className="h-8 w-8" aria-hidden="true" />
-          )}
-        </div>
-        <div
-          className="grid gap-1 text-xs text-muted-foreground"
-          style={dayGridStyle}
-        >
-          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-            <div
-              key={`${month}-${day}`}
-              className="flex items-center justify-center h-8 w-8 font-medium"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-        <div className="grid gap-1" style={dayGridStyle}>
-          {days.map((date, index) => {
-            if (!date) {
-              return (
-                <div key={`empty-${month}-${index}`} className="h-8 w-8" />
-              );
-            }
-
-            const isStart =
-              rangeStart && date.toDateString() === rangeStart.toDateString();
-            const isEnd =
-              rangeEnd && date.toDateString() === rangeEnd.toDateString();
-            const isRangeEndpoint = Boolean(isStart || isEnd);
-            const isInRange =
-              rangeStart &&
-              rangeEnd &&
-              isDateInRange(date, rangeStart, rangeEnd);
-            const isInHoverRange =
-              rangeStart &&
-              !rangeEnd &&
-              hoverDate &&
-              ((date >= rangeStart && date <= hoverDate) ||
-                (date <= rangeStart && date >= hoverDate));
-            const isRangeHighlight = Boolean(
-              (isInRange || isInHoverRange) && !isRangeEndpoint,
-            );
-            const isToday = date.toDateString() === new Date().toDateString();
-            const disabled = isDisabled(date);
-
-            return (
-              <button
-                key={date.toISOString()}
-                type="button"
-                className={cn(
-                  "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
-                  "hover:bg-muted",
-                  isRangeEndpoint &&
-                    "bg-primary text-primary-foreground font-semibold",
-                  isRangeHighlight && "bg-muted",
-                  !isRangeEndpoint &&
-                    !isRangeHighlight &&
-                    isToday &&
-                    "border border-primary",
-                  disabled &&
-                    "cursor-not-allowed opacity-50 pointer-events-none",
-                )}
-                onClick={() => !disabled && handleDateSelect(date)}
-                onMouseEnter={() => setHoverDate(date)}
-                onMouseLeave={() => setHoverDate(null)}
-                disabled={disabled}
-                aria-label={formatDate(date, format)}
-              >
-                {date.getDate()}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const combinedClassName = cn("relative", className);
+  const selectedRange =
+    rangeStart || rangeEnd
+      ? {
+          from: rangeStart ?? undefined,
+          to: rangeEnd ?? undefined,
+        }
+      : undefined;
 
   const displayValue =
     rangeStart && rangeEnd
@@ -448,8 +353,10 @@ export function DateRangePicker({
         ? formatDate(rangeStart, format)
         : "";
 
+  const combinedClassName = cn("relative", className);
+
   return (
-    <div className={combinedClassName} onBlur={handleBlur}>
+    <div className={combinedClassName}>
       {/* Hidden inputs for form submission */}
       <input
         type="hidden"
@@ -462,83 +369,107 @@ export function DateRangePicker({
         value={rangeEnd ? rangeEnd.toISOString() : ""}
       />
 
-      {/* Custom date range input */}
-      <div className="relative">
-        {showIcon && (
-          <span
-            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            aria-hidden="true"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
+      <Popover open={isOpen} onOpenChange={handleOpenChange}>
+        {/* Custom date range input */}
+        <div className="relative">
+          {showIcon && (
+            <span
+              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+              aria-hidden="true"
             >
-              <path d="M8 2v4m8-4v4m5 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M3 10h18m-5 10l2 2l4-4" />
-            </svg>
-          </span>
-        )}
-        <input
-          ref={triggerRef}
-          type="text"
-          className={cn(
-            "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
-            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-            "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-            INPUT_AUTOFILL_RESET_CLASSES,
-            showIcon ? "pl-10" : "pl-3",
-            clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3",
-            !error && hasValue && "ring-2 ring-ring",
-            error && "border-destructive ring-1 ring-destructive",
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              >
+                <path d="M8 2v4m8-4v4m5 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M3 10h18m-5 10l2 2l4-4" />
+              </svg>
+            </span>
           )}
-          value={displayValue}
-          onClick={handleToggle}
-          disabled={disabled}
-          required={required}
-          placeholder={placeholder}
-          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
-          aria-describedby={props["aria-describedby"]}
-          aria-required={required || props["aria-required"]}
-          readOnly
-        />
-        {clearable && (rangeStart || rangeEnd) && !disabled && (
-          <button
-            type="button"
-            className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-            onClick={handleClear}
-            aria-label="Clear date range"
-            tabIndex={-1}
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      {/* Calendar popup */}
-      {isOpen && !disabled && (
-        <div
-          ref={dropdownRef}
-          className="absolute z-50 top-full mt-1 w-fit rounded-md border border-border bg-popover text-popover-foreground shadow-md p-3"
-        >
-          <div role="grid" aria-label="Calendar">
-            <div className="grid gap-4" style={monthsGridStyle}>
-              {renderMonth(selectedMonth, { prev: true })}
-              {renderMonth(addMonths(selectedMonth, 1), { next: true })}
-            </div>
-          </div>
-          {rangeStart && !rangeEnd && (
-            <div className="text-xs text-center pt-2 border-t border-border mt-2">
-              Select end date
-            </div>
+          <PopoverTrigger asChild>
+            <input
+              ref={inputRef}
+              id={props.id}
+              type="text"
+              className={cn(
+                "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
+                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                INPUT_AUTOFILL_RESET_CLASSES,
+                showIcon ? "pl-10" : "pl-3",
+                clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3",
+                !error && hasValue && "ring-2 ring-ring",
+                error && "border-destructive ring-1 ring-destructive",
+              )}
+              value={displayValue}
+              onClick={handleInputClick}
+              onBlur={handleInputBlur}
+              disabled={disabled}
+              required={required}
+              placeholder={placeholder}
+              aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
+              aria-describedby={props["aria-describedby"]}
+              aria-required={required || props["aria-required"]}
+              readOnly
+            />
+          </PopoverTrigger>
+          {clearable && (rangeStart || rangeEnd) && !disabled && (
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+              onClick={handleClear}
+              aria-label="Clear date range"
+              tabIndex={-1}
+            >
+              ✕
+            </button>
           )}
         </div>
-      )}
+
+        {!disabled && (
+          <PopoverContent
+            align="start"
+            sideOffset={4}
+            className="w-auto p-0"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault();
+            }}
+          >
+            <Calendar
+              mode="range"
+              selected={selectedRange}
+              month={selectedMonth}
+              onMonthChange={setSelectedMonth}
+              disabled={disabledMatchers}
+              labels={{
+                labelGrid: () => "Calendar",
+                labelDayButton: (date) => formatDate(date, format),
+                labelPrevious: () => "Previous month",
+                labelNext: () => "Next month",
+              }}
+              components={{
+                DayButton: RangeDayButton,
+              }}
+              classNames={{
+                today: "border border-primary rounded-md bg-transparent",
+              }}
+              showOutsideDays
+            />
+
+            {rangeStart && !rangeEnd && (
+              <div className="border-t border-input px-3 py-2 text-center text-xs opacity-70">
+                Select end date
+              </div>
+            )}
+          </PopoverContent>
+        )}
+      </Popover>
     </div>
   );
 }

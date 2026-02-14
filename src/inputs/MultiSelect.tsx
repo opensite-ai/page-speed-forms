@@ -2,7 +2,18 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandList,
+} from "../components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
 import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
 
 /**
@@ -118,49 +129,42 @@ export interface MultiSelectProps extends Omit<
   [key: string]: any;
 }
 
+function ensureResizeObserver() {
+  if (typeof window === "undefined") return;
+
+  const windowWithResizeObserver = window as unknown as {
+    ResizeObserver?: new (...args: any[]) => {
+      observe: (...args: any[]) => void;
+      unobserve: (...args: any[]) => void;
+      disconnect: () => void;
+    };
+  };
+
+  if (windowWithResizeObserver.ResizeObserver) return;
+
+  windowWithResizeObserver.ResizeObserver = class ResizeObserverMock {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+
+  if (
+    typeof HTMLElement !== "undefined" &&
+    typeof HTMLElement.prototype.scrollIntoView !== "function"
+  ) {
+    HTMLElement.prototype.scrollIntoView = () => {};
+  }
+}
+
+function optionLabelText(option: MultiSelectOption): string {
+  if (typeof option.label === "string") {
+    return option.label;
+  }
+  return String(option.label);
+}
+
 /**
- * MultiSelect - High-performance multi-selection dropdown component
- *
- * A lightweight, accessible multi-select dropdown with search, keyboard navigation,
- * and error state support. Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Multiple value selection
- * - Full accessibility support (ARIA attributes, role="listbox")
- * - Error state styling
- * - Controlled input behavior
- * - Keyboard navigation (arrow keys, Enter, Escape, Space)
- * - Searchable options with filtering
- * - Clearable selections
- * - Option groups support
- * - Loading state for async options
- * - Disabled options support
- * - Maximum selections limit
- * - Select All / Clear All functionality
- * - Selected value chips/tags with individual removal
- * - Click outside to close
- *
- * @example
- * ```tsx
- * const form = useForm({ initialValues: { skills: [] } });
- *
- * <MultiSelect
- *   {...form.getFieldProps('skills')}
- *   placeholder="Select skills"
- *   options={[
- *     { value: 'react', label: 'React' },
- *     { value: 'typescript', label: 'TypeScript' },
- *     { value: 'node', label: 'Node.js' }
- *   ]}
- *   searchable
- *   clearable
- *   showSelectAll
- *   maxSelections={5}
- *   error={!!form.errors.skills}
- * />
- * ```
- *
- * @see https://opensite.ai/developers/page-speed/forms/multi-select
+ * MultiSelect - ShadCN Command + Popover multi-select component
  */
 export function MultiSelect({
   name,
@@ -189,9 +193,10 @@ export function MultiSelect({
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
   const [hasInteracted, setHasInteracted] = React.useState(false);
   const triggerRef = React.useRef<HTMLDivElement>(null);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
   const dropdownId = `${name}-dropdown`;
+  const searchInputId = `${name}-search`;
+
+  ensureResizeObserver();
 
   // Flatten options from groups or use flat options
   const allOptions = React.useMemo(() => {
@@ -206,18 +211,18 @@ export function MultiSelect({
     if (!searchQuery.trim()) {
       return allOptions;
     }
+
     const query = searchQuery.toLowerCase();
-    return allOptions.filter((option) => {
-      const label =
-        typeof option.label === "string" ? option.label : String(option.label);
-      return label.toLowerCase().includes(query);
-    });
+    return allOptions.filter((option) =>
+      optionLabelText(option).toLowerCase().includes(query),
+    );
   }, [allOptions, searchQuery]);
 
   // Get selected options
   const selectedOptions = React.useMemo(() => {
-    return allOptions.filter((opt) => value.includes(opt.value));
+    return allOptions.filter((option) => value.includes(option.value));
   }, [allOptions, value]);
+
   const hasValue = value.length > 0;
 
   // Check if max selections reached
@@ -225,186 +230,241 @@ export function MultiSelect({
     return maxSelections !== undefined && value.length >= maxSelections;
   }, [maxSelections, value.length]);
 
+  const getEnabledOptions = React.useCallback(() => {
+    return filteredOptions.filter(
+      (option) => !option.disabled && (!isMaxReached || value.includes(option.value)),
+    );
+  }, [filteredOptions, isMaxReached, value]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    if (!searchable) return;
+
+    const id = window.setTimeout(() => {
+      const searchInput = document.getElementById(
+        searchInputId,
+      ) as HTMLInputElement | null;
+      searchInput?.focus();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(id);
+    };
+  }, [isOpen, searchable, searchInputId]);
+
   // Handle option selection toggle
-  const handleToggleOption = (optionValue: string) => {
-    const isSelected = value.includes(optionValue);
-    if (isSelected) {
-      // Remove from selection
-      onChange(value.filter((v) => v !== optionValue));
-    } else {
-      // Add to selection (if not at max)
-      if (!isMaxReached) {
+  const handleToggleOption = React.useCallback(
+    (optionValue: string) => {
+      const isSelected = value.includes(optionValue);
+
+      if (isSelected) {
+        onChange(value.filter((entry) => entry !== optionValue));
+      } else if (!isMaxReached) {
         onChange([...value, optionValue]);
       }
-    }
-    // Reset search after selection
-    setSearchQuery("");
-  };
+
+      // Reset search after selection
+      setSearchQuery("");
+    },
+    [isMaxReached, onChange, value],
+  );
 
   // Handle select all
-  const handleSelectAll = () => {
-    const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
-    const allValues = enabledOptions.map((opt) => opt.value);
-    onChange(allValues);
+  const handleSelectAll = React.useCallback(() => {
+    const enabledOptions = filteredOptions.filter((option) => !option.disabled);
+    onChange(enabledOptions.map((option) => option.value));
     setSearchQuery("");
-  };
+  }, [filteredOptions, onChange]);
 
   // Handle clear all
-  const handleClearAll = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange([]);
-    setSearchQuery("");
-    setFocusedIndex(-1);
-  };
+  const handleClearAll = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onChange([]);
+      setSearchQuery("");
+      setFocusedIndex(-1);
+    },
+    [onChange],
+  );
 
   // Handle remove single value
-  const handleRemoveValue = (optionValue: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange(value.filter((v) => v !== optionValue));
-  };
+  const handleRemoveValue = React.useCallback(
+    (optionValue: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      onChange(value.filter((entry) => entry !== optionValue));
+    },
+    [onChange, value],
+  );
 
-  // Toggle dropdown
-  const handleToggle = () => {
-    if (disabled) return;
-    const newIsOpen = !isOpen;
-    setIsOpen(newIsOpen);
-    // Mark as interacted when user opens the dropdown
-    if (newIsOpen && !hasInteracted) {
-      setHasInteracted(true);
-    }
-    if (newIsOpen && searchable && searchInputRef.current) {
-      // Focus search input when opening
-      setTimeout(() => searchInputRef.current?.focus(), 0);
-    }
-    if (newIsOpen) {
-      onFocus?.();
-    }
-  };
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (disabled) {
+        setIsOpen(false);
+        return;
+      }
 
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setFocusedIndex(0); // Reset focus to first filtered option
-  };
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (disabled) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        if (!isOpen) {
-          setIsOpen(true);
-          setFocusedIndex(0);
-        } else {
-          const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
-          if (enabledOptions.length > 0) {
-            const currentIndexInFiltered = focusedIndex;
-            const nextIndex =
-              (currentIndexInFiltered + 1) % enabledOptions.length;
-            setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextIndex]));
-          }
+      if (nextOpen) {
+        if (!hasInteracted) {
+          setHasInteracted(true);
         }
-        break;
+        setIsOpen(true);
+        onFocus?.();
+        return;
+      }
 
-      case "ArrowUp":
-        e.preventDefault();
-        if (isOpen) {
-          const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
-          if (enabledOptions.length > 0) {
-            const currentIndexInFiltered = focusedIndex;
-            const prevIndex =
-              (currentIndexInFiltered - 1 + enabledOptions.length) %
-              enabledOptions.length;
-            setFocusedIndex(filteredOptions.indexOf(enabledOptions[prevIndex]));
+      if (isOpen && hasInteracted) {
+        onBlur?.();
+      }
+
+      setIsOpen(false);
+      setSearchQuery("");
+      setFocusedIndex(-1);
+    },
+    [disabled, hasInteracted, isOpen, onBlur, onFocus],
+  );
+
+  const handleTriggerBlur = React.useCallback(() => {
+    if (!isOpen) {
+      onBlur?.();
+    }
+  }, [isOpen, onBlur]);
+
+  const handleKeyDown = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      if (disabled) return;
+
+      const enabledOptions = getEnabledOptions();
+
+      switch (event.key) {
+        case "ArrowDown": {
+          event.preventDefault();
+
+          if (!isOpen) {
+            setHasInteracted(true);
+            setIsOpen(true);
+            onFocus?.();
+            if (enabledOptions.length > 0) {
+              setFocusedIndex(filteredOptions.indexOf(enabledOptions[0]));
+            }
+            return;
           }
-        }
-        break;
 
-      case "Enter":
-        e.preventDefault();
-        if (
-          isOpen &&
-          focusedIndex >= 0 &&
-          focusedIndex < filteredOptions.length
-        ) {
-          const focusedOption = filteredOptions[focusedIndex];
-          if (!focusedOption.disabled) {
-            handleToggleOption(focusedOption.value);
+          if (enabledOptions.length === 0) return;
+
+          const currentOption = filteredOptions[focusedIndex];
+          const currentEnabledIndex = enabledOptions.findIndex(
+            (option) => option === currentOption,
+          );
+          const nextEnabledIndex =
+            currentEnabledIndex === -1
+              ? 0
+              : (currentEnabledIndex + 1) % enabledOptions.length;
+          setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextEnabledIndex]));
+          break;
+        }
+
+        case "ArrowUp": {
+          event.preventDefault();
+
+          if (!isOpen || enabledOptions.length === 0) return;
+
+          const currentOption = filteredOptions[focusedIndex];
+          const currentEnabledIndex = enabledOptions.findIndex(
+            (option) => option === currentOption,
+          );
+          const previousEnabledIndex =
+            currentEnabledIndex === -1
+              ? enabledOptions.length - 1
+              : (currentEnabledIndex - 1 + enabledOptions.length) %
+                enabledOptions.length;
+          setFocusedIndex(
+            filteredOptions.indexOf(enabledOptions[previousEnabledIndex]),
+          );
+          break;
+        }
+
+        case "Enter": {
+          event.preventDefault();
+
+          if (
+            isOpen &&
+            focusedIndex >= 0 &&
+            focusedIndex < filteredOptions.length
+          ) {
+            const focusedOption = filteredOptions[focusedIndex];
+            const optionDisabled =
+              focusedOption.disabled ||
+              (isMaxReached && !value.includes(focusedOption.value));
+
+            if (!optionDisabled) {
+              handleToggleOption(focusedOption.value);
+            }
+            return;
           }
-        } else if (!isOpen) {
-          setIsOpen(true);
-        }
-        break;
 
-      case "Escape":
-        e.preventDefault();
-        if (isOpen) {
+          if (!isOpen) {
+            setHasInteracted(true);
+            setIsOpen(true);
+            onFocus?.();
+          }
+          break;
+        }
+
+        case "Escape": {
+          if (!isOpen) return;
+          event.preventDefault();
           setIsOpen(false);
           setSearchQuery("");
           setFocusedIndex(-1);
+          break;
         }
-        break;
 
-      case " ":
-        // Space key to toggle option if focused
-        if (
-          isOpen &&
-          focusedIndex >= 0 &&
-          focusedIndex < filteredOptions.length
-        ) {
-          e.preventDefault();
-          const focusedOption = filteredOptions[focusedIndex];
-          if (!focusedOption.disabled) {
-            handleToggleOption(focusedOption.value);
+        case " ": {
+          if (
+            isOpen &&
+            focusedIndex >= 0 &&
+            focusedIndex < filteredOptions.length
+          ) {
+            event.preventDefault();
+            const focusedOption = filteredOptions[focusedIndex];
+            const optionDisabled =
+              focusedOption.disabled ||
+              (isMaxReached && !value.includes(focusedOption.value));
+
+            if (!optionDisabled) {
+              handleToggleOption(focusedOption.value);
+            }
+            return;
           }
-        } else if (!isOpen && !searchable) {
-          e.preventDefault();
-          setIsOpen(true);
+
+          if (!isOpen && !searchable) {
+            event.preventDefault();
+            setHasInteracted(true);
+            setIsOpen(true);
+            onFocus?.();
+          }
+          break;
         }
-        break;
-    }
-  };
-
-  // Handle blur - real DOM blur events should always call onBlur
-  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
-    const nextTarget = event?.relatedTarget as Node | null;
-    const focusStayedInside =
-      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
-      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
-
-    if (!nextTarget || !focusStayedInside) {
-      // Always call onBlur for real DOM blur events (standard form behavior)
-      onBlur?.();
-    }
-  };
-
-  const closeDropdown = React.useCallback(() => {
-    // Guard: Only proceed if dropdown is actually open
-    if (!isOpen) return;
-
-    setIsOpen(false);
-    setSearchQuery("");
-    setFocusedIndex(-1);
-    // Only trigger onBlur validation for click-outside if user has interacted
-    if (hasInteracted) {
-      onBlur?.();
-    }
-  }, [isOpen, hasInteracted, onBlur]);
-
-  useOnClickOutside([triggerRef, dropdownRef], closeDropdown, undefined, {
-    capture: true,
-  });
+      }
+    },
+    [
+      disabled,
+      filteredOptions,
+      focusedIndex,
+      getEnabledOptions,
+      handleToggleOption,
+      isMaxReached,
+      isOpen,
+      onFocus,
+      searchable,
+      value,
+    ],
+  );
 
   const combinedClassName = cn("relative w-full", className);
 
   return (
-    <div
-      className={combinedClassName}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-    >
+    <div className={combinedClassName}>
       {/* Hidden native select for form submission */}
       <select
         name={name}
@@ -420,182 +480,232 @@ export function MultiSelect({
         <option value="">Select...</option>
         {allOptions.map((option) => (
           <option key={option.value} value={option.value}>
-            {typeof option.label === "string" ? option.label : option.value}
+            {optionLabelText(option)}
           </option>
         ))}
       </select>
 
-      {/* Custom select trigger */}
-      <div
-        ref={triggerRef}
-        className={cn(
-          "flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm",
-          "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-          !error && hasValue && "ring-2 ring-ring",
-          disabled && "cursor-not-allowed opacity-50 pointer-events-none",
-          error && "border-destructive ring-1 ring-destructive",
-        )}
-        onClick={handleToggle}
-        role="combobox"
-        aria-expanded={isOpen}
-        aria-controls={dropdownId}
-        aria-invalid={error || props["aria-invalid"]}
-        aria-describedby={props["aria-describedby"]}
-        aria-required={required || props["aria-required"]}
-        aria-disabled={disabled}
-        tabIndex={disabled ? -1 : 0}
-      >
-        <div className="flex items-center flex-1 overflow-hidden">
-          {selectedOptions.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {selectedOptions.map((option) => (
-                <span
-                  key={option.value}
-                  className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium"
-                >
-                  {renderValue ? (
-                    renderValue(option)
-                  ) : (
-                    <>
-                      <span className="max-w-40 overflow-hidden text-ellipsis whitespace-nowrap">
-                        {option.label}
-                      </span>
-                      {!disabled && (
-                        <button
-                          type="button"
-                          className="flex items-center justify-center h-3.5 w-3.5 rounded-sm border-none bg-transparent cursor-pointer text-[0.625rem] p-0 transition-opacity hover:opacity-70"
-                          onClick={(e) => handleRemoveValue(option.value, e)}
-                          aria-label={`Remove ${option.label}`}
-                          tabIndex={-1}
-                        >
-                          ✕
-                        </button>
+      <Popover open={isOpen} onOpenChange={handleOpenChange}>
+        <PopoverTrigger asChild>
+          <div
+            ref={triggerRef}
+            className={cn(
+              "flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm",
+              "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+              !error && hasValue && "ring-2 ring-ring",
+              disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+              error && "border-destructive ring-1 ring-destructive",
+            )}
+            onKeyDown={handleKeyDown}
+            onBlur={handleTriggerBlur}
+            role="combobox"
+            aria-expanded={isOpen}
+            aria-controls={dropdownId}
+            aria-invalid={error || props["aria-invalid"]}
+            aria-describedby={props["aria-describedby"]}
+            aria-required={required || props["aria-required"]}
+            aria-disabled={disabled}
+            tabIndex={disabled ? -1 : 0}
+          >
+            <div className="flex flex-1 items-center overflow-hidden">
+              {selectedOptions.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {selectedOptions.map((option) => (
+                    <span
+                      key={option.value}
+                      className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium"
+                    >
+                      {renderValue ? (
+                        renderValue(option)
+                      ) : (
+                        <>
+                          <span className="max-w-40 overflow-hidden text-ellipsis whitespace-nowrap">
+                            {option.label}
+                          </span>
+                          {!disabled && (
+                            <button
+                              type="button"
+                              className="flex h-3.5 w-3.5 items-center justify-center rounded-sm border-none bg-transparent p-0 text-[0.625rem] transition-opacity hover:opacity-70"
+                              onClick={(e) => handleRemoveValue(option.value, e)}
+                              aria-label={`Remove ${optionLabelText(option)}`}
+                              tabIndex={-1}
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </>
                       )}
-                    </>
-                  )}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <span className="relative">{placeholder}</span>
-          )}
-        </div>
-        <div className="flex items-center gap-1 ml-2">
-          {loading && <span className="text-xs">⏳</span>}
-          {clearable && value.length > 0 && !disabled && !loading && (
-            <button
-              type="button"
-              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
-              onClick={handleClearAll}
-              aria-label="Clear all selections"
-              tabIndex={-1}
-            >
-              ✕
-            </button>
-          )}
-          <span className="text-xs leading-none" aria-hidden="true">
-            {isOpen ? "▲" : "▼"}
-          </span>
-        </div>
-      </div>
-
-      {/* Dropdown */}
-      {isOpen && (
-        <div
-          ref={dropdownRef}
-          id={dropdownId}
-          className="absolute z-50 top-full mt-1 w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
-          role="listbox"
-          aria-multiselectable="true"
-        >
-          {searchable && (
-            <div className="p-2 border-b border-border">
-              <input
-                ref={searchInputRef}
-                type="text"
-                className={cn(
-                  "w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring",
-                  INPUT_AUTOFILL_RESET_CLASSES,
-                )}
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onClick={(e) => e.stopPropagation()}
-                aria-label="Search options"
-              />
-            </div>
-          )}
-
-          {showSelectAll && filteredOptions.length > 0 && (
-            <div className="flex gap-2 p-2 border-b border-border">
-              <button
-                type="button"
-                className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleSelectAll}
-                disabled={disabled}
-              >
-                Select All
-              </button>
-              {value.length > 0 && (
-                <button
-                  type="button"
-                  className="flex-1 px-3 py-1.5 text-xs font-medium rounded border border-input bg-transparent hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleClearAll}
-                  disabled={disabled}
-                >
-                  Clear All
-                </button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="relative">{placeholder}</span>
               )}
             </div>
-          )}
 
-          {isMaxReached && (
-            <div className="px-2 py-1 text-xs font-medium text-amber-600 bg-destructive/80 text-destructive-foreground border-b border-destructive">
-              Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""}{" "}
-              reached
+            <div className="ml-2 flex items-center gap-1">
+              {loading && <span className="text-xs">⏳</span>}
+              {clearable && value.length > 0 && !disabled && !loading && (
+                <button
+                  type="button"
+                  className="flex h-4 w-4 items-center justify-center rounded-sm border-none bg-transparent p-0 text-xs transition-opacity hover:opacity-70"
+                  onClick={handleClearAll}
+                  aria-label="Clear all selections"
+                  tabIndex={-1}
+                >
+                  ✕
+                </button>
+              )}
+              <span className="text-xs leading-none" aria-hidden="true">
+                {isOpen ? "▲" : "▼"}
+              </span>
             </div>
-          )}
+          </div>
+        </PopoverTrigger>
 
-          <div className="max-h-64 overflow-y-auto p-1">
-            {filteredOptions.length === 0 ? (
-              <div className="px-2 py-1 text-center text-sm">
-                No options found
-              </div>
-            ) : optionGroups.length > 0 ? (
-              // Render grouped options
-              optionGroups.map((group, groupIndex) => {
-                const groupOptions = group.options.filter((opt) =>
-                  filteredOptions.includes(opt),
-                );
-                if (groupOptions.length === 0) return null;
+        {isOpen && (
+          <PopoverContent
+            id={dropdownId}
+            align="start"
+            sideOffset={4}
+            className="w-full min-w-[var(--radix-popover-trigger-width)] p-0"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault();
+            }}
+          >
+            <Command
+              shouldFilter={false}
+              className="max-h-80"
+              onKeyDown={handleKeyDown}
+            >
+              {searchable && (
+                <CommandInput
+                  id={searchInputId}
+                  className={cn(INPUT_AUTOFILL_RESET_CLASSES)}
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onValueChange={(nextValue) => {
+                    setSearchQuery(nextValue);
+                    setFocusedIndex(0);
+                  }}
+                  aria-label="Search options"
+                />
+              )}
 
-                return (
-                  <div key={groupIndex} className="py-1">
-                    <div className="py-1.5 px-2 text-xs font-semibold ">
-                      {group.label}
-                    </div>
-                    {groupOptions.map((option) => {
-                      const globalIndex = filteredOptions.indexOf(option);
+              {showSelectAll && filteredOptions.length > 0 && (
+                <div className="flex gap-2 border-b border-input p-2">
+                  <button
+                    type="button"
+                    className="flex-1 rounded border border-input bg-transparent px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+                    onClick={handleSelectAll}
+                    disabled={disabled}
+                  >
+                    Select All
+                  </button>
+                  {value.length > 0 && (
+                    <button
+                      type="button"
+                      className="flex-1 rounded border border-input bg-transparent px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={handleClearAll}
+                      disabled={disabled}
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {isMaxReached && (
+                <div className="border-b border-destructive bg-destructive/80 px-2 py-1 text-xs font-medium text-destructive-foreground">
+                  Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""}{" "}
+                  reached
+                </div>
+              )}
+
+              <CommandList role="listbox" aria-multiselectable="true">
+                <CommandEmpty>No options found</CommandEmpty>
+
+                {optionGroups.length > 0
+                  ? optionGroups.map((group, groupIndex) => {
+                      const groupOptions = group.options.filter((option) =>
+                        filteredOptions.includes(option),
+                      );
+                      if (groupOptions.length === 0) return null;
+
+                      return (
+                        <CommandGroup
+                          key={`${group.label}-${groupIndex}`}
+                          heading={group.label}
+                        >
+                          {groupOptions.map((option) => {
+                            const globalIndex = filteredOptions.indexOf(option);
+                            const isSelected = value.includes(option.value);
+                            const isFocused = globalIndex === focusedIndex;
+                            const optionDisabled =
+                              option.disabled || (isMaxReached && !isSelected);
+
+                            return (
+                              <div
+                                key={option.value}
+                                role="option"
+                                aria-selected={isSelected}
+                                aria-disabled={optionDisabled}
+                                onMouseEnter={() => {
+                                  setFocusedIndex(globalIndex);
+                                }}
+                                onClick={() => {
+                                  if (!optionDisabled) {
+                                    handleToggleOption(option.value);
+                                  }
+                                }}
+                                className={cn(
+                                  "relative flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent",
+                                  isFocused && "bg-accent",
+                                  isSelected && "bg-accent font-medium",
+                                  optionDisabled &&
+                                    "pointer-events-none opacity-50",
+                                )}
+                              >
+                                <span className="text-base leading-none">
+                                  {isSelected ? "☑" : "☐"}
+                                </span>
+                                <span className="flex-1">
+                                  {renderOption
+                                    ? renderOption(option)
+                                    : option.label}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </CommandGroup>
+                      );
+                    })
+                  : filteredOptions.map((option, index) => {
                       const isSelected = value.includes(option.value);
-                      const isFocused = globalIndex === focusedIndex;
-                      const isDisabled =
+                      const isFocused = index === focusedIndex;
+                      const optionDisabled =
                         option.disabled || (isMaxReached && !isSelected);
 
                       return (
                         <div
                           key={option.value}
-                          className={cn(
-                            "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted",
-                            isFocused && "bg-muted",
-                            isSelected && "font-medium",
-                            isDisabled && "pointer-events-none opacity-50",
-                          )}
-                          onClick={() =>
-                            !isDisabled && handleToggleOption(option.value)
-                          }
                           role="option"
                           aria-selected={isSelected}
-                          aria-disabled={isDisabled}
+                          aria-disabled={optionDisabled}
+                          onMouseEnter={() => {
+                            setFocusedIndex(index);
+                          }}
+                          onClick={() => {
+                            if (!optionDisabled) {
+                              handleToggleOption(option.value);
+                            }
+                          }}
+                          className={cn(
+                            "relative flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent",
+                            isFocused && "bg-accent",
+                            isSelected && "bg-accent font-medium",
+                            optionDisabled && "pointer-events-none opacity-50",
+                          )}
                         >
                           <span className="text-base leading-none">
                             {isSelected ? "☑" : "☐"}
@@ -606,46 +716,11 @@ export function MultiSelect({
                         </div>
                       );
                     })}
-                  </div>
-                );
-              })
-            ) : (
-              // Render flat options
-              filteredOptions.map((option, index) => {
-                const isSelected = value.includes(option.value);
-                const isFocused = index === focusedIndex;
-                const isDisabled =
-                  option.disabled || (isMaxReached && !isSelected);
-
-                return (
-                  <div
-                    key={option.value}
-                    className={cn(
-                      "relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 px-2 text-sm outline-none transition-colors hover:bg-muted",
-                      isFocused && "bg-muted",
-                      isSelected && "font-medium bg-muted",
-                      isDisabled && "pointer-events-none opacity-50",
-                    )}
-                    onClick={() =>
-                      !isDisabled && handleToggleOption(option.value)
-                    }
-                    role="option"
-                    aria-selected={isSelected}
-                    aria-disabled={isDisabled}
-                  >
-                    <span className="text-base leading-none">
-                      {isSelected ? "☑" : "☐"}
-                    </span>
-                    <span className="flex-1">
-                      {renderOption ? renderOption(option) : option.label}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        )}
+      </Popover>
     </div>
   );
 }

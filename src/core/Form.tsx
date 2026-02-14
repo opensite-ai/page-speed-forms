@@ -4,7 +4,7 @@ import * as React from "react";
 import { FormContext } from "./FormContext";
 import type { FormProps, FormValues } from "./types";
 import { FormFeedback } from "./form-feedback";
-import { cn } from "../lib/utils";
+import { Button } from "../components/ui/button";
 
 /**
  * Form - Progressive enhancement form component
@@ -132,16 +132,13 @@ export function Form<T extends FormValues = FormValues>({
             )}
 
             {showNewSubmissionAction ? (
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 onClick={handleNewSubmission}
-                className={cn(
-                  "inline-flex items-center justify-center whitespace-nowrap rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium shadow-sm transition-colors",
-                  "hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                )}
               >
                 {newSubmissionLabel}
-              </button>
+              </Button>
             ) : null}
           </div>
         ) : (

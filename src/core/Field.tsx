@@ -5,6 +5,7 @@ import { useField } from "./useField";
 import type { FieldProps } from "./types";
 import { FieldFeedback } from "./field-feedback";
 import { LabelGroup } from "./label-group";
+import { Field as FieldWrapper } from "../components/ui/field";
 
 /**
  * Field - Field wrapper component with label, description, and error display
@@ -56,7 +57,11 @@ export function Field({
   const descriptionId = `${name}-description`;
 
   return (
-    <div className={className} data-field={name}>
+    <FieldWrapper
+      className={className}
+      data-field={name}
+      invalid={hasError}
+    >
       <LabelGroup
         labelHtmlFor={name}
         required={required}
@@ -66,8 +71,8 @@ export function Field({
         primary={label}
       />
 
-      {/* Field content (render prop or direct children) */}
-      <div>
+      {/* Field control slot keeps legacy DOM shape for compatibility */}
+      <div data-slot="field-control">
         {typeof children === "function" ? children(fieldState) : children}
       </div>
 
@@ -78,7 +83,7 @@ export function Field({
         shouldRenderError={hasError}
         error={meta.error}
       />
-    </div>
+    </FieldWrapper>
   );
 }
 

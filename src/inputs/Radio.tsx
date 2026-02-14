@@ -3,7 +3,11 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import { Label } from "../components/ui/label";
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 /**
@@ -130,22 +134,22 @@ export function Radio({
   const groupDescriptionId = description ? `${name}-description` : undefined;
 
   return (
-    <div className={cn("w-full", className)}>
+    <Field className={cn("w-full", className)} invalid={Boolean(error)}>
       {/* Group-level label and description */}
       {(label || description) && (
-        <div className="mb-3">
+        <Field className="mb-3 gap-1">
           {label && (
-            <Label className="text-base font-medium block mb-1">{label}</Label>
+            <div className="text-base font-medium leading-none">{label}</div>
           )}
           {description && (
-            <p
+            <FieldDescription
               id={groupDescriptionId}
-              className="text-sm opacity-70"
+              className="leading-snug"
             >
               {description}
-            </p>
+            </FieldDescription>
           )}
-        </div>
+        </Field>
       )}
 
       <RadioGroup
@@ -171,11 +175,11 @@ export function Radio({
           const hasDescription = !!option.description;
 
           return (
-            <label
+            <FieldLabel
               key={option.value}
               htmlFor={radioId}
               className={cn(
-                "flex gap-3 p-3 duration-200",
+                "flex gap-3 p-3 duration-200 select-auto font-normal leading-normal",
                 useChoiceCard &&
                   "border rounded-lg hover:ring-2 hover:ring-ring/50",
                 useChoiceCard && isSelected && "ring-2 ring-ring",
@@ -185,7 +189,8 @@ export function Radio({
                   : "cursor-pointer",
               )}
             >
-              <div
+              <Field
+                orientation="horizontal"
                 className={cn(
                   "flex w-full gap-3",
                   useChoiceCard ? "items-start" : "items-center",
@@ -202,28 +207,25 @@ export function Radio({
                       : undefined
                   }
                 />
-                <div className="flex flex-col gap-1 flex-1">
-                  <Label
-                    htmlFor={radioId}
-                    className="cursor-pointer font-medium leading-none"
-                  >
+                <Field className="flex-1 gap-1">
+                  <span className="text-sm font-medium leading-none">
                     {option.label}
-                  </Label>
+                  </span>
                   {option.description && (
-                    <p
+                    <FieldDescription
                       id={`${radioId}-description`}
-                      className="text-sm opacity-70 leading-snug"
+                      className="leading-snug"
                     >
                       {option.description}
-                    </p>
+                    </FieldDescription>
                   )}
-                </div>
-              </div>
-            </label>
+                </Field>
+              </Field>
+            </FieldLabel>
           );
         })}
       </RadioGroup>
-    </div>
+    </Field>
   );
 }
 

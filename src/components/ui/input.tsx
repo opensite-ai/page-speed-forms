@@ -10,38 +10,42 @@ import { INPUT_AUTOFILL_RESET_CLASSES } from "../../lib/utils";
  *
  * See: SHADCN_INTEGRATION_GUIDE.md for full documentation
  */
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        // Core structure - no hardcoded colors, uses CSS variables
-        "flex h-9 w-full min-w-0 rounded-md border border-input",
-        "bg-transparent px-3 py-1 text-base shadow-sm",
-        "transition-colors outline-none md:text-sm",
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        type={type}
+        data-slot="input"
+        className={cn(
+          // Core structure - no hardcoded colors, uses CSS variables
+          "flex h-9 w-full min-w-0 rounded-md border border-input",
+          "bg-transparent px-3 py-1 text-base shadow-sm",
+          "transition-colors outline-none md:text-sm",
 
-        // Focus state - uses ring-ring CSS variable (adapts to theme)
-        "focus-visible:ring-1 focus-visible:ring-ring",
+          // Focus state - uses ring-ring CSS variable (adapts to theme)
+          "focus-visible:ring-1 focus-visible:ring-ring",
 
-        // Error state - uses destructive CSS variables (adapts to theme)
-        "aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive",
+          // Error state - uses destructive CSS variables (adapts to theme)
+          "aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive",
 
-        // Disabled state - no color hardcoding
-        "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+          // Disabled state - no color hardcoding
+          "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
 
-        // File input specific - inherits text color from parent
-        "file:inline-flex file:h-7 file:border-0 file:bg-transparent",
-        "file:text-sm file:font-medium",
+          // File input specific - inherits text color from parent
+          "file:inline-flex file:h-7 file:border-0 file:bg-transparent",
+          "file:text-sm file:font-medium",
 
-        // Autofill reset - prevents browser from overriding our dynamic colors
-        INPUT_AUTOFILL_RESET_CLASSES,
+          // Autofill reset - prevents browser from overriding our dynamic colors
+          INPUT_AUTOFILL_RESET_CLASSES,
 
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
+Input.displayName = "Input";
 
 export { Input };

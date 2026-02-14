@@ -1120,7 +1120,7 @@ describe("FileInput Component", () => {
 
       global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
 
-      const { container } = render(
+      render(
         <FileInput
           name="file"
           onChange={onChange}
@@ -1256,7 +1256,7 @@ describe("FileInput Component", () => {
       });
 
       // Trigger the image load event to set croppedAreaPixels
-      const cropperImage = container.querySelector(
+      const cropperImage = document.querySelector(
         'img[alt*="Crop"]',
       ) as HTMLImageElement;
       expect(cropperImage).toBeInTheDocument();
@@ -1277,7 +1277,7 @@ describe("FileInput Component", () => {
       // Wait for state update after image load
       await waitFor(() => {
         // The crop overlay should be rendered after image loads
-        const cropOverlay = container.querySelector(
+        const cropOverlay = document.querySelector(
           '[class*="absolute"][class*="border-2"]',
         );
         expect(cropOverlay).toBeInTheDocument();
@@ -1301,7 +1301,7 @@ describe("FileInput Component", () => {
 
       global.URL.createObjectURL = vi.fn(() => "blob:mock-url");
 
-      const { container } = render(
+      render(
         <FileInput
           name="file"
           onChange={onChange}
@@ -1314,7 +1314,7 @@ describe("FileInput Component", () => {
       await user.click(screen.getByRole("button", { name: "Crop image.png" }));
 
       await waitFor(() => {
-        const cropOverlay = container.querySelector(
+        const cropOverlay = document.querySelector(
           '[class*="absolute"][class*="border-2"]',
         ) as HTMLElement;
         expect(cropOverlay).toBeInTheDocument();
