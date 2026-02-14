@@ -105,6 +105,9 @@ export function Select({
 
   const hasValue = Boolean(value);
 
+  // Ensure value is always a string or undefined for Radix
+  const selectValue = value ? String(value) : undefined;
+
   const handleValueChange = (newValue: string) => {
     onChange(newValue);
   };
@@ -123,27 +126,47 @@ export function Select({
   };
 
   return (
-    <SelectPrimitive
-      name={name}
-      value={value}
-      onValueChange={handleValueChange}
-      onOpenChange={handleOpenChange}
-      disabled={disabled}
-      required={required}
-    >
-      <SelectTrigger
-        className={cn(
-          // Valid value indicator - ring-2 when has value and no error
-          !error && hasValue && "ring-2 ring-ring",
-          // Error state - handled by SelectTrigger via aria-invalid
-          className,
-        )}
-        aria-invalid={error || props["aria-invalid"]}
-        aria-describedby={props["aria-describedby"]}
-        aria-required={required || props["aria-required"]}
+    <>
+      {/* Hidden input for form submission */}
+      <input
+        type="hidden"
+        name={name}
+        value={value ?? ""}
+        disabled={disabled}
+        required={required}
+        tabIndex={-1}
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: "0",
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: "0",
+        }}
+      />
+      <SelectPrimitive
+        value={selectValue}
+        onValueChange={handleValueChange}
+        onOpenChange={handleOpenChange}
+        disabled={disabled}
       >
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
+        <SelectTrigger
+          className={cn(
+            // Valid value indicator - ring-2 when has value and no error
+            !error && hasValue && "ring-2 ring-ring",
+            // Error state - handled by SelectTrigger via aria-invalid
+            className,
+          )}
+          aria-invalid={error || props["aria-invalid"]}
+          aria-describedby={props["aria-describedby"]}
+          aria-required={required || props["aria-required"]}
+        >
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
       <SelectContent>
         {optionGroups.length > 0 ? (
           // Render grouped options
@@ -175,6 +198,7 @@ export function Select({
         )}
       </SelectContent>
     </SelectPrimitive>
+    </>
   );
 }
 

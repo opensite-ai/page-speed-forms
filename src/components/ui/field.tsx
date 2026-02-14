@@ -94,7 +94,7 @@ FieldDescription.displayName = "FieldDescription"
 /**
  * FieldError - Error message display for form fields
  *
- * Shows validation errors with proper styling
+ * Shows validation errors with proper styling and accessibility
  */
 const FieldError = React.forwardRef<
   HTMLParagraphElement,
@@ -104,6 +104,8 @@ const FieldError = React.forwardRef<
     <p
       ref={ref}
       data-slot="field-error"
+      role="alert"
+      aria-live="polite"
       className={cn("text-sm text-destructive", className)}
       {...props}
     />

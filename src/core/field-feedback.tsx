@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { FieldMeta } from "./types";
-import { cn } from "../lib/utils";
+import { FieldError } from "../components/ui/field";
 
 type Props = {
   errorId?: string;
@@ -20,20 +20,9 @@ const FieldFeedback = ({
   if (!errorText || !shouldRenderError) return null;
 
   return (
-    <div
-      id={errorId}
-      className={cn(
-        "text-xs px-3 py-2 font-medium",
-        "rounded-md shadow-md mt-2",
-        "text-destructive-foreground bg-destructive",
-        "border border-destructive",
-        errorClassName,
-      )}
-      role="alert"
-      aria-live="polite"
-    >
+    <FieldError id={errorId} className={errorClassName}>
       {errorText}
-    </div>
+    </FieldError>
   );
 };
 
