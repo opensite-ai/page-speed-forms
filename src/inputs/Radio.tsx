@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { LabelGroup } from "../core/label-group";
-import { cn } from "../utils";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import { Label } from "../components/ui/label";
+import { cn } from "../lib/utils";
 
 /**
  * Radio option type
@@ -70,21 +71,15 @@ export interface RadioProps extends Omit<
 }
 
 /**
- * Radio - High-performance single selection component
+ * Radio - High-performance single selection component (ShadCN-based)
  *
- * A lightweight, accessible radio group with error state support.
- * Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Full accessibility support (ARIA attributes, role="radiogroup")
- * - Error state styling
- * - Controlled input behavior
- * - Keyboard navigation (arrow keys)
- * - Grid or stacked layout
- * - Optional descriptions for each option (with nil guard)
- * - Individual option disabled state
- * - Card-based styling with proper visual hierarchy
- * - All native radio attributes supported
+ * Built on ShadCN RadioGroup with form-specific behavior:
+ * - Error state handling
+ * - Choice Card variant (automatic when any option has description)
+ * - Keyboard navigation (built into RadioGroup)
+ * - Grid/stacked layouts
+ * - Form integration (onChange, onBlur)
+ * - Full accessibility support
  *
  * @example
  * ```tsx
@@ -99,23 +94,6 @@ export interface RadioProps extends Omit<
  *     { value: 'enterprise', label: 'Enterprise', description: '$99/month' }
  *   ]}
  *   error={!!form.errors.plan}
- *   aria-describedby={form.errors.plan ? 'plan-error' : undefined}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // Grid layout
- * <Radio
- *   name="size"
- *   value={size}
- *   onChange={handleSizeChange}
- *   layout="grid"
- *   options={[
- *     { value: 'sm', label: 'Small' },
- *     { value: 'md', label: 'Medium' },
- *     { value: 'lg', label: 'Large' }
- *   ]}
  * />
  * ```
  *
@@ -136,168 +114,116 @@ export function Radio({
   options,
   ...props
 }: RadioProps) {
-  const handleChange = (optionValue: string) => {
-    onChange(optionValue);
-  };
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLLabelElement>,
-    currentIndex: number,
-  ) => {
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-      e.preventDefault();
-      // Find next non-disabled option
-      let nextIndex = (currentIndex + 1) % options.length;
-      let attempts = 0;
-      while (
-        options[nextIndex].disabled &&
-        attempts < options.length &&
-        !disabled
-      ) {
-        nextIndex = (nextIndex + 1) % options.length;
-        attempts++;
-      }
-      if (!options[nextIndex].disabled) {
-        handleChange(options[nextIndex].value);
-      }
-    } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-      e.preventDefault();
-      // Find previous non-disabled option
-      let prevIndex = (currentIndex - 1 + options.length) % options.length;
-      let attempts = 0;
-      while (
-        options[prevIndex].disabled &&
-        attempts < options.length &&
-        !disabled
-      ) {
-        prevIndex = (prevIndex - 1 + options.length) % options.length;
-        attempts++;
-      }
-      if (!options[prevIndex].disabled) {
-        handleChange(options[prevIndex].value);
-      }
-    }
+  const handleValueChange = (selectedValue: string) => {
+    onChange(selectedValue);
   };
 
   const handleBlur = () => {
     onBlur?.();
   };
 
-  const useChoiceCard: boolean = React.useMemo(() => {
+  // Automatically use Choice Card if any option has description
+  const useChoiceCard = React.useMemo(() => {
     return options.some((option) => option.description);
   }, [options]);
 
-  const containerClass = React.useMemo(() => {
-    return cn(
-      "w-full gap-3 grid grid-cols-1 border-0 m-0 p-0 min-w-0",
-      (layout === "grid" || layout === "inline") && "md:grid-cols-2",
-      className,
-    );
-  }, [layout, className]);
-
   const groupDescriptionId = description ? `${name}-description` : undefined;
-  const groupAriaDescribedBy =
-    [props["aria-describedby"], groupDescriptionId].filter(Boolean).join(" ") ||
-    undefined;
 
   return (
-    <fieldset
-      className={containerClass}
-      role="radiogroup"
-      aria-invalid={error || props["aria-invalid"]}
-      aria-describedby={groupAriaDescribedBy}
-      aria-required={required || props["aria-required"]}
-      aria-label={typeof label === "string" ? label : props["aria-label"]}
-    >
-      <LabelGroup
-        variant="legend"
-        primary={label}
-        secondary={description}
-        secondaryId={groupDescriptionId}
-      />
-      {options.map((option, index) => {
-        const isChecked = value === option.value;
-        const isDisabled = disabled || option.disabled;
-        const radioId = `${name}-${option.value}`;
+    <div className={cn("w-full", className)}>
+      {/* Group-level label and description */}
+      {(label || description) && (
+        <div className="mb-3">
+          {label && (
+            <Label className="text-base font-medium block mb-1">{label}</Label>
+          )}
+          {description && (
+            <p
+              id={groupDescriptionId}
+              className="text-sm opacity-70"
+            >
+              {description}
+            </p>
+          )}
+        </div>
+      )}
 
-        const hasDescription =
-          option.description != null && option.description !== "";
+      <RadioGroup
+        name={name}
+        value={value}
+        onValueChange={handleValueChange}
+        onBlur={handleBlur}
+        disabled={disabled}
+        required={required}
+        className={cn(
+          "gap-3",
+          layout === "grid" && "grid grid-cols-1 md:grid-cols-2",
+          layout === "inline" && "flex flex-wrap",
+        )}
+        aria-invalid={error || props["aria-invalid"]}
+        aria-describedby={groupDescriptionId || props["aria-describedby"]}
+        aria-required={required || props["aria-required"]}
+      >
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          const isDisabled = disabled || option.disabled;
+          const radioId = `${name}-${option.value}`;
+          const hasDescription = !!option.description;
 
-        const radioIndicator = (
-          <div className="relative inline-flex items-center justify-center">
-            <input
-              type="radio"
-              id={radioId}
-              name={name}
-              value={option.value}
-              checked={isChecked}
-              onChange={(e) => handleChange(e.target.value)}
-              onBlur={handleBlur}
-              disabled={isDisabled}
-              required={required}
-              className="peer sr-only"
-              aria-describedby={
-                hasDescription
-                  ? `${radioId}-description`
-                  : props["aria-describedby"]
-              }
-            />
-            <div
+          return (
+            <label
+              key={option.value}
+              htmlFor={radioId}
               className={cn(
-                "flex shrink-0 items-center justify-center rounded-full border-2 transition-colors size-6",
-                !error && isChecked && "border-primary bg-transparent",
-                !error && !isChecked && "border-input bg-transparent",
-                error && isChecked && "border-destructive bg-transparent",
-                error && !isChecked && "border-destructive bg-transparent",
-                isDisabled && "opacity-50",
-                "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-1",
+                "flex gap-3 p-3 duration-200",
+                useChoiceCard &&
+                  "border rounded-lg hover:ring-2 hover:ring-ring/50",
+                useChoiceCard && isSelected && "ring-2 ring-ring",
+                useChoiceCard && error && "border-destructive",
+                isDisabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer",
               )}
             >
-              {isChecked && <div className="size-3 rounded-full bg-primary" />}
-            </div>
-          </div>
-        );
-
-        const labelContent = (
-          <LabelGroup
-            variant="text"
-            primary={option.label}
-            secondary={hasDescription ? option.description : undefined}
-            secondaryId={hasDescription ? `${radioId}-description` : undefined}
-            primaryClassName="mb-0"
-            secondaryClassName="text-xs opacity-75"
-          />
-        );
-
-        return (
-          <label
-            key={option.value}
-            className={cn(
-              "w-full h-full flex gap-3 p-3 duration-200",
-              useChoiceCard && "border rounded-lg hover:ring-2",
-              useChoiceCard && isChecked && "ring-2",
-              isDisabled
-                ? "opacity-50 cursor-not-allowed hover:ring-0"
-                : "cursor-pointer",
-            )}
-            htmlFor={radioId}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            tabIndex={isDisabled ? -1 : 0}
-          >
-            <div
-              className={cn(
-                "flex w-full flex-row gap-2",
-                useChoiceCard ? "items-start" : "items-center",
-              )}
-            >
-              {!useChoiceCard && radioIndicator}
-              {labelContent}
-              {useChoiceCard && radioIndicator}
-            </div>
-          </label>
-        );
-      })}
-    </fieldset>
+              <div
+                className={cn(
+                  "flex w-full gap-3",
+                  useChoiceCard ? "items-start" : "items-center",
+                )}
+              >
+                <RadioGroupItem
+                  value={option.value}
+                  id={radioId}
+                  disabled={isDisabled}
+                  className="mt-0.5"
+                  aria-describedby={
+                    hasDescription
+                      ? `${radioId}-description`
+                      : undefined
+                  }
+                />
+                <div className="flex flex-col gap-1 flex-1">
+                  <Label
+                    htmlFor={radioId}
+                    className="cursor-pointer font-medium leading-none"
+                  >
+                    {option.label}
+                  </Label>
+                  {option.description && (
+                    <p
+                      id={`${radioId}-description`}
+                      className="text-sm opacity-70 leading-snug"
+                    >
+                      {option.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </label>
+          );
+        })}
+      </RadioGroup>
+    </div>
   );
 }
 

@@ -3,8 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
-
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
 /**
  * Date range value
  */
@@ -382,7 +381,9 @@ export function DateRangePicker({
         <div className="grid gap-1" style={dayGridStyle}>
           {days.map((date, index) => {
             if (!date) {
-              return <div key={`empty-${month}-${index}`} className="h-8 w-8" />;
+              return (
+                <div key={`empty-${month}-${index}`} className="h-8 w-8" />
+              );
             }
 
             const isStart =
@@ -413,9 +414,13 @@ export function DateRangePicker({
                 className={cn(
                   "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
                   "hover:bg-muted",
-                  isRangeEndpoint && "bg-primary text-primary-foreground font-semibold",
+                  isRangeEndpoint &&
+                    "bg-primary text-primary-foreground font-semibold",
                   isRangeHighlight && "bg-muted",
-                  !isRangeEndpoint && !isRangeHighlight && isToday && "border border-primary",
+                  !isRangeEndpoint &&
+                    !isRangeHighlight &&
+                    isToday &&
+                    "border border-primary",
                   disabled &&
                     "cursor-not-allowed opacity-50 pointer-events-none",
                 )}

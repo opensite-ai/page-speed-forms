@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { FieldMeta } from "./types";
-import { cn } from "../utils";
+import { cn } from "../lib/utils";
 
 type Props = {
   errorId?: string;

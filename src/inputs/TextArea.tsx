@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
+import { Textarea } from "../components/ui/textarea";
+import { cn } from "../lib/utils";
 
 /**
  * Additional props specific to TextArea
@@ -49,19 +50,13 @@ export interface TextAreaProps extends Omit<InputProps<string>, "onChange"> {
 }
 
 /**
- * TextArea - High-performance multi-line text input component
+ * TextArea - High-performance multi-line text input component (ShadCN-based)
  *
- * A lightweight, accessible textarea with error state support.
- * Designed to work seamlessly with useForm and Field components.
- *
- * Features:
+ * Built on ShadCN Textarea component with form-specific behavior:
+ * - Error state handling
+ * - Valid value indicator (ring-2)
+ * - Form integration (onChange, onBlur)
  * - Full accessibility support
- * - Error state styling
- * - Controlled input behavior
- * - Configurable rows and columns
- * - Text wrapping options
- * - Character length validation
- * - All native textarea attributes supported
  *
  * @example
  * ```tsx
@@ -105,18 +100,9 @@ export function TextArea({
   };
 
   const hasValue = String(value ?? "").trim().length > 0;
-  const combinedClassName = cn(
-    "flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors",
-    "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-    "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-    INPUT_AUTOFILL_RESET_CLASSES,
-    !error && hasValue && "ring-2 ring-ring",
-    error && "border-destructive ring-1 ring-destructive",
-    className,
-  );
 
   return (
-    <textarea
+    <Textarea
       name={name}
       value={value ?? ""}
       onChange={handleChange}
@@ -124,7 +110,12 @@ export function TextArea({
       placeholder={placeholder}
       disabled={disabled}
       required={required}
-      className={combinedClassName}
+      className={cn(
+        // Valid value indicator - ring-2 when has value and no error
+        !error && hasValue && "ring-2 ring-ring",
+        // Error state - handled by Textarea component via aria-invalid
+        className,
+      )}
       rows={rows}
       cols={cols}
       maxLength={maxLength}

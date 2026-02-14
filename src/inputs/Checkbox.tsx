@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { LabelGroup } from "../core/label-group";
-import { cn } from "../utils";
+import { Checkbox as CheckboxPrimitive } from "../components/ui/checkbox";
+import { Label } from "../components/ui/label";
+import { cn } from "../lib/utils";
 
 /**
  * Additional props specific to Checkbox
@@ -18,13 +19,6 @@ export interface CheckboxProps extends Omit<
   onChange: (checked: boolean) => void;
 
   /**
-   * Indeterminate state for partial selections
-   * Useful for "select all" checkboxes with some items selected
-   * @default false
-   */
-  indeterminate?: boolean;
-
-  /**
    * Label text for the checkbox (primary text)
    */
   label?: React.ReactNode;
@@ -35,8 +29,7 @@ export interface CheckboxProps extends Omit<
   description?: React.ReactNode;
 
   /**
-   * Layout variant
-   * Utilized if any checkboxes have a description
+   * Layout variant - automatically enabled if description exists
    * @default false
    */
   useChoiceCard?: boolean;
@@ -48,19 +41,14 @@ export interface CheckboxProps extends Omit<
 }
 
 /**
- * Checkbox - High-performance boolean input component
+ * Checkbox - High-performance boolean input component (ShadCN-based)
  *
- * A lightweight, accessible checkbox with error state support.
- * Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Full accessibility support (ARIA attributes)
- * - Error state styling
- * - Controlled input behavior
- * - Indeterminate state support
- * - Optional label and description text (with nil guards)
- * - Proper field-based layout structure
- * - All native checkbox attributes supported
+ * Built on ShadCN Checkbox with form-specific behavior:
+ * - Error state handling
+ * - Choice Card variant (automatic when description exists)
+ * - Label and description support
+ * - Form integration (onChange, onBlur)
+ * - Full accessibility support
  *
  * @example
  * ```tsx
@@ -71,19 +59,6 @@ export interface CheckboxProps extends Omit<
  *   label="I agree to the terms and conditions"
  *   description="By clicking this checkbox, you agree to the terms."
  *   error={!!form.errors.terms}
- *   aria-describedby={form.errors.terms ? 'terms-error' : undefined}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With indeterminate state
- * <Checkbox
- *   name="selectAll"
- *   value={allSelected}
- *   onChange={handleSelectAll}
- *   indeterminate={someSelected}
- *   label="Select all items"
  * />
  * ```
  *
@@ -98,50 +73,54 @@ export function Checkbox({
   required = false,
   error = false,
   className = "",
-  indeterminate = false,
   label,
   description,
   useChoiceCard = false,
   ...props
 }: CheckboxProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
   const checkboxId = props.id || `checkbox-${name}`;
 
-  // Set indeterminate state on the native input element
-  React.useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.indeterminate = indeterminate;
-    }
-  }, [indeterminate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.checked);
+  const handleCheckedChange = (checked: boolean) => {
+    onChange(checked);
   };
 
   const handleBlur = () => {
     onBlur?.();
   };
 
-  const isActive = value || (indeterminate && !value);
+  // Automatically use Choice Card if description exists
+  const showChoiceCard = useChoiceCard || !!description;
 
   const checkbox = (
-    <div
-      className={cn(
-        "relative inline-flex items-center justify-center",
-        !label && className,
-      )}
-    >
+    <>
+      {/* Hidden input for form submission */}
       <input
-        ref={inputRef}
         type="checkbox"
-        id={checkboxId}
         name={name}
         checked={value}
-        onChange={handleChange}
-        onBlur={handleBlur}
+        onChange={() => {}} // Controlled by CheckboxPrimitive
         disabled={disabled}
         required={required}
-        className="peer sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      />
+      <CheckboxPrimitive
+        id={checkboxId}
+        checked={value}
+        onCheckedChange={handleCheckedChange}
+        onBlur={handleBlur}
+        disabled={disabled}
         aria-invalid={error || props["aria-invalid"]}
         aria-describedby={
           description ? `${checkboxId}-description` : props["aria-describedby"]
@@ -149,86 +128,55 @@ export function Checkbox({
         aria-required={required || props["aria-required"]}
         {...props}
       />
-      <div
-        className={cn(
-          "flex shrink-0 items-center justify-center rounded-full border-2 transition-colors size-6",
-          !error &&
-            isActive &&
-            "border-primary bg-primary text-primary-foreground",
-          !error && !isActive && "border-input bg-transparent",
-          error &&
-            isActive &&
-            "border-destructive bg-destructive text-destructive-foreground",
-          error && !isActive && "border-destructive bg-transparent",
-          disabled && "opacity-50",
-          "peer-focus-visible:ring-2 peer-focus-visible:ring-ring/50 peer-focus-visible:ring-offset-1",
-        )}
-      >
-        {value && (
-          <svg
-            className="size-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
-        {indeterminate && !value && (
-          <svg
-            className="size-3.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        )}
-      </div>
-    </div>
+    </>
   );
 
-  if (label) {
-    return (
-      <label
-        className={cn(
-          "w-full h-full flex gap-3 p-3 duration-200",
-          useChoiceCard && "border rounded-lg hover:ring-2",
-          useChoiceCard && value && "ring-2",
-          disabled
-            ? "opacity-50 cursor-not-allowed hover:ring-0"
-            : "cursor-pointer",
-          className,
-        )}
-        htmlFor={checkboxId}
-      >
-        <div
-          className={cn(
-            "flex w-full flex-row gap-2",
-            useChoiceCard ? "items-start" : "items-center",
-          )}
-        >
-          {checkbox}
-          <LabelGroup
-            variant="text"
-            primary={label}
-            secondary={description}
-            secondaryId={description ? `${checkboxId}-description` : undefined}
-            primaryClassName="mb-0"
-            secondaryClassName="text-xs opacity-75"
-          />
-        </div>
-      </label>
-    );
+  // Without label, return just the checkbox
+  if (!label) {
+    return <div className={className}>{checkbox}</div>;
   }
 
-  return checkbox;
+  // With label, wrap in label element
+  return (
+    <label
+      htmlFor={checkboxId}
+      className={cn(
+        "flex gap-3 p-3 duration-200",
+        showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-ring/50",
+        showChoiceCard && value && "ring-2 ring-ring",
+        showChoiceCard && error && "border-destructive",
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer",
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          "flex w-full gap-3",
+          showChoiceCard ? "items-start" : "items-center",
+        )}
+      >
+        {checkbox}
+        <div className="flex flex-col gap-1">
+          <Label
+            htmlFor={checkboxId}
+            className="cursor-pointer font-medium leading-none"
+          >
+            {label}
+          </Label>
+          {description && (
+            <p
+              id={`${checkboxId}-description`}
+              className="text-sm opacity-70 leading-snug"
+            >
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+    </label>
+  );
 }
 
 Checkbox.displayName = "Checkbox";

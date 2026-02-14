@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { cn } from "../utils";
 import { Checkbox } from "./Checkbox";
 import { LabelGroup } from "../core/label-group";
+import { cn } from "../lib/utils";
 
 /**
  * CheckboxGroup option type

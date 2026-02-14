@@ -2,41 +2,31 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
+import {
+  Select as SelectPrimitive,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { cn } from "../lib/utils";
 
 /**
  * Select option type
  */
 export interface SelectOption {
-  /**
-   * The value for this option
-   */
   value: string;
-
-  /**
-   * Display label for the option
-   */
   label: React.ReactNode;
-
-  /**
-   * Whether this option is disabled
-   */
   disabled?: boolean;
 }
 
 /**
- * Select option group type for organizing options
+ * Select option group type
  */
 export interface SelectOptionGroup {
-  /**
-   * Group label
-   */
   label: string;
-
-  /**
-   * Options in this group
-   */
   options: SelectOption[];
 }
 
@@ -47,78 +37,27 @@ export interface SelectProps extends Omit<
   InputProps<string>,
   "onChange" | "onFocus"
 > {
-  /**
-   * Change handler - receives selected value
-   */
   onChange: (value: string) => void;
-
-  /**
-   * Focus handler
-   */
   onFocus?: () => void;
-
-  /**
-   * Array of select options (flat structure)
-   */
   options?: SelectOption[];
-
-  /**
-   * Array of option groups (grouped structure)
-   */
   optionGroups?: SelectOptionGroup[];
-
-  /**
-   * Placeholder text when no option is selected
-   * @default "Select..."
-   */
   placeholder?: string;
-
-  /**
-   * Enable search/filter functionality
-   * @default true
-   */
-  searchable?: boolean;
-
-  /**
-   * Enable clearable button to reset selection
-   * @default true
-   */
-  clearable?: boolean;
-
-  /**
-   * Loading state for async options
-   * @default false
-   */
-  loading?: boolean;
-
-  /**
-   * Custom render function for options
-   */
   renderOption?: (option: SelectOption) => React.ReactNode;
-
-  /**
-   * Additional native input attributes
-   */
   [key: string]: any;
 }
 
 /**
- * Select - High-performance dropdown selection component
+ * Select - High-performance dropdown selection component (ShadCN-based)
  *
- * A lightweight, accessible select/dropdown with search, keyboard navigation,
- * and error state support. Designed to work seamlessly with useForm and Field components.
- *
- * Features:
- * - Full accessibility support (ARIA attributes, role="combobox")
- * - Error state styling
- * - Controlled input behavior
- * - Keyboard navigation (arrow keys, Enter, Escape, type-ahead)
- * - Searchable options with filtering
- * - Clearable selection
+ * Built on ShadCN Select with form-specific behavior:
+ * - Error state handling
+ * - Valid value indicator (ring-2)
+ * - Form integration (onChange, onBlur)
  * - Option groups support
- * - Loading state for async options
- * - Disabled options support
- * - Click outside to close
+ * - Full accessibility support
+ *
+ * NOTE: This is a simplified refactored version. For advanced features like
+ * search, clearable, and loading states, use the Command component or MultiSelect.
  *
  * @example
  * ```tsx
@@ -132,36 +71,7 @@ export interface SelectProps extends Omit<
  *     { value: 'ca', label: 'Canada' },
  *     { value: 'mx', label: 'Mexico' }
  *   ]}
- *   searchable
- *   clearable
  *   error={!!form.errors.country}
- *   aria-describedby={form.errors.country ? 'country-error' : undefined}
- * />
- * ```
- *
- * @example
- * ```tsx
- * // With option groups
- * <Select
- *   name="timezone"
- *   value={timezone}
- *   onChange={handleTimezoneChange}
- *   optionGroups={[
- *     {
- *       label: 'North America',
- *       options: [
- *         { value: 'est', label: 'Eastern Time' },
- *         { value: 'cst', label: 'Central Time' }
- *       ]
- *     },
- *     {
- *       label: 'Europe',
- *       options: [
- *         { value: 'gmt', label: 'GMT' },
- *         { value: 'cet', label: 'Central European Time' }
- *       ]
- *     }
- *   ]}
  * />
  * ```
  *
@@ -178,22 +88,12 @@ export function Select({
   error = false,
   className = "",
   placeholder = "Select...",
-  searchable = true,
-  clearable = true,
-  loading = false,
   options = [],
   optionGroups = [],
   renderOption,
   ...props
 }: SelectProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [focusedIndex, setFocusedIndex] = React.useState(-1);
   const [hasInteracted, setHasInteracted] = React.useState(false);
-  const triggerRef = React.useRef<HTMLDivElement>(null);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
-  const dropdownId = `${name}-dropdown`;
 
   // Flatten options from groups or use flat options
   const allOptions = React.useMemo(() => {
@@ -203,355 +103,78 @@ export function Select({
     return options;
   }, [options, optionGroups]);
 
-  // Filter options based on search query
-  const filteredOptions = React.useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allOptions;
-    }
-    const query = searchQuery.toLowerCase();
-    return allOptions.filter((option) => {
-      const label =
-        typeof option.label === "string" ? option.label : String(option.label);
-      return label.toLowerCase().includes(query);
-    });
-  }, [allOptions, searchQuery]);
-
-  // Get selected option
-  const selectedOption = React.useMemo(() => {
-    return allOptions.find((opt) => opt.value === value);
-  }, [allOptions, value]);
-
   const hasValue = Boolean(value);
 
-  // Handle option selection
-  const handleSelect = (optionValue: string) => {
-    onChange(optionValue);
-    setIsOpen(false);
-    setSearchQuery("");
-    setFocusedIndex(-1);
+  const handleValueChange = (newValue: string) => {
+    onChange(newValue);
   };
 
-  // Handle clear selection
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange("");
-    setSearchQuery("");
-    setFocusedIndex(-1);
-  };
-
-  // Toggle dropdown
-  const handleToggle = () => {
-    if (disabled) return;
-    const newIsOpen = !isOpen;
-    setIsOpen(newIsOpen);
-    // Mark as interacted when user opens the dropdown
-    if (newIsOpen && !hasInteracted) {
-      setHasInteracted(true);
-    }
-    if (newIsOpen && searchable && searchInputRef.current) {
-      // Focus search input when opening
-      setTimeout(() => searchInputRef.current?.focus(), 0);
-    }
-    if (newIsOpen) {
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      // Mark as interacted when dropdown opens
+      if (!hasInteracted) {
+        setHasInteracted(true);
+      }
       onFocus?.();
-    }
-  };
-
-  // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setFocusedIndex(0); // Reset focus to first filtered option
-  };
-
-  // Keyboard navigation
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (disabled) return;
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        if (!isOpen) {
-          setIsOpen(true);
-          setFocusedIndex(0);
-        } else {
-          const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
-          if (enabledOptions.length > 0) {
-            const currentIndexInFiltered = focusedIndex;
-            const nextIndex =
-              (currentIndexInFiltered + 1) % enabledOptions.length;
-            setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextIndex]));
-          }
-        }
-        break;
-
-      case "ArrowUp":
-        e.preventDefault();
-        if (isOpen) {
-          const enabledOptions = filteredOptions.filter((opt) => !opt.disabled);
-          if (enabledOptions.length > 0) {
-            const currentIndexInFiltered = focusedIndex;
-            const prevIndex =
-              (currentIndexInFiltered - 1 + enabledOptions.length) %
-              enabledOptions.length;
-            setFocusedIndex(filteredOptions.indexOf(enabledOptions[prevIndex]));
-          }
-        }
-        break;
-
-      case "Enter":
-        e.preventDefault();
-        if (
-          isOpen &&
-          focusedIndex >= 0 &&
-          focusedIndex < filteredOptions.length
-        ) {
-          const focusedOption = filteredOptions[focusedIndex];
-          if (!focusedOption.disabled) {
-            handleSelect(focusedOption.value);
-          }
-        } else if (!isOpen) {
-          setIsOpen(true);
-        }
-        break;
-
-      case "Escape":
-        e.preventDefault();
-        if (isOpen) {
-          setIsOpen(false);
-          setSearchQuery("");
-          setFocusedIndex(-1);
-        }
-        break;
-
-      case " ":
-        // Space key to open dropdown if not searching
-        if (!isOpen && !searchable) {
-          e.preventDefault();
-          setIsOpen(true);
-        }
-        break;
-
-      default:
-        // Type-ahead search (only if not already searching)
-        if (!searchable && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-          const char = e.key.toLowerCase();
-          const matchingOption = filteredOptions.find((opt) => {
-            const label =
-              typeof opt.label === "string" ? opt.label : String(opt.label);
-            return label.toLowerCase().startsWith(char) && !opt.disabled;
-          });
-          if (matchingOption) {
-            handleSelect(matchingOption.value);
-          }
-        }
-        break;
-    }
-  };
-
-  // Handle blur - real DOM blur events should always call onBlur
-  const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
-    const nextTarget = event?.relatedTarget as Node | null;
-    const focusStayedInside =
-      (!!triggerRef.current && triggerRef.current.contains(nextTarget)) ||
-      (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
-
-    if (!nextTarget || !focusStayedInside) {
-      // Always call onBlur for real DOM blur events (standard form behavior)
+    } else if (hasInteracted) {
+      // Only trigger onBlur validation if user has interacted
       onBlur?.();
     }
   };
-
-  const closeDropdown = React.useCallback(() => {
-    // Guard: Only proceed if dropdown is actually open
-    if (!isOpen) return;
-
-    setIsOpen(false);
-    setSearchQuery("");
-    setFocusedIndex(-1);
-    // Only trigger onBlur validation for click-outside if user has interacted
-    if (hasInteracted) {
-      onBlur?.();
-    }
-  }, [isOpen, hasInteracted, onBlur]);
-
-  // Shared dismiss-layer pattern:
-  // - include trigger + dropdown refs (works for inline and portaled dropdowns)
-  // - rely on hook default eventType (pointerdown with mousedown fallback)
-  // - capture phase handles outside interactions before bubbling handlers
-  useOnClickOutside([triggerRef, dropdownRef], closeDropdown, undefined, {
-    capture: true,
-  });
-
-  const combinedClassName = cn("relative w-full", className);
 
   return (
-    <div
-      className={combinedClassName}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
+    <SelectPrimitive
+      name={name}
+      value={value}
+      onValueChange={handleValueChange}
+      onOpenChange={handleOpenChange}
+      disabled={disabled}
+      required={required}
     >
-      {/* Hidden native select for form submission */}
-      <select
-        name={name}
-        value={value}
-        onChange={() => {}}
-        disabled={disabled}
-        required={required}
-        aria-hidden="true"
-        tabIndex={-1}
-        style={{ display: "none" }}
-      >
-        <option value="">Select...</option>
-        {allOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {typeof option.label === "string" ? option.label : option.value}
-          </option>
-        ))}
-      </select>
-
-      {/* Custom select trigger */}
-      <div
-        ref={triggerRef}
+      <SelectTrigger
         className={cn(
-          "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm",
-          "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+          // Valid value indicator - ring-2 when has value and no error
           !error && hasValue && "ring-2 ring-ring",
-          disabled && "cursor-not-allowed opacity-50 pointer-events-none",
-          error && "border-destructive ring-1 ring-destructive",
+          // Error state - handled by SelectTrigger via aria-invalid
+          className,
         )}
-        onClick={handleToggle}
-        role="combobox"
-        aria-expanded={isOpen}
-        aria-controls={dropdownId}
         aria-invalid={error || props["aria-invalid"]}
         aria-describedby={props["aria-describedby"]}
         aria-required={required || props["aria-required"]}
-        aria-disabled={disabled}
-        tabIndex={disabled ? -1 : 0}
       >
-        <span className="flex items-center flex-1 overflow-hidden text-ellipsis">
-          {selectedOption ? (
-            renderOption ? (
-              renderOption(selectedOption)
-            ) : (
-              selectedOption.label
-            )
-          ) : (
-            <span className="relative">{placeholder}</span>
-          )}
-        </span>
-        <div className="flex items-center gap-1 ml-2">
-          {loading && <span className="text-xs">⏳</span>}
-          {clearable && value && !disabled && !loading && (
-            <button
-              type="button"
-              className="flex items-center justify-center h-4 w-4 rounded-sm border-none bg-transparent cursor-pointer text-xs p-0 transition-opacity hover:opacity-70"
-              onClick={handleClear}
-              aria-label="Clear selection"
-              tabIndex={-1}
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {optionGroups.length > 0 ? (
+          // Render grouped options
+          optionGroups.map((group, groupIndex) => (
+            <SelectGroup key={groupIndex}>
+              <SelectLabel>{group.label}</SelectLabel>
+              {group.options.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  disabled={option.disabled}
+                >
+                  {renderOption ? renderOption(option) : option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ))
+        ) : (
+          // Render flat options
+          allOptions.map((option) => (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              disabled={option.disabled}
             >
-              ✕
-            </button>
-          )}
-          <span className="text-xs leading-none" aria-hidden="true">
-            {isOpen ? "▲" : "▼"}
-          </span>
-        </div>
-      </div>
-
-      {/* Dropdown */}
-      {isOpen && (
-        <div
-          ref={dropdownRef}
-          id={dropdownId}
-          className="absolute z-50 top-full mt-1 min-w-full overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-md"
-          role="listbox"
-        >
-          {searchable && (
-            <div className="p-2 border-b border-border">
-              <input
-                ref={searchInputRef}
-                type="text"
-                className={cn(
-                  "w-full border border-input rounded px-2 py-1 text-sm bg-transparent outline-none focus:ring-1 focus:ring-ring",
-                  INPUT_AUTOFILL_RESET_CLASSES,
-                )}
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onClick={(e) => e.stopPropagation()}
-                aria-label="Search options"
-              />
-            </div>
-          )}
-
-          <div className="max-h-64 overflow-y-auto p-1">
-            {filteredOptions.length === 0 ? (
-              <div className="py-2 px-3 text-center text-sm ">
-                No options found
-              </div>
-            ) : optionGroups.length > 0 ? (
-              // Render grouped options
-              optionGroups.map((group, groupIndex) => {
-                const groupOptions = group.options.filter((opt) =>
-                  filteredOptions.includes(opt),
-                );
-                if (groupOptions.length === 0) return null;
-
-                return (
-                  <div key={groupIndex} className="py-1">
-                    <div className="py-1.5 px-2 text-xs font-semibold ">
-                      {group.label}
-                    </div>
-                    {groupOptions.map((option) => {
-                      const globalIndex = filteredOptions.indexOf(option);
-                      const isSelected = value === option.value;
-                      const isFocused = globalIndex === focusedIndex;
-                      const isDisabled = option.disabled;
-
-                      return (
-                        <div
-                          key={option.value}
-                          className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
-                          onClick={() =>
-                            !isDisabled && handleSelect(option.value)
-                          }
-                          role="option"
-                          aria-selected={isSelected}
-                          aria-disabled={isDisabled}
-                        >
-                          {renderOption ? renderOption(option) : option.label}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })
-            ) : (
-              // Render flat options
-              filteredOptions.map((option, index) => {
-                const isSelected = value === option.value;
-                const isFocused = index === focusedIndex;
-                const isDisabled = option.disabled;
-
-                return (
-                  <div
-                    key={option.value}
-                    className={`relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-muted ${isFocused ? "bg-muted" : ""} ${isSelected ? "font-medium bg-muted" : ""} ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
-                    onClick={() => !isDisabled && handleSelect(option.value)}
-                    role="option"
-                    aria-selected={isSelected}
-                    aria-disabled={isDisabled}
-                  >
-                    {renderOption ? renderOption(option) : option.label}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+              {renderOption ? renderOption(option) : option.label}
+            </SelectItem>
+          ))
+        )}
+      </SelectContent>
+    </SelectPrimitive>
   );
 }
 

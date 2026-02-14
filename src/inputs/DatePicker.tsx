@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
 
 /**
  * DatePicker props interface
@@ -349,9 +349,11 @@ export function DatePicker({
                 className={cn(
                   "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
                   "hover:bg-muted",
-                  isSelected && "bg-primary text-primary-foreground font-semibold",
+                  isSelected &&
+                    "bg-primary text-primary-foreground font-semibold",
                   !isSelected && isToday && "border border-primary",
-                  disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+                  disabled &&
+                    "cursor-not-allowed opacity-50 pointer-events-none",
                 )}
                 onClick={() => !disabled && handleDateSelect(date)}
                 disabled={disabled}

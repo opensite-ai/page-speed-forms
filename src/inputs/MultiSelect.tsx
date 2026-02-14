@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { useOnClickOutside } from "@opensite/hooks/useOnClickOutside";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
 
 /**
  * Multi-select option type

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { InputProps } from "../core/types";
-import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../utils";
+import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
 
 /**
  * Legacy time value shape retained for backward-compatible type exports.

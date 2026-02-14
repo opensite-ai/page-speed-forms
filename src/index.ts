@@ -82,3 +82,12 @@ export type {
   InputProps,
   FormFeedbackProps,
 } from "./core";
+
+// Field layout components (ShadCN-based)
+export {
+  Field as FieldWrapper,
+  FieldGroup,
+  FieldLabel as FormFieldLabel,
+  FieldDescription,
+  FieldError,
+} from "./components/ui/field";

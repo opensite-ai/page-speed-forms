@@ -4,7 +4,7 @@ import * as React from "react";
 import { FormContext } from "./FormContext";
 import type { FormProps, FormValues } from "./types";
 import { FormFeedback } from "./form-feedback";
-import { cn } from "../utils";
+import { cn } from "../lib/utils";
 
 /**
  * Form - Progressive enhancement form component
@@ -62,7 +62,7 @@ export function Form<T extends FormValues = FormValues>({
         // The form status and errors are already set by useForm's error handling
       }
     },
-    [form]
+    [form],
   );
 
   const behavior = submissionConfig?.behavior || "showConfirmation";
@@ -78,7 +78,9 @@ export function Form<T extends FormValues = FormValues>({
   const hasSubmissionError = Boolean(submissionError);
 
   const isSubmissionSuccessful =
-    shouldManageSubmissionUi && form.status === "success" && !hasSubmissionError;
+    shouldManageSubmissionUi &&
+    form.status === "success" &&
+    !hasSubmissionError;
 
   const defaultSuccessMessage =
     behavior === "redirect"

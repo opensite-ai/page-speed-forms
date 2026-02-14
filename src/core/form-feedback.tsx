@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "../utils";
+import { cn } from "../lib/utils";
 
 export interface FormFeedbackProps {
   successMessage?: React.ReactNode;
@@ -17,17 +17,18 @@ function renderMessage(
 ) {
   if (typeof message === "string") {
     return (
-      <p className={cn("text-sm font-medium text-center text-balance", className)}>
+      <p
+        className={cn(
+          "text-sm font-medium text-center text-balance",
+          className,
+        )}
+      >
         {message}
       </p>
     );
   }
 
-  return (
-    <div className={cn(fallbackClassName, className)}>
-      {message}
-    </div>
-  );
+  return <div className={cn(fallbackClassName, className)}>{message}</div>;
 }
 
 export function FormFeedback({
@@ -51,7 +52,11 @@ export function FormFeedback({
           role="status"
           aria-live="polite"
         >
-          {renderMessage(successMessage, "text-primary-foreground", "text-primary-foreground")}
+          {renderMessage(
+            successMessage,
+            "text-primary-foreground",
+            "text-primary-foreground",
+          )}
         </div>
       ) : null}
 

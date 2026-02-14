@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import { cn } from "../utils";
+import { cn } from "../lib/utils";
 
 export type LabelGroupProps = {
   variant?: "legend" | "label" | "text";
