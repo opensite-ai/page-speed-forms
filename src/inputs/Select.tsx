@@ -189,6 +189,7 @@ export function Select({
   const [isOpen, setIsOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [focusedIndex, setFocusedIndex] = React.useState(-1);
+  const [hasInteracted, setHasInteracted] = React.useState(false);
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -243,6 +244,10 @@ export function Select({
     if (disabled) return;
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
+    // Mark as interacted when user opens the dropdown
+    if (newIsOpen && !hasInteracted) {
+      setHasInteracted(true);
+    }
     if (newIsOpen && searchable && searchInputRef.current) {
       // Focus search input when opening
       setTimeout(() => searchInputRef.current?.focus(), 0);
@@ -343,7 +348,7 @@ export function Select({
     }
   };
 
-  // Handle blur
+  // Handle blur - real DOM blur events should always call onBlur
   const handleBlur = (event?: React.FocusEvent<HTMLElement>) => {
     const nextTarget = event?.relatedTarget as Node | null;
     const focusStayedInside =
@@ -351,16 +356,23 @@ export function Select({
       (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
 
     if (!nextTarget || !focusStayedInside) {
+      // Always call onBlur for real DOM blur events (standard form behavior)
       onBlur?.();
     }
   };
 
   const closeDropdown = React.useCallback(() => {
+    // Guard: Only proceed if dropdown is actually open
+    if (!isOpen) return;
+
     setIsOpen(false);
     setSearchQuery("");
     setFocusedIndex(-1);
-    onBlur?.();
-  }, [onBlur]);
+    // Only trigger onBlur validation for click-outside if user has interacted
+    if (hasInteracted) {
+      onBlur?.();
+    }
+  }, [isOpen, hasInteracted, onBlur]);
 
   // Shared dismiss-layer pattern:
   // - include trigger + dropdown refs (works for inline and portaled dropdowns)

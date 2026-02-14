@@ -193,6 +193,7 @@ export function DateRangePicker({
   ...props
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [hasInteracted, setHasInteracted] = React.useState(false);
   const [selectedMonth, setSelectedMonth] = React.useState<Date>(
     value.start || new Date(),
   );
@@ -247,7 +248,14 @@ export function DateRangePicker({
   // Toggle calendar popup
   const handleToggle = () => {
     if (disabled) return;
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const newIsOpen = !prev;
+      // Mark as interacted when user opens the calendar
+      if (newIsOpen && !hasInteracted) {
+        setHasInteracted(true);
+      }
+      return newIsOpen;
+    });
   };
 
   // Check if a date should be disabled
@@ -260,9 +268,15 @@ export function DateRangePicker({
   };
 
   const closeCalendar = React.useCallback(() => {
+    // Guard: Only proceed if calendar is actually open
+    if (!isOpen) return;
+
     setIsOpen(false);
-    onBlur?.();
-  }, [onBlur]);
+    // Only trigger onBlur validation for click-outside if user has interacted
+    if (hasInteracted) {
+      onBlur?.();
+    }
+  }, [isOpen, hasInteracted, onBlur]);
 
   useOnClickOutside([triggerRef, dropdownRef], closeCalendar, undefined, {
     capture: true,
@@ -275,6 +289,7 @@ export function DateRangePicker({
       (!!dropdownRef.current && dropdownRef.current.contains(nextTarget));
 
     if (!nextTarget || !focusStayedInside) {
+      // Always call onBlur for real DOM blur events (standard form behavior)
       onBlur?.();
     }
   };
