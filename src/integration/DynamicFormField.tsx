@@ -27,7 +27,7 @@ export interface DynamicFormFieldProps {
   /**
    * Whether to render labels via the Field component.
    * When false, only the input component is rendered.
-   * Default: false (for backward compatibility with layout-controlled blocks)
+   * Default: true
    */
   renderLabel?: boolean;
 }
@@ -42,7 +42,7 @@ export function DynamicFormField({
   onFileUpload,
   onFileRemove,
   isUploading = false,
-  renderLabel = false,
+  renderLabel = true,
 }: DynamicFormFieldProps): React.JSX.Element {
   const fieldId = field.name;
   const usesGroupLegend =
