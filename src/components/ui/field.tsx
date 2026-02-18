@@ -24,10 +24,10 @@ const Field = React.forwardRef<HTMLDivElement, FieldProps>(
       data-orientation={orientation}
       data-invalid={invalid || undefined}
       className={cn(
-        "flex",
+        // Use space-y instead of flex to avoid interfering with parent grid layouts
         orientation === "horizontal"
-          ? "items-center gap-2"
-          : "flex-col gap-1.5",
+          ? "flex items-center gap-2"
+          : "space-y-1.5",
         className,
       )}
       {...props}
