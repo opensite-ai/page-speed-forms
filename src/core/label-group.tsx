@@ -2,10 +2,7 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import {
-  FieldDescription,
-  FieldLabel,
-} from "../components/ui/field";
+import { FieldDescription, FieldLabel } from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 export type LabelGroupProps = {

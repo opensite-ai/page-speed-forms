@@ -5,6 +5,8 @@ import { FormContext } from "./FormContext";
 import type { FormProps, FormValues } from "./types";
 import { FormFeedback } from "./form-feedback";
 import { Button } from "../components/ui/button";
+import { ButtonGroupForm } from "./button-group-form";
+import type { FormFieldConfig } from "../integration/form-field-types";
 
 /**
  * Form - Progressive enhancement form component
@@ -40,6 +42,7 @@ import { Button } from "../components/ui/button";
 export function Form<T extends FormValues = FormValues>({
   form,
   children,
+  fields,
   className,
   action,
   method,
@@ -126,6 +129,42 @@ export function Form<T extends FormValues = FormValues>({
     onNewSubmission?.();
   }, [form, onNewSubmission]);
 
+  // Check if we should use button-group layout
+  const formLayout = formConfig?.formLayout ?? "standard";
+  const isButtonGroupLayout = formLayout === "button-group";
+  const hasTextField = fields && fields.length === 1 && fields[0] &&
+    ["text", "email", "password", "url", "tel", "search"].includes(fields[0].type);
+  const shouldUseButtonGroup = isButtonGroupLayout && hasTextField;
+
+  // Render button-group layout if conditions are met
+  const buttonGroupContent = React.useMemo(() => {
+    if (!shouldUseButtonGroup || !fields || fields.length === 0) return null;
+
+    const field = fields[0] as FormFieldConfig;
+    const fieldProps = form.getFieldProps(field.name);
+
+    return (
+      <ButtonGroupForm
+        name={field.name}
+        label={field.label}
+        inputProps={{
+          name: fieldProps.name,
+          value: fieldProps.value as string,
+          onChange: fieldProps.onChange as (value: string) => void,
+          onBlur: fieldProps.onBlur,
+          type: field.type as "text" | "email" | "password" | "url" | "tel" | "search",
+          placeholder: field.placeholder,
+          required: field.required,
+          disabled: field.disabled,
+        }}
+        submitLabel={formConfig?.submitLabel}
+        submitVariant={formConfig?.submitVariant}
+        size={formConfig?.buttonGroupSize}
+        isSubmitting={form.isSubmitting}
+      />
+    );
+  }, [shouldUseButtonGroup, fields, form, formConfig]);
+
   return (
     <FormContext.Provider value={form}>
       <form
@@ -159,7 +198,7 @@ export function Form<T extends FormValues = FormValues>({
           </div>
         ) : (
           <>
-            {children}
+            {shouldUseButtonGroup ? buttonGroupContent : children}
             {resolvedSubmissionError ? (
               <div className="mt-4">
                 <FormFeedback

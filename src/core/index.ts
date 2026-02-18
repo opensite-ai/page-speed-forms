@@ -24,6 +24,8 @@ export { Form } from "./Form";
 export { Field } from "./Field";
 export { FormFeedback } from "./form-feedback";
 export type { FormFeedbackProps } from "./form-feedback";
+export { ButtonGroupForm } from "./button-group-form";
+export type { ButtonGroupFormProps, ButtonGroupFormSize } from "./button-group-form";
 
 // Context
 export { FormContext } from "./FormContext";

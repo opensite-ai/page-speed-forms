@@ -424,6 +424,31 @@ export interface FormRenderConfig {
    * Optional submission behavior configuration.
    */
   submissionConfig?: FormSubmissionConfig;
+
+  /**
+   * Optional layout configuration. If button-group, the form will be rendered with an input field and submit button.
+   * "button-group" is most commonly used for newsletter type forms.
+   * @default "standard"
+   */
+  formLayout?: "standard" | "button-group";
+
+  /**
+   * Size for button-group layout (only applies when formLayout is "button-group")
+   * @default "default"
+   */
+  buttonGroupSize?: "xs" | "sm" | "default" | "lg";
+
+  /**
+   * Submit button label for button-group layout
+   * @default "Submit"
+   */
+  submitLabel?: React.ReactNode;
+
+  /**
+   * Submit button variant for button-group layout
+   * @default "default"
+   */
+  submitVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
 }
 
 /**
@@ -438,7 +463,13 @@ export interface FormProps<T extends FormValues = FormValues> {
   /**
    * Form children
    */
-  children: ReactNode;
+  children?: ReactNode;
+
+  /**
+   * Optional form fields for button-group layout rendering
+   * Required when using formLayout="button-group"
+   */
+  fields?: any[];
 
   /**
    * Additional className
