@@ -15,7 +15,6 @@ import {
   TextInput,
   TimePicker,
 } from "../inputs";
-import { cn } from "../lib/utils";
 import type { FormFieldConfig } from "./form-field-types";
 
 export interface DynamicFormFieldProps {
@@ -25,6 +24,12 @@ export interface DynamicFormFieldProps {
   onFileUpload?: (files: File[]) => Promise<void>;
   onFileRemove?: (file: File, index: number) => void;
   isUploading?: boolean;
+  /**
+   * Whether to render labels via the Field component.
+   * When false, only the input component is rendered.
+   * Default: false (for backward compatibility with layout-controlled blocks)
+   */
+  renderLabel?: boolean;
 }
 
 /**
@@ -37,12 +42,13 @@ export function DynamicFormField({
   onFileUpload,
   onFileRemove,
   isUploading = false,
+  renderLabel = false,
 }: DynamicFormFieldProps): React.JSX.Element {
   const fieldId = field.name;
   const usesGroupLegend =
     field.type === "radio" || field.type === "checkbox-group";
   const usesInlineCheckboxLabel = field.type === "checkbox";
-  const shouldRenderFieldLabel = !usesGroupLegend && !usesInlineCheckboxLabel;
+  const shouldRenderFieldLabel = renderLabel && !usesGroupLegend && !usesInlineCheckboxLabel;
 
   return (
     <Field
@@ -50,7 +56,7 @@ export function DynamicFormField({
       label={shouldRenderFieldLabel ? field.label : undefined}
       description={shouldRenderFieldLabel ? field.description : undefined}
       required={field.required}
-      className={cn("space-y-2", className)}
+      className={className}
     >
       {({ field: formField, meta }) => (
         <div>
