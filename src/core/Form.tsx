@@ -42,7 +42,7 @@ export function Form<T extends FormValues = FormValues>({
   children,
   className,
   action,
-  method = "post",
+  method,
   noValidate = true,
   submissionConfig,
   successMessage,
@@ -50,6 +50,9 @@ export function Form<T extends FormValues = FormValues>({
   successMessageClassName,
   errorMessageClassName,
   onNewSubmission,
+  notificationConfig,
+  styleConfig,
+  formConfig,
   ...props
 }: FormProps<T> & React.FormHTMLAttributes<HTMLFormElement>) {
   // Wrap handleSubmit to catch any unhandled rejections
@@ -65,17 +68,30 @@ export function Form<T extends FormValues = FormValues>({
     [form],
   );
 
-  const behavior = submissionConfig?.behavior || "showConfirmation";
+  const resolvedClassName = className ?? styleConfig?.formClassName;
+  const resolvedAction = action ?? formConfig?.endpoint;
+  const resolvedMethod = method ?? formConfig?.method ?? "post";
+  const resolvedSubmissionConfig = submissionConfig ?? formConfig?.submissionConfig;
+  const resolvedSuccessMessage =
+    successMessage ?? notificationConfig?.successMessage;
+  const resolvedSubmissionError =
+    submissionError ?? notificationConfig?.submissionError;
+  const resolvedSuccessMessageClassName =
+    successMessageClassName ?? styleConfig?.successMessageClassName;
+  const resolvedErrorMessageClassName =
+    errorMessageClassName ?? styleConfig?.errorMessageClassName;
+
+  const behavior = resolvedSubmissionConfig?.behavior || "showConfirmation";
 
   const shouldManageSubmissionUi =
-    submissionConfig !== undefined ||
-    successMessage !== undefined ||
-    successMessageClassName !== undefined ||
-    errorMessageClassName !== undefined ||
-    submissionError != null ||
+    resolvedSubmissionConfig !== undefined ||
+    resolvedSuccessMessage !== undefined ||
+    resolvedSuccessMessageClassName !== undefined ||
+    resolvedErrorMessageClassName !== undefined ||
+    resolvedSubmissionError != null ||
     onNewSubmission !== undefined;
 
-  const hasSubmissionError = Boolean(submissionError);
+  const hasSubmissionError = Boolean(resolvedSubmissionError);
 
   const isSubmissionSuccessful =
     shouldManageSubmissionUi &&
@@ -87,14 +103,14 @@ export function Form<T extends FormValues = FormValues>({
       ? "Form submitted successfully. Redirecting..."
       : "Thank you. Your form has been submitted successfully.";
 
-  const resolvedSuccessMessage = successMessage ?? defaultSuccessMessage;
+  const finalSuccessMessage = resolvedSuccessMessage ?? defaultSuccessMessage;
 
   const shouldRenderCustomComponent =
     isSubmissionSuccessful &&
     behavior === "renderCustomComponent" &&
-    Boolean(submissionConfig?.customComponent);
+    Boolean(resolvedSubmissionConfig?.customComponent);
 
-  const newSubmissionAction = submissionConfig?.newFormSubmissionAction;
+  const newSubmissionAction = resolvedSubmissionConfig?.newFormSubmissionAction;
 
   const showNewSubmissionAction =
     isSubmissionSuccessful &&
@@ -114,20 +130,20 @@ export function Form<T extends FormValues = FormValues>({
     <FormContext.Provider value={form}>
       <form
         onSubmit={handleFormSubmit}
-        action={action}
-        method={method}
+        action={resolvedAction}
+        method={resolvedMethod}
         noValidate={noValidate}
-        className={className}
+        className={resolvedClassName}
         {...props}
       >
         {isSubmissionSuccessful ? (
           <div className="space-y-4">
             {shouldRenderCustomComponent ? (
-              submissionConfig?.customComponent
+              resolvedSubmissionConfig?.customComponent
             ) : (
               <FormFeedback
-                successMessage={resolvedSuccessMessage}
-                successMessageClassName={successMessageClassName}
+                successMessage={finalSuccessMessage}
+                successMessageClassName={resolvedSuccessMessageClassName}
               />
             )}
 
@@ -144,11 +160,11 @@ export function Form<T extends FormValues = FormValues>({
         ) : (
           <>
             {children}
-            {submissionError ? (
+            {resolvedSubmissionError ? (
               <div className="mt-4">
                 <FormFeedback
-                  submissionError={submissionError}
-                  errorMessageClassName={errorMessageClassName}
+                  submissionError={resolvedSubmissionError}
+                  errorMessageClassName={resolvedErrorMessageClassName}
                 />
               </div>
             ) : null}

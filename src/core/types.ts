@@ -380,6 +380,52 @@ export interface FormSubmissionConfig {
   newFormSubmissionAction?: NewFormSubmissionActionConfig;
 }
 
+export interface FormNotificationConfig {
+  /**
+   * Optional success message shown after successful submission.
+   */
+  successMessage?: ReactNode;
+
+  /**
+   * Optional submission error shown below the form actions.
+   */
+  submissionError?: ReactNode;
+}
+
+export interface FormStyleConfig {
+  /**
+   * Optional className for the <form> element.
+   */
+  formClassName?: string;
+
+  /**
+   * Additional className for success feedback.
+   */
+  successMessageClassName?: string;
+
+  /**
+   * Additional className for error feedback.
+   */
+  errorMessageClassName?: string;
+}
+
+export interface FormRenderConfig {
+  /**
+   * Form action URL (for progressive enhancement).
+   */
+  endpoint?: string;
+
+  /**
+   * Form method (for progressive enhancement).
+   */
+  method?: "get" | "post";
+
+  /**
+   * Optional submission behavior configuration.
+   */
+  submissionConfig?: FormSubmissionConfig;
+}
+
 /**
  * Form component props
  */
@@ -444,6 +490,21 @@ export interface FormProps<T extends FormValues = FormValues> {
    * Optional callback invoked when the user starts a new submission.
    */
   onNewSubmission?: () => void;
+
+  /**
+   * Grouped success/error message configuration.
+   */
+  notificationConfig?: FormNotificationConfig;
+
+  /**
+   * Grouped styling configuration for form feedback and form element class.
+   */
+  styleConfig?: FormStyleConfig;
+
+  /**
+   * Grouped progressive enhancement and submission UI configuration.
+   */
+  formConfig?: FormRenderConfig;
 }
 
 /**

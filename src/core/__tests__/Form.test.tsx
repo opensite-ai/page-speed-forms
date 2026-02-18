@@ -188,6 +188,58 @@ describe("Form Component", () => {
         "/api/submit"
       );
     });
+
+    it("should resolve action and method from formConfig", () => {
+      const onSubmit = vi.fn();
+
+      function TestComponent() {
+        const form = useForm({
+          initialValues: { email: "" },
+          onSubmit,
+        });
+
+        return (
+          <Form
+            form={form}
+            data-testid="form"
+            formConfig={{ endpoint: "/api/from-config", method: "get" }}
+          >
+            <input />
+          </Form>
+        );
+      }
+
+      render(<TestComponent />);
+
+      const formElement = screen.getByTestId("form");
+      expect(formElement).toHaveAttribute("action", "/api/from-config");
+      expect(formElement).toHaveAttribute("method", "get");
+    });
+
+    it("should apply styleConfig.formClassName when className is not provided", () => {
+      const onSubmit = vi.fn();
+
+      function TestComponent() {
+        const form = useForm({
+          initialValues: { email: "" },
+          onSubmit,
+        });
+
+        return (
+          <Form
+            form={form}
+            data-testid="form"
+            styleConfig={{ formClassName: "config-form-class" }}
+          >
+            <input />
+          </Form>
+        );
+      }
+
+      render(<TestComponent />);
+
+      expect(screen.getByTestId("form")).toHaveClass("config-form-class");
+    });
   });
 
   // ============================================================================
@@ -326,6 +378,46 @@ describe("Form Component", () => {
       await waitFor(() => {
         expect(screen.getByTestId("status")).toHaveTextContent("error");
       });
+    });
+
+    it("should support notificationConfig and styleConfig feedback settings", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn().mockResolvedValue(undefined);
+
+      function TestComponent() {
+        const form = useForm({
+          initialValues: { email: "test@example.com" },
+          onSubmit,
+        });
+
+        return (
+          <Form
+            form={form}
+            notificationConfig={{
+              successMessage: "Config success message",
+            }}
+            styleConfig={{
+              successMessageClassName: "success-from-config",
+            }}
+          >
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      render(<TestComponent />);
+
+      await user.click(screen.getByText("Submit"));
+
+      await waitFor(() => {
+        expect(screen.getByText("Config success message")).toBeInTheDocument();
+      });
+
+      expect(
+        screen
+          .getByText("Config success message")
+          .closest(".success-from-config"),
+      ).toBeInTheDocument();
     });
   });
 

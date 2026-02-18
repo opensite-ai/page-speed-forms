@@ -100,6 +100,35 @@ export function ContactForm() {
 }
 ```
 
+### Grouped Form Configuration
+
+`Form` supports both classic props and grouped config objects for cleaner callsites.
+
+```tsx
+import * as React from "react";
+import { Form } from "@page-speed/forms";
+
+<Form
+  form={form}
+  notificationConfig={{
+    successMessage: "Thanks, submission received.",
+    submissionError,
+  }}
+  styleConfig={{
+    formClassName: "space-y-6",
+    successMessageClassName: "bg-emerald-600 text-white",
+    errorMessageClassName: "bg-red-600 text-white",
+  }}
+  formConfig={{
+    endpoint: "/api/contact",
+    method: "post",
+    submissionConfig: {
+      behavior: "showConfirmation",
+    },
+  }}
+/>;
+```
+
 ## Package Entry Points
 
 ### Main
