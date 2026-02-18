@@ -4,7 +4,6 @@ import * as React from "react";
 import type { InputProps } from "../core/types";
 import { Checkbox as CheckboxPrimitive } from "../components/ui/checkbox";
 import {
-  Field,
   FieldDescription,
   FieldLabel,
 } from "../components/ui/field";
@@ -137,12 +136,12 @@ export function Checkbox({
 
   // Without label, return just the checkbox
   if (!label) {
-    return <Field className={className}>{checkbox}</Field>;
+    return <div className={className}>{checkbox}</div>;
   }
 
   // With label, wrap in FieldLabel for semantic association and click behavior
   return (
-    <Field className="gap-0" invalid={Boolean(error)}>
+    <div className="space-y-0" data-invalid={error || undefined}>
       <FieldLabel
         htmlFor={checkboxId}
         className={cn(
@@ -161,7 +160,7 @@ export function Checkbox({
           )}
         >
           {checkbox}
-          <Field className="flex-1 gap-1">
+          <div className="flex-1 space-y-1">
             <span className="text-sm font-medium leading-none">{label}</span>
             {description && (
               <FieldDescription
@@ -171,10 +170,10 @@ export function Checkbox({
                 {description}
               </FieldDescription>
             )}
-          </Field>
+          </div>
         </div>
       </FieldLabel>
-    </Field>
+    </div>
   );
 }
 

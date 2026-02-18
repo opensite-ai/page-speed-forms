@@ -4,7 +4,6 @@ import * as React from "react";
 import type { InputProps } from "../core/types";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import {
-  Field,
   FieldDescription,
   FieldLabel,
 } from "../components/ui/field";
@@ -134,10 +133,10 @@ export function Radio({
   const groupDescriptionId = description ? `${name}-description` : undefined;
 
   return (
-    <Field className={cn("w-full", className)} invalid={Boolean(error)}>
+    <div className={cn("w-full", className)} data-invalid={error || undefined}>
       {/* Group-level label and description */}
       {(label || description) && (
-        <Field className="mb-3 gap-1">
+        <div className="mb-3 space-y-1">
           {label && (
             <div className="text-base font-medium leading-none">{label}</div>
           )}
@@ -149,7 +148,7 @@ export function Radio({
               {description}
             </FieldDescription>
           )}
-        </Field>
+        </div>
       )}
 
       <RadioGroup
@@ -189,8 +188,7 @@ export function Radio({
                   : "cursor-pointer",
               )}
             >
-              <Field
-                orientation="horizontal"
+              <div
                 className={cn(
                   "flex w-full gap-3",
                   useChoiceCard ? "items-start" : "items-center",
@@ -207,7 +205,7 @@ export function Radio({
                       : undefined
                   }
                 />
-                <Field className="flex-1 gap-1">
+                <div className="flex-1 space-y-1">
                   <span className="text-sm font-medium leading-none">
                     {option.label}
                   </span>
@@ -219,13 +217,13 @@ export function Radio({
                       {option.description}
                     </FieldDescription>
                   )}
-                </Field>
-              </Field>
+                </div>
+              </div>
             </FieldLabel>
           );
         })}
       </RadioGroup>
-    </Field>
+    </div>
   );
 }
 
