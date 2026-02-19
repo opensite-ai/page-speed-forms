@@ -172,6 +172,7 @@ export function Form<T extends FormValues = FormValues>({
         submitLabel={formConfig?.submitLabel}
         submitVariant={formConfig?.submitVariant}
         submitIconName={formConfig?.submitIconName}
+        submitIconComponent={formConfig?.submitIconComponent}
         size={formConfig?.buttonGroupSize}
         isSubmitting={form.isSubmitting}
       />

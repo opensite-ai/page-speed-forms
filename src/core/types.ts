@@ -460,6 +460,11 @@ export interface FormRenderConfig {
    * Icon name for icon based submit buttons
    */
   submitIconName?: string;
+
+  /**
+   * Icon component for icon based submit buttons
+   */
+  submitIconComponent?: React.ReactNode;
 }
 
 /**

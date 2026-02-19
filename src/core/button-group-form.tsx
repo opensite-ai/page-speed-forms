@@ -65,6 +65,10 @@ export type ButtonGroupFormProps = {
    */
   submitIconName?: string;
   /**
+   * Icon component for icon based submit buttons
+   */
+  submitIconComponent?: React.ReactNode;
+  /**
    * Additional className for the label
    */
   labelClassName?: string;
@@ -102,6 +106,7 @@ export function ButtonGroupForm({
   size = "default",
   isSubmitting = false,
   submitIconName,
+  submitIconComponent,
   className,
   labelClassName,
 }: ButtonGroupFormProps) {
@@ -119,11 +124,23 @@ export function ButtonGroupForm({
     | "icon-xs"
     | "icon-sm"
     | "icon-lg" = React.useMemo(() => {
-    if (submitIconName) {
+    if (submitIconName || submitIconComponent) {
       return size === "default" ? "icon" : (`icon-${size}` as const);
     }
     return size;
-  }, [submitIconName, size]);
+  }, [submitIconName, size, submitIconComponent]);
+
+  const labelElement = React.useMemo(() => {
+    if (submitIconName) {
+      return <Icon name={submitIconName} apiKey={DEFAULT_ICON_API_KEY} />;
+    } else if (submitIconComponent) {
+      return submitIconComponent;
+    } else if (submitLabel) {
+      return submitLabel;
+    } else {
+      return "Submit";
+    }
+  }, [submitIconComponent, submitIconName, submitLabel]);
 
   // Size-specific classes for input to match button heights
   const inputSizeClasses = {
@@ -160,11 +177,7 @@ export function ButtonGroupForm({
             !hasError && hasValue && "ring-2 ring-ring",
           )}
         >
-          {submitIconName ? (
-            <Icon name={submitIconName} apiKey={DEFAULT_ICON_API_KEY} />
-          ) : (
-            submitLabel
-          )}
+          {labelElement}
         </Button>
       </ButtonGroup>
     </div>
