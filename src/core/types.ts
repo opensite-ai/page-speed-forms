@@ -5,6 +5,8 @@
  */
 
 import type { ReactNode } from "react";
+import { FormFieldConfig } from "../integration";
+import { ButtonGroupFormFieldConfig } from "../integration/form-field-types";
 
 /**
  * Generic form values type
@@ -485,7 +487,7 @@ export interface FormProps<T extends FormValues = FormValues> {
    * Optional form fields for button-group layout rendering
    * Required when using formLayout="button-group"
    */
-  fields?: any[];
+  fields?: (FormFieldConfig & ButtonGroupFormFieldConfig)[];
 
   /**
    * Additional className

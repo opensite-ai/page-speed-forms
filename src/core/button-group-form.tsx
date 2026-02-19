@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
 import { ButtonGroup } from "../components/ui/button-group";
-import { FieldLabel } from "../components/ui/field";
+import { FieldLabel, FieldDescription } from "../components/ui/field";
 import { TextInput } from "../inputs/TextInput";
 import type { InputProps } from "./types";
 import { Icon } from "@page-speed/icon";
@@ -12,6 +12,15 @@ import { Icon } from "@page-speed/icon";
 const DEFAULT_ICON_API_KEY = "au382bi7fsh96w9h9xlrnat2jglx";
 
 export type ButtonGroupFormSize = "xs" | "sm" | "default" | "lg";
+
+// Size-specific classes for input — height overrides ensure the input matches
+// the button height for every size variant.
+const INPUT_SIZE_CLASSES: Record<ButtonGroupFormSize, string> = {
+  xs: "h-6 text-xs px-3", // button: h-6  → match
+  sm: "text-sm px-3", // button: h-8 overridden to h-9 below → match
+  default: "text-base px-4", // button: h-9 (no override needed)
+  lg: "h-10 text-md px-6", // button: h-10 → match
+};
 
 export type ButtonGroupFormProps = {
   /**
@@ -22,6 +31,10 @@ export type ButtonGroupFormProps = {
    * Optional label above the input
    */
   label?: React.ReactNode;
+  /**
+   * Optional description below the input
+   */
+  description?: React.ReactNode;
   /**
    * Placeholder text for the input
    */
@@ -80,11 +93,11 @@ export type ButtonGroupFormProps = {
  * Commonly used for newsletter signups and other simple single-field forms.
  * The input and button automatically adjust sizing together.
  *
- * Size mappings:
- * - xs: h-8 text-xs
- * - sm: h-9 text-sm
- * - default: h-10 text-sm
- * - lg: h-12 text-base
+ * Size mappings (input height / button height — always equal):
+ * - xs:      h-6  / h-6
+ * - sm:      h-9  / h-9
+ * - default: h-9  / h-9
+ * - lg:      h-10 / h-10
  *
  * @example
  * ```tsx
@@ -100,6 +113,7 @@ export type ButtonGroupFormProps = {
 export function ButtonGroupForm({
   name,
   label,
+  description,
   inputProps,
   submitLabel = "Submit",
   submitVariant = "default",
@@ -110,10 +124,17 @@ export function ButtonGroupForm({
   className,
   labelClassName,
 }: ButtonGroupFormProps) {
-  const inputId = `button-group-input-${name}`;
+  const inputId = React.useMemo(() => {
+    return `button-group-input-${name}`;
+  }, [name]);
 
-  const hasValue = String(inputProps.value ?? "").trim().length > 0;
-  const hasError = !!inputProps.error;
+  const hasValue = React.useMemo(() => {
+    return String(inputProps.value ?? "").trim().length > 0;
+  }, [inputProps.value]);
+
+  const hasError = React.useMemo(() => {
+    return !!inputProps.error;
+  }, [inputProps.error]);
 
   const buttonSize:
     | "xs"
@@ -125,7 +146,11 @@ export function ButtonGroupForm({
     | "icon-sm"
     | "icon-lg" = React.useMemo(() => {
     if (submitIconName || submitIconComponent) {
-      return size === "default" ? "icon" : (`icon-${size}` as const);
+      // 'sm' maps to 'icon' (size-9) rather than 'icon-sm' (size-8) so the
+      // icon button stays the same height as the h-9 input.
+      return size === "default" || size === "sm"
+        ? "icon"
+        : (`icon-${size}` as const);
     }
     return size;
   }, [submitIconName, size, submitIconComponent]);
@@ -142,14 +167,6 @@ export function ButtonGroupForm({
     }
   }, [submitIconComponent, submitIconName, submitLabel]);
 
-  // Size-specific classes for input to match button heights
-  const inputSizeClasses = {
-    xs: "text-xs px-3",
-    sm: "text-sm px-3",
-    default: "text-base px-4",
-    lg: "text-md px-6",
-  };
-
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
@@ -157,12 +174,19 @@ export function ButtonGroupForm({
           {label}
         </FieldLabel>
       )}
-      <ButtonGroup>
+      <ButtonGroup
+        className={cn(
+          "rounded-md",
+          !hasError && hasValue && "ring-2 ring-ring",
+          hasError && "ring-1 ring-destructive",
+        )}
+      >
         <TextInput
           {...inputProps}
           id={inputId}
+          suppressValueRing
           className={cn(
-            inputSizeClasses[size],
+            INPUT_SIZE_CLASSES[size],
             "border-r-0 rounded-r-none focus-visible:z-10",
             inputProps.className,
           )}
@@ -173,13 +197,30 @@ export function ButtonGroupForm({
           variant={submitVariant}
           disabled={isSubmitting}
           className={cn(
-            "rounded-l-none",
-            !hasError && hasValue && "ring-2 ring-ring",
+            "relative rounded-l-none ring-0",
+            // 'sm' button variant is h-8; override to h-9 to align with input
+            size === "sm" && "h-9",
           )}
         >
-          {labelElement}
+          {isSubmitting ? (
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Icon
+                name="line-md/loading-twotone-loop"
+                apiKey={DEFAULT_ICON_API_KEY}
+              />
+            </span>
+          ) : null}
+          <span
+            className={cn(
+              "transition-opacity duration-200",
+              isSubmitting ? "opacity-0" : "opacity-100",
+            )}
+          >
+            {labelElement}
+          </span>
         </Button>
       </ButtonGroup>
+      {description && <FieldDescription>{description}</FieldDescription>}
     </div>
   );
 }

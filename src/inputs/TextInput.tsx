@@ -42,9 +42,16 @@ export function TextInput({
   className = "",
   type = "text",
   id = "text",
+  suppressValueRing = false,
   ...props
 }: InputProps<string> & {
   type?: "text" | "email" | "password" | "url" | "tel" | "search";
+  /**
+   * When true, suppresses the `ring-2 ring-ring` applied when a value is
+   * present. Use this when the component is embedded inside a wrapper (e.g.
+   * ButtonGroupForm) that renders its own unified ring.
+   */
+  suppressValueRing?: boolean;
 }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -68,8 +75,8 @@ export function TextInput({
       disabled={disabled}
       required={required}
       className={cn(
-        // Valid value indicator - ring-2 when has value and no error
-        !error && hasValue && "ring-2 ring-ring",
+        // Valid value indicator - ring-2 when has value, no error, and not suppressed
+        !suppressValueRing && !error && hasValue && "ring-2 ring-ring",
         // Error state - handled by Input component via aria-invalid
         className,
       )}
