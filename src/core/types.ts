@@ -448,7 +448,18 @@ export interface FormRenderConfig {
    * Submit button variant for button-group layout
    * @default "default"
    */
-  submitVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+  submitVariant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
+
+  /**
+   * Icon name for icon based submit buttons
+   */
+  submitIconName?: string;
 }
 
 /**

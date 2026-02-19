@@ -74,7 +74,8 @@ export function Form<T extends FormValues = FormValues>({
   const resolvedClassName = className ?? styleConfig?.formClassName;
   const resolvedAction = action ?? formConfig?.endpoint;
   const resolvedMethod = method ?? formConfig?.method ?? "post";
-  const resolvedSubmissionConfig = submissionConfig ?? formConfig?.submissionConfig;
+  const resolvedSubmissionConfig =
+    submissionConfig ?? formConfig?.submissionConfig;
   const resolvedSuccessMessage =
     successMessage ?? notificationConfig?.successMessage;
   const resolvedSubmissionError =
@@ -132,8 +133,13 @@ export function Form<T extends FormValues = FormValues>({
   // Check if we should use button-group layout
   const formLayout = formConfig?.formLayout ?? "standard";
   const isButtonGroupLayout = formLayout === "button-group";
-  const hasTextField = fields && fields.length === 1 && fields[0] &&
-    ["text", "email", "password", "url", "tel", "search"].includes(fields[0].type);
+  const hasTextField =
+    fields &&
+    fields.length === 1 &&
+    fields[0] &&
+    ["text", "email", "password", "url", "tel", "search"].includes(
+      fields[0].type,
+    );
   const shouldUseButtonGroup = isButtonGroupLayout && hasTextField;
 
   // Render button-group layout if conditions are met
@@ -152,13 +158,20 @@ export function Form<T extends FormValues = FormValues>({
           value: fieldProps.value as string,
           onChange: fieldProps.onChange as (value: string) => void,
           onBlur: fieldProps.onBlur,
-          type: field.type as "text" | "email" | "password" | "url" | "tel" | "search",
+          type: field.type as
+            | "text"
+            | "email"
+            | "password"
+            | "url"
+            | "tel"
+            | "search",
           placeholder: field.placeholder,
           required: field.required,
           disabled: field.disabled,
         }}
         submitLabel={formConfig?.submitLabel}
         submitVariant={formConfig?.submitVariant}
+        submitIconName={formConfig?.submitIconName}
         size={formConfig?.buttonGroupSize}
         isSubmitting={form.isSubmitting}
       />
