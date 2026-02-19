@@ -32,7 +32,11 @@ export interface SelectOption {
   description?: string;
 }
 
-interface AbstractFormFieldConfig {
+export interface FormFieldConfig {
+  /**
+   * Optionally displays label for the field
+   */
+  label?: string;
   /**
    * Unique field name (used as the key in form values)
    */
@@ -112,20 +116,6 @@ interface AbstractFormFieldConfig {
    * @default "stacked"
    */
   layout?: "grid" | "stacked";
-}
-
-export interface FormFieldConfig extends AbstractFormFieldConfig {
-  /**
-   * Display label for the field
-   */
-  label: string;
-}
-
-export interface ButtonGroupFormFieldConfig extends AbstractFormFieldConfig {
-  /**
-   * Optional display label for the field
-   */
-  label?: string;
 }
 
 /**

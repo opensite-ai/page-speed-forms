@@ -48,7 +48,8 @@ export function DynamicFormField({
   const usesGroupLegend =
     field.type === "radio" || field.type === "checkbox-group";
   const usesInlineCheckboxLabel = field.type === "checkbox";
-  const shouldRenderFieldLabel = renderLabel && !usesGroupLegend && !usesInlineCheckboxLabel;
+  const shouldRenderFieldLabel =
+    renderLabel && !usesGroupLegend && !usesInlineCheckboxLabel;
 
   return (
     <Field
@@ -107,7 +108,8 @@ export function DynamicFormField({
               id={fieldId}
               options={field.options}
               placeholder={
-                field.placeholder || `Select ${field.label.toLowerCase()}`
+                field.placeholder ||
+                `Select ${field.label ? field.label.toLocaleLowerCase() : field.name ? field.name.toLocaleLowerCase() : "Item"}`
               }
               error={meta.touched && !!meta.error}
               disabled={field.disabled}
@@ -121,7 +123,8 @@ export function DynamicFormField({
               id={fieldId}
               options={field.options}
               placeholder={
-                field.placeholder || `Select ${field.label.toLowerCase()}`
+                field.placeholder ||
+                `Select ${field.label ? field.label.toLocaleLowerCase() : field.name ? field.name.toLocaleLowerCase() : "Item"}`
               }
               error={meta.touched && !!meta.error}
               disabled={field.disabled}

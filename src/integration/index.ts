@@ -131,7 +131,6 @@ export {
   generateValidationSchema,
   getColumnSpanClass,
   type FormFieldType,
-  type ButtonGroupFormFieldConfig,
   type FormFieldConfig,
   type SelectOption,
 } from "./form-field-types";

@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import { Form } from "../core/Form";
 import { DynamicFormField } from "./DynamicFormField";
 import { getColumnSpanClass } from "./form-field-types";
-import type { FormFieldConfig, ButtonGroupFormFieldConfig } from "./form-field-types";
+import type { FormFieldConfig } from "./form-field-types";
 import type { FormRenderConfig } from "../core/types";
 import type { PageSpeedFormConfig } from "./form-submit";
 import { useContactForm } from "./use-contact-form";
@@ -19,8 +19,10 @@ const DEFAULT_STYLE_RULES: FormEngineStyleRules = {
   fieldsContainer: "",
   fieldClassName: "",
   formClassName: "",
-  successMessageClassName: "text-green-600 dark:text-green-400 mt-4 p-3 rounded-md bg-green-50 dark:bg-green-950/20",
-  errorMessageClassName: "text-red-600 dark:text-red-400 mt-4 p-3 rounded-md bg-red-50 dark:bg-red-950/20",
+  successMessageClassName:
+    "text-green-600 dark:text-green-400 mt-4 p-3 rounded-md bg-green-50 dark:bg-green-950/20",
+  errorMessageClassName:
+    "text-red-600 dark:text-red-400 mt-4 p-3 rounded-md bg-red-50 dark:bg-red-950/20",
 };
 
 const DEFAULT_SUBMIT_LABEL = "Submit";
@@ -33,14 +35,26 @@ const DEFAULT_BUTTON_GROUP_SIZE = "default";
 export interface ButtonGroupFormSetup {
   size?: "xs" | "sm" | "default" | "lg";
   submitLabel?: React.ReactNode;
-  submitVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+  submitVariant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
   submitIconName?: string;
   submitIconComponent?: React.ReactNode;
 }
 
 export interface FormEngineSubmitButtonSetup {
   submitLabel?: React.ReactNode;
-  submitVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+  submitVariant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
   submitIconName?: string;
   submitIconComponent?: React.ReactNode;
 }
@@ -73,7 +87,7 @@ export interface FormEngineProps {
   /** API / submission configuration */
   api?: PageSpeedFormConfig;
   /** Form field definitions */
-  fields: (FormFieldConfig | ButtonGroupFormFieldConfig)[];
+  fields: FormFieldConfig[];
   /** Layout, style, and submit-button settings */
   formLayoutSettings?: FormEngineLayoutSettings;
   /** Success message shown after a successful submission */
@@ -143,14 +157,25 @@ export function FormEngine({
   const isButtonGroup = formLayout === "button-group";
 
   // Merge user-provided styles with defaults
-  const styleRules = React.useMemo<FormEngineStyleRules>(() => ({
-    formContainer: userStyleRules?.formContainer ?? DEFAULT_STYLE_RULES.formContainer,
-    fieldsContainer: userStyleRules?.fieldsContainer ?? DEFAULT_STYLE_RULES.fieldsContainer,
-    fieldClassName: userStyleRules?.fieldClassName ?? DEFAULT_STYLE_RULES.fieldClassName,
-    formClassName: userStyleRules?.formClassName ?? DEFAULT_STYLE_RULES.formClassName,
-    successMessageClassName: userStyleRules?.successMessageClassName ?? DEFAULT_STYLE_RULES.successMessageClassName,
-    errorMessageClassName: userStyleRules?.errorMessageClassName ?? DEFAULT_STYLE_RULES.errorMessageClassName,
-  }), [userStyleRules]);
+  const styleRules = React.useMemo<FormEngineStyleRules>(
+    () => ({
+      formContainer:
+        userStyleRules?.formContainer ?? DEFAULT_STYLE_RULES.formContainer,
+      fieldsContainer:
+        userStyleRules?.fieldsContainer ?? DEFAULT_STYLE_RULES.fieldsContainer,
+      fieldClassName:
+        userStyleRules?.fieldClassName ?? DEFAULT_STYLE_RULES.fieldClassName,
+      formClassName:
+        userStyleRules?.formClassName ?? DEFAULT_STYLE_RULES.formClassName,
+      successMessageClassName:
+        userStyleRules?.successMessageClassName ??
+        DEFAULT_STYLE_RULES.successMessageClassName,
+      errorMessageClassName:
+        userStyleRules?.errorMessageClassName ??
+        DEFAULT_STYLE_RULES.errorMessageClassName,
+    }),
+    [userStyleRules],
+  );
 
   // Integrate file upload functionality
   const {
@@ -169,15 +194,9 @@ export function FormEngine({
   const onFileUpload = externalOnFileUpload ?? internalUploadFiles;
   const onFileRemove = externalOnFileRemove ?? internalRemoveFile;
 
-  // Normalize to FormFieldConfig[] — ButtonGroupFormFieldConfig has optional label
-  const normalizedFields = React.useMemo<FormFieldConfig[]>(
-    () => fields.map((f) => ({ ...f, label: f.label ?? f.name })) as FormFieldConfig[],
-    [fields],
-  );
-
   const { form, submissionError, formMethod, resetSubmissionState } =
     useContactForm({
-      formFields: normalizedFields,
+      formFields: fields,
       formConfig: api,
       onSubmit,
       onSuccess: (data) => {
@@ -196,8 +215,10 @@ export function FormEngine({
       return {
         formLayout: "button-group",
         buttonGroupSize: buttonGroupSetup?.size ?? DEFAULT_BUTTON_GROUP_SIZE,
-        submitLabel: buttonGroupSetup?.submitLabel ?? DEFAULT_BUTTON_GROUP_LABEL,
-        submitVariant: buttonGroupSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT,
+        submitLabel:
+          buttonGroupSetup?.submitLabel ?? DEFAULT_BUTTON_GROUP_LABEL,
+        submitVariant:
+          buttonGroupSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT,
         submitIconName: buttonGroupSetup?.submitIconName,
         submitIconComponent: buttonGroupSetup?.submitIconComponent,
         endpoint: api?.endpoint,
@@ -231,9 +252,20 @@ export function FormEngine({
       >
         {!isButtonGroup && (
           <>
-            <div className={cn("grid grid-cols-12 gap-6", styleRules?.fieldsContainer)}>
-              {normalizedFields.map((field) => (
-                <div key={field.name} className={cn(getColumnSpanClass(field.columnSpan ?? 12), "min-w-0")}>
+            <div
+              className={cn(
+                "grid grid-cols-12 gap-6",
+                styleRules?.fieldsContainer,
+              )}
+            >
+              {fields.map((field) => (
+                <div
+                  key={field.name}
+                  className={cn(
+                    getColumnSpanClass(field.columnSpan ?? 12),
+                    "min-w-0",
+                  )}
+                >
                   <DynamicFormField
                     field={field}
                     className={field.className ?? styleRules?.fieldClassName}
@@ -247,7 +279,9 @@ export function FormEngine({
             </div>
             <Button
               type="submit"
-              variant={submitButtonSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT}
+              variant={
+                submitButtonSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT
+              }
               disabled={form.isSubmitting}
               className="mt-6 w-full"
             >
@@ -261,4 +295,3 @@ export function FormEngine({
 }
 
 FormEngine.displayName = "FormEngine";
-

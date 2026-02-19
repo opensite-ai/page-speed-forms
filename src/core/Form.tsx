@@ -6,7 +6,7 @@ import type { FormProps, FormValues } from "./types";
 import { FormFeedback } from "./form-feedback";
 import { Button } from "../components/ui/button";
 import { ButtonGroupForm } from "./button-group-form";
-import type { ButtonGroupFormFieldConfig } from "../integration/form-field-types";
+import type { FormFieldConfig } from "../integration/form-field-types";
 
 /**
  * Form - Progressive enhancement form component
@@ -146,7 +146,7 @@ export function Form<T extends FormValues = FormValues>({
   const buttonGroupContent = React.useMemo(() => {
     if (!shouldUseButtonGroup || !fields || fields.length === 0) return null;
 
-    const field = fields[0] as ButtonGroupFormFieldConfig;
+    const field = fields[0] as FormFieldConfig;
     const fieldProps = form.getFieldProps(field.name);
     const fieldMeta = form.getFieldMeta(field.name);
 
