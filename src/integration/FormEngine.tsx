@@ -20,9 +20,9 @@ const DEFAULT_STYLE_RULES: FormEngineStyleRules = {
   fieldClassName: "",
   formClassName: "",
   successMessageClassName:
-    "text-green-600 dark:text-green-400 mt-4 p-3 rounded-md bg-green-50 dark:bg-green-950/20",
+    "text-primary-foreground mt-4 p-3 rounded-md shadow-md bg-primary",
   errorMessageClassName:
-    "text-red-600 dark:text-red-400 mt-4 p-3 rounded-md bg-red-50 dark:bg-red-950/20",
+    "text-destructive-foreground mt-4 p-3 rounded-md shadow-md bg-destructive",
 };
 
 const DEFAULT_SUBMIT_LABEL = "Submit";

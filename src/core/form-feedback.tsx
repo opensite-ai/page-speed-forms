@@ -19,7 +19,7 @@ function renderMessage(
     return (
       <p
         className={cn(
-          "text-sm font-medium text-center text-balance",
+          "text-md font-medium text-center text-balance",
           className,
         )}
       >
