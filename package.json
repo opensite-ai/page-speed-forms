@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -118,6 +118,7 @@
   },
   "dependencies": {
     "@opensite/hooks": "2.0.8",
+    "@page-speed/icon": "^0.1.0",
     "@radix-ui/react-direction": "^1.1.1",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",

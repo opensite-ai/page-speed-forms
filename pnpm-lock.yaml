@@ -11,6 +11,9 @@ importers:
       '@opensite/hooks':
         specifier: 2.0.8
         version: 2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@page-speed/icon':
+        specifier: ^0.1.0
+        version: 0.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-direction':
         specifier: ^1.1.1
         version: 1.1.1(@types/react@18.3.27)(react@18.3.1)
@@ -614,6 +617,13 @@ packages:
     peerDependencies:
       react: '>=17.0.0'
       react-dom: '>=17.0.0'
+
+  '@page-speed/icon@0.1.0':
+    resolution: {integrity: sha512-W4ybl7XUFsoMvKnSIkUSgLi0dQStZff4d/AR8T36+AhxjKDNFlVFDkPjSQq9aHQFBUXQSZpnyeejkXTpcYpqVw==}
+    engines: {node: '>=18.0.0', pnpm: '>=9.0.0'}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -2912,6 +2922,11 @@ snapshots:
     optional: true
 
   '@opensite/hooks@2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@page-speed/icon@0.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
