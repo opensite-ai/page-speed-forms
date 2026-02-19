@@ -5,6 +5,7 @@ import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
 import { ButtonGroup } from "../components/ui/button-group";
 import { FieldLabel, FieldDescription } from "../components/ui/field";
+import { FieldFeedback } from "./field-feedback";
 import { TextInput } from "../inputs/TextInput";
 import type { InputProps } from "./types";
 import { Icon } from "@page-speed/icon";
@@ -35,10 +36,6 @@ export type ButtonGroupFormProps = {
    * Optional description below the input
    */
   description?: React.ReactNode;
-  /**
-   * Placeholder text for the input
-   */
-  placeholder?: string;
   /**
    * Input props from form field
    */
@@ -82,6 +79,12 @@ export type ButtonGroupFormProps = {
    */
   submitIconComponent?: React.ReactNode;
   /**
+   * Error message text to display below the input group.
+   * Should be the raw error string(s) from the form field meta.
+   * The ring styling is driven by `inputProps.error` (boolean); this controls the visible message.
+   */
+  errorText?: string | string[];
+  /**
    * Additional className for the label
    */
   labelClassName?: string;
@@ -121,12 +124,15 @@ export function ButtonGroupForm({
   isSubmitting = false,
   submitIconName,
   submitIconComponent,
+  errorText,
   className,
   labelClassName,
 }: ButtonGroupFormProps) {
   const inputId = React.useMemo(() => {
     return `button-group-input-${name}`;
   }, [name]);
+
+  const errorId = `${inputId}-error`;
 
   const hasValue = React.useMemo(() => {
     return String(inputProps.value ?? "").trim().length > 0;
@@ -185,6 +191,7 @@ export function ButtonGroupForm({
           {...inputProps}
           id={inputId}
           suppressValueRing
+          aria-describedby={hasError ? errorId : undefined}
           className={cn(
             INPUT_SIZE_CLASSES[size],
             "border-r-0 rounded-r-none focus-visible:z-10",
@@ -221,6 +228,11 @@ export function ButtonGroupForm({
         </Button>
       </ButtonGroup>
       {description && <FieldDescription>{description}</FieldDescription>}
+      <FieldFeedback
+        error={errorText}
+        shouldRenderError={hasError}
+        errorId={errorId}
+      />
     </div>
   );
 }

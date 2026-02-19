@@ -42,6 +42,7 @@ export type {
   FormSubmissionBehavior,
   NewFormSubmissionActionConfig,
   FormSubmissionConfig,
+  FormLayoutSettings,
   FormNotificationConfig,
   FormStyleConfig,
   FormRenderConfig,

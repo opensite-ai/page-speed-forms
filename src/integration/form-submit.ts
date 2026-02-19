@@ -1,7 +1,6 @@
-import type { ReactNode } from "react";
 import type {
-  FormSubmissionBehavior,
-  NewFormSubmissionActionConfig,
+  FormLayoutSettings,
+  FormSubmissionConfig,
 } from "../core/types";
 import {
   deserializeErrors,
@@ -19,13 +18,12 @@ export interface PageSpeedFormSubmissionResult {
   responseData: unknown;
 }
 
-export interface PageSpeedFormSubmissionConfig {
-  /**
-   * Post-submit behavior.
-   * @default "showConfirmation"
-   */
-  behavior?: FormSubmissionBehavior;
-
+/**
+ * PageSpeed-specific extension of the core FormSubmissionConfig.
+ * Inherits behavior, customComponent, and newFormSubmissionAction from the
+ * base type and adds integration-layer callbacks and redirect support.
+ */
+export interface PageSpeedFormSubmissionConfig extends FormSubmissionConfig {
   /**
    * Optional callback triggered on successful submission.
    */
@@ -37,16 +35,6 @@ export interface PageSpeedFormSubmissionConfig {
    * Redirect destination used when behavior is "redirect".
    */
   redirectUrl?: string;
-
-  /**
-   * Custom component rendered when behavior is "renderCustomComponent".
-   */
-  customComponent?: ReactNode;
-
-  /**
-   * Optional action to allow a fresh submission after success.
-   */
-  newFormSubmissionAction?: NewFormSubmissionActionConfig;
 }
 
 export interface PageSpeedFormConfig {
@@ -105,6 +93,13 @@ export interface PageSpeedFormConfig {
    * Optional post-submission behavior configuration.
    */
   submissionConfig?: PageSpeedFormSubmissionConfig;
+
+  /**
+   * Optional layout and presentation settings.
+   * Provides a typed home for layout props (formLayout, buttonGroupSize, etc.)
+   * so consumers don't need an `as any` cast when passing them alongside API config.
+   */
+  formLayoutSettings?: FormLayoutSettings;
 }
 
 export class PageSpeedFormSubmissionError extends Error {

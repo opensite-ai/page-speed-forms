@@ -148,11 +148,13 @@ export function Form<T extends FormValues = FormValues>({
 
     const field = fields[0] as ButtonGroupFormFieldConfig;
     const fieldProps = form.getFieldProps(field.name);
+    const fieldMeta = form.getFieldMeta(field.name);
 
     return (
       <ButtonGroupForm
         name={field.name}
         label={field.label}
+        description={field.description}
         className={field.className}
         inputProps={{
           name: fieldProps.name,
@@ -169,7 +171,9 @@ export function Form<T extends FormValues = FormValues>({
           placeholder: field.placeholder,
           required: field.required,
           disabled: field.disabled,
+          error: fieldMeta.touched && !!fieldMeta.error,
         }}
+        errorText={fieldMeta.touched ? fieldMeta.error : undefined}
         submitLabel={formConfig?.submitLabel}
         submitVariant={formConfig?.submitVariant}
         submitIconName={formConfig?.submitIconName}

@@ -124,11 +124,14 @@ export {
   type PageSpeedFormSubmissionResult,
 } from "./form-submit";
 
+export type { FormLayoutSettings } from "../core/types";
+
 export {
   generateInitialValues,
   generateValidationSchema,
   getColumnSpanClass,
   type FormFieldType,
+  type ButtonGroupFormFieldConfig,
   type FormFieldConfig,
   type SelectOption,
 } from "./form-field-types";
@@ -150,3 +153,12 @@ export {
   DynamicFormField,
   type DynamicFormFieldProps,
 } from "./DynamicFormField";
+
+export {
+  FormEngine,
+  type FormEngineProps,
+  type FormEngineLayoutSettings,
+  type FormEngineStyleRules,
+  type FormEngineSubmitButtonSetup,
+  type ButtonGroupFormSetup,
+} from "./FormEngine";

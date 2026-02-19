@@ -411,7 +411,57 @@ export interface FormStyleConfig {
   errorMessageClassName?: string;
 }
 
-export interface FormRenderConfig {
+/**
+ * Layout and presentation settings for form rendering.
+ * These are the UI-specific knobs that control how a form looks,
+ * independent of API credentials or submission behavior.
+ * Extracted here so consumers can pass them separately from API config.
+ */
+export interface FormLayoutSettings {
+  /**
+   * Optional layout variant.
+   * "button-group" renders a single-field + submit button inline group,
+   * most commonly used for newsletter signup forms.
+   * @default "standard"
+   */
+  formLayout?: "standard" | "button-group";
+
+  /**
+   * Size for button-group layout (only applies when formLayout is "button-group").
+   * @default "default"
+   */
+  buttonGroupSize?: "xs" | "sm" | "default" | "lg";
+
+  /**
+   * Submit button label.
+   * @default "Submit"
+   */
+  submitLabel?: React.ReactNode;
+
+  /**
+   * Submit button variant.
+   * @default "default"
+   */
+  submitVariant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
+
+  /**
+   * Icon name for icon-based submit buttons.
+   */
+  submitIconName?: string;
+
+  /**
+   * Icon component for icon-based submit buttons.
+   */
+  submitIconComponent?: React.ReactNode;
+}
+
+export interface FormRenderConfig extends FormLayoutSettings {
   /**
    * Form action URL (for progressive enhancement).
    */
@@ -426,47 +476,6 @@ export interface FormRenderConfig {
    * Optional submission behavior configuration.
    */
   submissionConfig?: FormSubmissionConfig;
-
-  /**
-   * Optional layout configuration. If button-group, the form will be rendered with an input field and submit button.
-   * "button-group" is most commonly used for newsletter type forms.
-   * @default "standard"
-   */
-  formLayout?: "standard" | "button-group";
-
-  /**
-   * Size for button-group layout (only applies when formLayout is "button-group")
-   * @default "default"
-   */
-  buttonGroupSize?: "xs" | "sm" | "default" | "lg";
-
-  /**
-   * Submit button label for button-group layout
-   * @default "Submit"
-   */
-  submitLabel?: React.ReactNode;
-
-  /**
-   * Submit button variant for button-group layout
-   * @default "default"
-   */
-  submitVariant?:
-    | "link"
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost";
-
-  /**
-   * Icon name for icon based submit buttons
-   */
-  submitIconName?: string;
-
-  /**
-   * Icon component for icon based submit buttons
-   */
-  submitIconComponent?: React.ReactNode;
 }
 
 /**
@@ -487,7 +496,7 @@ export interface FormProps<T extends FormValues = FormValues> {
    * Optional form fields for button-group layout rendering
    * Required when using formLayout="button-group"
    */
-  fields?: (FormFieldConfig & ButtonGroupFormFieldConfig)[];
+  fields?: (FormFieldConfig | ButtonGroupFormFieldConfig)[];
 
   /**
    * Additional className
