@@ -17,7 +17,7 @@ const styleRules = {
   ...declarative naming for each key 'level' and the ability to supply a custom class name
 };
 
-<Form
+<FormEngine
   api={api}
   fields={[
     {
@@ -86,7 +86,7 @@ const styleRules = {
   ...
 };
 
-<Form
+<FormEngine
   api={api}
   fields={[{
     name: "email",

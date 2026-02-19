@@ -10,6 +10,23 @@ import type { FormFieldConfig, ButtonGroupFormFieldConfig } from "./form-field-t
 import type { FormRenderConfig } from "../core/types";
 import type { PageSpeedFormConfig } from "./form-submit";
 import { useContactForm } from "./use-contact-form";
+import { useFileUpload } from "./use-file-upload";
+
+// ─── Default Values ───────────────────────────────────────────────────────────
+
+const DEFAULT_STYLE_RULES: FormEngineStyleRules = {
+  formContainer: "",
+  fieldsContainer: "",
+  fieldClassName: "",
+  formClassName: "",
+  successMessageClassName: "text-green-600 dark:text-green-400 mt-4 p-3 rounded-md bg-green-50 dark:bg-green-950/20",
+  errorMessageClassName: "text-red-600 dark:text-red-400 mt-4 p-3 rounded-md bg-red-50 dark:bg-red-950/20",
+};
+
+const DEFAULT_SUBMIT_LABEL = "Submit";
+const DEFAULT_BUTTON_GROUP_LABEL = "Subscribe";
+const DEFAULT_BUTTON_VARIANT = "default";
+const DEFAULT_BUTTON_GROUP_SIZE = "default";
 
 // ─── Setup / Style Types ──────────────────────────────────────────────────────
 
@@ -111,19 +128,46 @@ export function FormEngine({
   onError,
   navigate,
   resetOnSuccess,
-  uploadTokens,
-  onFileUpload,
-  onFileRemove,
-  isUploading,
-  uploadProgress,
+  uploadTokens: externalUploadTokens,
+  onFileUpload: externalOnFileUpload,
+  onFileRemove: externalOnFileRemove,
+  isUploading: externalIsUploading,
+  uploadProgress: externalUploadProgress,
 }: FormEngineProps) {
   const {
-    styleRules,
+    styleRules: userStyleRules,
     formLayout = "standard",
     buttonGroupSetup,
     submitButtonSetup,
   } = formLayoutSettings ?? {};
   const isButtonGroup = formLayout === "button-group";
+
+  // Merge user-provided styles with defaults
+  const styleRules = React.useMemo<FormEngineStyleRules>(() => ({
+    formContainer: userStyleRules?.formContainer ?? DEFAULT_STYLE_RULES.formContainer,
+    fieldsContainer: userStyleRules?.fieldsContainer ?? DEFAULT_STYLE_RULES.fieldsContainer,
+    fieldClassName: userStyleRules?.fieldClassName ?? DEFAULT_STYLE_RULES.fieldClassName,
+    formClassName: userStyleRules?.formClassName ?? DEFAULT_STYLE_RULES.formClassName,
+    successMessageClassName: userStyleRules?.successMessageClassName ?? DEFAULT_STYLE_RULES.successMessageClassName,
+    errorMessageClassName: userStyleRules?.errorMessageClassName ?? DEFAULT_STYLE_RULES.errorMessageClassName,
+  }), [userStyleRules]);
+
+  // Integrate file upload functionality
+  const {
+    uploadTokens: internalUploadTokens,
+    uploadProgress: internalUploadProgress,
+    isUploading: internalIsUploading,
+    uploadFiles: internalUploadFiles,
+    removeFile: internalRemoveFile,
+    resetUpload,
+  } = useFileUpload({ onError });
+
+  // Use external upload state if provided, otherwise use internal
+  const uploadTokens = externalUploadTokens ?? internalUploadTokens;
+  const uploadProgress = externalUploadProgress ?? internalUploadProgress;
+  const isUploading = externalIsUploading ?? internalIsUploading;
+  const onFileUpload = externalOnFileUpload ?? internalUploadFiles;
+  const onFileRemove = externalOnFileRemove ?? internalRemoveFile;
 
   // Normalize to FormFieldConfig[] — ButtonGroupFormFieldConfig has optional label
   const normalizedFields = React.useMemo<FormFieldConfig[]>(
@@ -136,7 +180,10 @@ export function FormEngine({
       formFields: normalizedFields,
       formConfig: api,
       onSubmit,
-      onSuccess,
+      onSuccess: (data) => {
+        resetUpload();
+        onSuccess?.(data);
+      },
       onError,
       navigate,
       resetOnSuccess,
@@ -148,9 +195,9 @@ export function FormEngine({
     if (isButtonGroup) {
       return {
         formLayout: "button-group",
-        buttonGroupSize: buttonGroupSetup?.size,
-        submitLabel: buttonGroupSetup?.submitLabel,
-        submitVariant: buttonGroupSetup?.submitVariant,
+        buttonGroupSize: buttonGroupSetup?.size ?? DEFAULT_BUTTON_GROUP_SIZE,
+        submitLabel: buttonGroupSetup?.submitLabel ?? DEFAULT_BUTTON_GROUP_LABEL,
+        submitVariant: buttonGroupSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT,
         submitIconName: buttonGroupSetup?.submitIconName,
         submitIconComponent: buttonGroupSetup?.submitIconComponent,
         endpoint: api?.endpoint,
@@ -200,11 +247,11 @@ export function FormEngine({
             </div>
             <Button
               type="submit"
-              variant={submitButtonSetup?.submitVariant ?? "default"}
+              variant={submitButtonSetup?.submitVariant ?? DEFAULT_BUTTON_VARIANT}
               disabled={form.isSubmitting}
               className="mt-6 w-full"
             >
-              {submitButtonSetup?.submitLabel ?? "Submit"}
+              {submitButtonSetup?.submitLabel ?? DEFAULT_SUBMIT_LABEL}
             </Button>
           </>
         )}
