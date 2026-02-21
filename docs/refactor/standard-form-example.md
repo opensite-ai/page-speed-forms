@@ -466,7 +466,7 @@ export function ContactFaq({
                   resetSubmissionState();
                 }}
               >
-                <div className="grid grid-cols-12 gap-6">
+                <div className="grid grid-cols-12 gap-6 md:gap-10">
                   {formFields.map((field) => (
                     <div
                       key={field.name}

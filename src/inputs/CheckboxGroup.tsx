@@ -241,8 +241,10 @@ export function CheckboxGroup({
 
   const containerClass = React.useMemo(() => {
     return cn(
-      "w-full gap-3 grid grid-cols-1 border-0 m-0 p-0 min-w-0",
+      "w-full grid grid-cols-1 border-0 m-0 p-0 min-w-0",
       (layout === "grid" || layout === "inline") && "md:grid-cols-2",
+      layout === "grid" && "gap-3",
+      layout === "inline" && "gap-0",
       className,
     );
   }, [layout, className]);

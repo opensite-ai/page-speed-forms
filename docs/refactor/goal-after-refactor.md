@@ -13,7 +13,7 @@ const api = {
 
 const styleRules = {
   formContainer: "mt-10 flex w-full flex-col", // div wrapper around the <form> tag should have basic defaults for each
-  fieldsContainer: "grid grid-cols-12 gap-6", // div wrapper around the fields
+  fieldsContainer: "grid grid-cols-12 gap-6 md:gap-10", // div wrapper around the fields
   ...declarative naming for each key 'level' and the ability to supply a custom class name
 };
 

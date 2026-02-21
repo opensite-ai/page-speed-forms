@@ -3,10 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import {
-  FieldDescription,
-  FieldLabel,
-} from "../components/ui/field";
+import { FieldDescription, FieldLabel } from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 /**
@@ -141,10 +138,7 @@ export function Radio({
             <div className="text-base font-medium leading-none">{label}</div>
           )}
           {description && (
-            <FieldDescription
-              id={groupDescriptionId}
-              className="leading-snug"
-            >
+            <FieldDescription id={groupDescriptionId} className="leading-snug">
               {description}
             </FieldDescription>
           )}
@@ -159,9 +153,8 @@ export function Radio({
         disabled={disabled}
         required={required}
         className={cn(
-          "gap-3",
-          layout === "grid" && "grid grid-cols-1 md:grid-cols-2",
-          layout === "inline" && "flex flex-wrap",
+          layout === "grid" && "grid grid-cols-1 md:grid-cols-2 gap-3",
+          layout === "inline" && "flex flex-wrap gap-0",
         )}
         aria-invalid={error || props["aria-invalid"]}
         aria-describedby={groupDescriptionId || props["aria-describedby"]}
@@ -183,9 +176,7 @@ export function Radio({
                   "border rounded-lg hover:ring-2 hover:ring-ring/50",
                 useChoiceCard && isSelected && "ring-2 ring-ring",
                 useChoiceCard && error && "border-destructive",
-                isDisabled
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer",
+                isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
               )}
             >
               <div
@@ -200,9 +191,7 @@ export function Radio({
                   disabled={isDisabled}
                   className="mt-0.5"
                   aria-describedby={
-                    hasDescription
-                      ? `${radioId}-description`
-                      : undefined
+                    hasDescription ? `${radioId}-description` : undefined
                   }
                 />
                 <div className="flex-1 space-y-1">

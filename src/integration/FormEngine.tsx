@@ -173,15 +173,20 @@ export function FormEngine(props: FormEngineProps) {
   const fields = directFields ?? formEngineSetup?.fields;
   const formLayoutSettings =
     directFormLayoutSettings ?? formEngineSetup?.formLayoutSettings;
-  const successMessage = directSuccessMessage ?? formEngineSetup?.successMessage;
+  const successMessage =
+    directSuccessMessage ?? formEngineSetup?.successMessage;
   const onSubmit = directOnSubmit ?? formEngineSetup?.onSubmit;
   const onSuccess = directOnSuccess ?? formEngineSetup?.onSuccess;
   const onError = directOnError ?? formEngineSetup?.onError;
   const navigate = directNavigate ?? formEngineSetup?.navigate;
-  const resetOnSuccess = directResetOnSuccess ?? formEngineSetup?.resetOnSuccess;
-  const externalUploadTokens = directUploadTokens ?? formEngineSetup?.uploadTokens;
-  const externalOnFileUpload = directOnFileUpload ?? formEngineSetup?.onFileUpload;
-  const externalOnFileRemove = directOnFileRemove ?? formEngineSetup?.onFileRemove;
+  const resetOnSuccess =
+    directResetOnSuccess ?? formEngineSetup?.resetOnSuccess;
+  const externalUploadTokens =
+    directUploadTokens ?? formEngineSetup?.uploadTokens;
+  const externalOnFileUpload =
+    directOnFileUpload ?? formEngineSetup?.onFileUpload;
+  const externalOnFileRemove =
+    directOnFileRemove ?? formEngineSetup?.onFileRemove;
   const externalIsUploading = directIsUploading ?? formEngineSetup?.isUploading;
   const externalUploadProgress =
     directUploadProgress ?? formEngineSetup?.uploadProgress;
@@ -308,7 +313,7 @@ export function FormEngine(props: FormEngineProps) {
           <>
             <div
               className={cn(
-                "grid grid-cols-12 gap-6",
+                "grid grid-cols-12 gap-6 md:gap-10",
                 styleRules?.fieldsContainer,
               )}
             >
