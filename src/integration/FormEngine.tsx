@@ -83,11 +83,11 @@ export interface FormEngineLayoutSettings {
   submitButtonSetup?: FormEngineSubmitButtonSetup;
 }
 
-export interface FormEngineProps {
+export interface FormEngineSetup {
   /** API / submission configuration */
   api?: PageSpeedFormConfig;
   /** Form field definitions */
-  fields: FormFieldConfig[];
+  fields?: FormFieldConfig[];
   /** Layout, style, and submit-button settings */
   formLayoutSettings?: FormEngineLayoutSettings;
   /** Success message shown after a successful submission */
@@ -114,40 +114,78 @@ export interface FormEngineProps {
   uploadProgress?: { [fileName: string]: number };
 }
 
+export interface FormEngineProps extends FormEngineSetup {
+  /**
+   * Optional wrapper object used by block libraries to pass the full setup as a
+   * single prop. Direct props on FormEngine take precedence when both are provided.
+   */
+  formEngineSetup?: FormEngineSetup;
+  /** Default form field definitions used when setup fields are missing/empty */
+  defaultFields?: FormFieldConfig[];
+  /** Default style rules merged before built-in FormEngine defaults */
+  defaultStyleRules?: FormEngineStyleRules;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 /**
  * FormEngine — declarative form component with built-in API integration.
  *
- * Handles `useContactForm` orchestration internally so callers only need to
- * supply `api`, `fields`, and optional layout/style settings.
+ * Handles `useContactForm` orchestration internally so callers can supply
+ * either direct props or a `formEngineSetup` wrapper plus optional defaults.
  *
  * @example Standard layout
  * ```tsx
  * <FormEngine api={api} fields={fields} formLayoutSettings={{ submitButtonSetup: { submitLabel: "Send" } }} />
  * ```
  *
- * @example Button-group layout
+ * @example Wrapped setup with defaults
  * ```tsx
- * <FormEngine api={api} fields={[emailField]} formLayoutSettings={{ formLayout: "button-group", buttonGroupSetup: { size: "lg", submitLabel: "Subscribe" } }} />
+ * <FormEngine
+ *   formEngineSetup={{ api, fields: [emailField] }}
+ *   defaultFields={fallbackFields}
+ *   defaultStyleRules={fallbackStyleRules}
+ * />
  * ```
  */
-export function FormEngine({
-  api,
-  fields,
-  formLayoutSettings,
-  successMessage,
-  onSubmit,
-  onSuccess,
-  onError,
-  navigate,
-  resetOnSuccess,
-  uploadTokens: externalUploadTokens,
-  onFileUpload: externalOnFileUpload,
-  onFileRemove: externalOnFileRemove,
-  isUploading: externalIsUploading,
-  uploadProgress: externalUploadProgress,
-}: FormEngineProps) {
+export function FormEngine(props: FormEngineProps) {
+  const {
+    formEngineSetup,
+    defaultFields,
+    defaultStyleRules,
+    api: directApi,
+    fields: directFields,
+    formLayoutSettings: directFormLayoutSettings,
+    successMessage: directSuccessMessage,
+    onSubmit: directOnSubmit,
+    onSuccess: directOnSuccess,
+    onError: directOnError,
+    navigate: directNavigate,
+    resetOnSuccess: directResetOnSuccess,
+    uploadTokens: directUploadTokens,
+    onFileUpload: directOnFileUpload,
+    onFileRemove: directOnFileRemove,
+    isUploading: directIsUploading,
+    uploadProgress: directUploadProgress,
+  } = props;
+
+  const api = directApi ?? formEngineSetup?.api;
+  const fields = directFields ?? formEngineSetup?.fields;
+  const formLayoutSettings =
+    directFormLayoutSettings ?? formEngineSetup?.formLayoutSettings;
+  const successMessage = directSuccessMessage ?? formEngineSetup?.successMessage;
+  const onSubmit = directOnSubmit ?? formEngineSetup?.onSubmit;
+  const onSuccess = directOnSuccess ?? formEngineSetup?.onSuccess;
+  const onError = directOnError ?? formEngineSetup?.onError;
+  const navigate = directNavigate ?? formEngineSetup?.navigate;
+  const resetOnSuccess = directResetOnSuccess ?? formEngineSetup?.resetOnSuccess;
+  const externalUploadTokens = directUploadTokens ?? formEngineSetup?.uploadTokens;
+  const externalOnFileUpload = directOnFileUpload ?? formEngineSetup?.onFileUpload;
+  const externalOnFileRemove = directOnFileRemove ?? formEngineSetup?.onFileRemove;
+  const externalIsUploading = directIsUploading ?? formEngineSetup?.isUploading;
+  const externalUploadProgress =
+    directUploadProgress ?? formEngineSetup?.uploadProgress;
+
   const {
     styleRules: userStyleRules,
     formLayout = "standard",
@@ -156,25 +194,41 @@ export function FormEngine({
   } = formLayoutSettings ?? {};
   const isButtonGroup = formLayout === "button-group";
 
-  // Merge user-provided styles with defaults
+  const formFields = React.useMemo<FormFieldConfig[]>(() => {
+    if (fields && fields.length > 0) return fields;
+    if (defaultFields && defaultFields.length > 0) return defaultFields;
+    return [];
+  }, [fields, defaultFields]);
+
+  // Merge style rules in order: user setup -> block defaults -> built-in defaults
   const styleRules = React.useMemo<FormEngineStyleRules>(
     () => ({
       formContainer:
-        userStyleRules?.formContainer ?? DEFAULT_STYLE_RULES.formContainer,
+        userStyleRules?.formContainer ??
+        defaultStyleRules?.formContainer ??
+        DEFAULT_STYLE_RULES.formContainer,
       fieldsContainer:
-        userStyleRules?.fieldsContainer ?? DEFAULT_STYLE_RULES.fieldsContainer,
+        userStyleRules?.fieldsContainer ??
+        defaultStyleRules?.fieldsContainer ??
+        DEFAULT_STYLE_RULES.fieldsContainer,
       fieldClassName:
-        userStyleRules?.fieldClassName ?? DEFAULT_STYLE_RULES.fieldClassName,
+        userStyleRules?.fieldClassName ??
+        defaultStyleRules?.fieldClassName ??
+        DEFAULT_STYLE_RULES.fieldClassName,
       formClassName:
-        userStyleRules?.formClassName ?? DEFAULT_STYLE_RULES.formClassName,
+        userStyleRules?.formClassName ??
+        defaultStyleRules?.formClassName ??
+        DEFAULT_STYLE_RULES.formClassName,
       successMessageClassName:
         userStyleRules?.successMessageClassName ??
+        defaultStyleRules?.successMessageClassName ??
         DEFAULT_STYLE_RULES.successMessageClassName,
       errorMessageClassName:
         userStyleRules?.errorMessageClassName ??
+        defaultStyleRules?.errorMessageClassName ??
         DEFAULT_STYLE_RULES.errorMessageClassName,
     }),
-    [userStyleRules],
+    [userStyleRules, defaultStyleRules],
   );
 
   // Integrate file upload functionality
@@ -196,7 +250,7 @@ export function FormEngine({
 
   const { form, submissionError, formMethod, resetSubmissionState } =
     useContactForm({
-      formFields: fields,
+      formFields,
       formConfig: api,
       onSubmit,
       onSuccess: (data) => {
@@ -236,7 +290,7 @@ export function FormEngine({
     <div className={styleRules?.formContainer}>
       <Form
         form={form}
-        fields={isButtonGroup ? fields : undefined}
+        fields={isButtonGroup ? formFields : undefined}
         formConfig={legacyFormConfig}
         method={formMethod}
         notificationConfig={{
@@ -258,7 +312,7 @@ export function FormEngine({
                 styleRules?.fieldsContainer,
               )}
             >
-              {fields.map((field) => (
+              {formFields.map((field) => (
                 <div
                   key={field.name}
                   className={cn(

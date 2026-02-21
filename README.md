@@ -129,6 +129,40 @@ import { Form } from "@page-speed/forms";
 />;
 ```
 
+### `FormEngine` Defaults + Wrapper Setup
+
+`FormEngine` supports both direct props and a wrapper setup object. This is useful
+for block/component libraries that want to provide local default fields and styles.
+
+```tsx
+import * as React from "react";
+import {
+  FormEngine,
+  type FormEngineSetup,
+  type FormFieldConfig,
+  type FormEngineStyleRules,
+} from "@page-speed/forms/integration";
+
+const defaultFields: FormFieldConfig[] = [
+  { name: "email", type: "email", label: "Email", required: true },
+];
+
+const defaultStyleRules: FormEngineStyleRules = {
+  formClassName: "space-y-6",
+};
+
+const setup: FormEngineSetup = {
+  api: { endpoint: "/api/contact", method: "post" },
+  formLayoutSettings: { formLayout: "standard" },
+};
+
+<FormEngine
+  formEngineSetup={setup}
+  defaultFields={defaultFields}
+  defaultStyleRules={defaultStyleRules}
+/>;
+```
+
 ## Package Entry Points
 
 ### Main

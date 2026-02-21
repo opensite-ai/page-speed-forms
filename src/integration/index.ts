@@ -155,6 +155,7 @@ export {
 
 export {
   FormEngine,
+  type FormEngineSetup,
   type FormEngineProps,
   type FormEngineLayoutSettings,
   type FormEngineStyleRules,
