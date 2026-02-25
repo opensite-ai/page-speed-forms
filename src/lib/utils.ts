@@ -6,6 +6,28 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Converts a field name (snake_case or camelCase) to a human-readable label.
+ *
+ * @example
+ * humanizeFieldName("first_name") // "First name"
+ * humanizeFieldName("email") // "Email"
+ * humanizeFieldName("accepts_sms_marketing") // "Accepts sms marketing"
+ */
+export function humanizeFieldName(name: string): string {
+  if (!name) return "This field";
+
+  // Replace underscores with spaces and split camelCase
+  const words = name
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .toLowerCase()
+    .trim();
+
+  // Capitalize first letter only
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/**
  * Normalizes browser autofill colors so inputs keep theme colors.
  */
 export const INPUT_AUTOFILL_RESET_CLASSES =

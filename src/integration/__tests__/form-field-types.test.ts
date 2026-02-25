@@ -43,6 +43,39 @@ describe("form-field-types", () => {
     expect(schema.email("ok@example.com", {})).toBeUndefined();
   });
 
+  it("uses humanized field name when label is not provided", () => {
+    const fields: FormFieldConfig[] = [
+      {
+        name: "first_name",
+        type: "text",
+        required: true,
+      },
+      {
+        name: "acceptsTerms",
+        type: "checkbox",
+        required: true,
+      },
+    ];
+
+    const schema = generateValidationSchema(fields);
+    expect(schema.first_name("", {})).toBe("First name is required");
+    expect(schema.acceptsTerms(false, {})).toBe("Accepts terms is required");
+  });
+
+  it("prefers label over humanized name when both exist", () => {
+    const fields: FormFieldConfig[] = [
+      {
+        name: "user_email",
+        type: "email",
+        label: "Your Email Address",
+        required: true,
+      },
+    ];
+
+    const schema = generateValidationSchema(fields);
+    expect(schema.user_email("", {})).toBe("Your Email Address is required");
+  });
+
   it("returns deterministic column span classes", () => {
     expect(getColumnSpanClass()).toBe("col-span-12");
     expect(getColumnSpanClass(12)).toBe("col-span-12");

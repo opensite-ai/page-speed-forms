@@ -5,6 +5,8 @@
  * block/rendering libraries can share one field schema contract.
  */
 
+import { humanizeFieldName } from "../lib/utils";
+
 export type FormFieldType =
   | "text"
   | "email"
@@ -160,7 +162,8 @@ export function generateValidationSchema(
       acc[field.name] = (value: any, allValues: Record<string, any>) => {
         if (field.required) {
           if (!value || (typeof value === "string" && !value.trim())) {
-            return `${field.label} is required`;
+            const displayName = field.label || humanizeFieldName(field.name);
+            return `${displayName} is required`;
           }
         }
 
