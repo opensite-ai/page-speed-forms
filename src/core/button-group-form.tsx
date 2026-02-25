@@ -219,7 +219,7 @@ export function ButtonGroupForm({
           ) : null}
           <span
             className={cn(
-              "transition-opacity duration-200",
+              "transition-opacity duration-200 flex items-center justify-center",
               isSubmitting ? "opacity-0" : "opacity-100",
             )}
           >
