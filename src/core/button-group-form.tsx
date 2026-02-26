@@ -182,7 +182,6 @@ export function ButtonGroupForm({
       )}
       <ButtonGroup
         className={cn(
-          "rounded-md",
           !hasError && hasValue && "ring-2 ring-ring",
           hasError && "ring-1 ring-destructive",
         )}
@@ -194,7 +193,7 @@ export function ButtonGroupForm({
           aria-describedby={hasError ? errorId : undefined}
           className={cn(
             INPUT_SIZE_CLASSES[size],
-            "border-r-0 rounded-r-none focus-visible:z-10",
+            "border-r-0 !rounded-r-none focus-visible:z-10",
             inputProps.className,
           )}
         />
@@ -204,7 +203,7 @@ export function ButtonGroupForm({
           variant={submitVariant}
           disabled={isSubmitting}
           className={cn(
-            "relative rounded-l-none ring-0",
+            "relative !rounded-l-none ring-0",
             // 'sm' button variant is h-8; override to h-9 to align with input
             size === "sm" && "h-9",
           )}

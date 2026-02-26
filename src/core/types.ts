@@ -4,7 +4,7 @@
  * Provides type-safe form state management, validation, and submission handling
  */
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { FormFieldConfig } from "../integration";
 
 /**
@@ -669,6 +669,11 @@ export interface InputProps<T = string> {
    * Additional className
    */
   className?: string;
+
+  /**
+   * Inline style
+   */
+  style?: CSSProperties;
 
   /**
    * ARIA attributes

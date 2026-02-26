@@ -266,8 +266,10 @@ function useFileUploadContext(consumerName: string) {
   return context;
 }
 
-interface FileUploadProps
-  extends Omit<React.ComponentProps<"div">, "defaultValue" | "onChange"> {
+interface FileUploadProps extends Omit<
+  React.ComponentProps<"div">,
+  "defaultValue" | "onChange"
+> {
   value?: File[];
   defaultValue?: File[];
   onValueChange?: (files: File[]) => void;
@@ -985,7 +987,7 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       tabIndex={context.disabled ? -1 : 0}
       {...dropzoneProps}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-disabled:pointer-events-none data-dragging:border-primary/30 data-dragging:bg-accent/30 data-invalid:ring-destructive/20",
+        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-6 outline-none transition-colors hover:bg-accent/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 data-disabled:pointer-events-none data-disabled:opacity-50 data-dragging:border-ring data-dragging:bg-accent/50 data-invalid:border-destructive data-invalid:ring-destructive/20",
         className,
       )}
       onClick={onClick}

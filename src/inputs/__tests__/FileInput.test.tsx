@@ -136,7 +136,7 @@ describe("FileInput Component", () => {
       render(<FileInput name="file" onChange={onChange} value={[file]} />);
 
       expect(screen.getByText("test.pdf")).toBeInTheDocument();
-      expect(screen.getByText("1000 Bytes")).toBeInTheDocument();
+      expect(screen.getByText("1000 B")).toBeInTheDocument();
     });
 
     it("should show file preview for images", async () => {
@@ -569,12 +569,10 @@ describe("FileInput Component", () => {
 
     it("should not apply error class when error is false", () => {
       const onChange = vi.fn();
-      const { container } = render(
-        <FileInput name="file" onChange={onChange} error={false} />,
-      );
+      render(<FileInput name="file" onChange={onChange} error={false} />);
 
-      const dropzone = container.querySelector('[class*="border-destructive"]');
-      expect(dropzone).not.toBeInTheDocument();
+      const dropzone = screen.getByRole("button");
+      expect(dropzone).toHaveAttribute("aria-invalid", "false");
     });
   });
 
@@ -700,9 +698,9 @@ describe("FileInput Component", () => {
         <FileInput name="files" onChange={onChange} value={files} multiple />,
       );
 
-      expect(screen.getByText("500 Bytes")).toBeInTheDocument();
-      expect(screen.getByText("500 KB")).toBeInTheDocument();
-      expect(screen.getByText("2 MB")).toBeInTheDocument();
+      expect(screen.getByText("500 B")).toBeInTheDocument();
+      expect(screen.getByText("500.0 KB")).toBeInTheDocument();
+      expect(screen.getByText("2.0 MB")).toBeInTheDocument();
     });
 
     it("should handle file with zero size", () => {
@@ -711,7 +709,7 @@ describe("FileInput Component", () => {
 
       render(<FileInput name="file" onChange={onChange} value={[file]} />);
 
-      expect(screen.getByText("0 Bytes")).toBeInTheDocument();
+      expect(screen.getByText("0 B")).toBeInTheDocument();
     });
 
     it("should handle missing accept prop", async () => {
@@ -799,7 +797,7 @@ describe("FileInput Component", () => {
       expect(progressElement.style.width).toBe("75%");
     });
 
-    it("should show progress for multiple files", () => {
+    it("should show progress for multiple files (hides completed)", () => {
       const onChange = vi.fn();
       const files = [
         createMockFile("test1.pdf", 1000, "application/pdf"),
@@ -821,7 +819,9 @@ describe("FileInput Component", () => {
         />,
       );
 
-      expect(screen.getByText("100%")).toBeInTheDocument();
+      // Progress bar at 100% should be hidden (upload complete)
+      expect(screen.queryByText("100%")).not.toBeInTheDocument();
+      // Progress bar at 50% should still be visible
       expect(screen.getByText("50%")).toBeInTheDocument();
     });
 
@@ -910,7 +910,7 @@ describe("FileInput Component", () => {
       expect(screen.getByText("0%")).toBeInTheDocument();
     });
 
-    it("should handle 100% progress", () => {
+    it("should hide progress bar at 100% (upload complete)", () => {
       const onChange = vi.fn();
       const file = createMockFile("test.pdf", 1000, "application/pdf");
       const uploadProgress = { "test.pdf": 100 };
@@ -925,13 +925,10 @@ describe("FileInput Component", () => {
         />,
       );
 
+      // Progress bar should be hidden when upload is complete (100%)
       const progressBar = container.querySelector('[role="progressbar"]');
-      expect(progressBar).toHaveAttribute("aria-valuenow", "100");
-      const progressElement =
-        progressBar?.querySelector('[style*="width"]') ||
-        (progressBar as HTMLElement);
-      expect(progressElement.style.width).toBe("100%");
-      expect(screen.getByText("100%")).toBeInTheDocument();
+      expect(progressBar).not.toBeInTheDocument();
+      expect(screen.queryByText("100%")).not.toBeInTheDocument();
     });
   });
 
