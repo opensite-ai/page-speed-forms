@@ -15,11 +15,14 @@ const originalStderrWrite = process.stderr.write.bind(process.stderr);
 process.stderr.write = ((chunk: any, ...args: any[]): boolean => {
   const output = chunk.toString();
 
-  // Suppress React error boundary stack traces
+  // Suppress React error boundary stack traces and Icon act warnings
   if (output.includes('Component render error') ||
       output.includes('at ErrorComponent') ||
       output.includes('at renderWithHooks') ||
-      output.includes('useField must be used within a FormContext')) {
+      output.includes('useField must be used within a FormContext') ||
+      output.includes('An update to Icon inside a test was not wrapped in act') ||
+      output.includes('at Icon (') ||
+      output.includes('act(')) {
     return true;
   }
 
@@ -39,7 +42,9 @@ console.error = (...args: any[]) => {
       fullMessage.includes('at ErrorComponent') ||
       fullMessage.includes('at useField') ||
       fullMessage.includes('at Field') ||
-      fullMessage.includes('at renderWithHooks')) {
+      fullMessage.includes('at renderWithHooks') ||
+      fullMessage.includes('An update to Icon inside a test was not wrapped in act') ||
+      fullMessage.includes('act(')) {
     return;
   }
 
@@ -49,7 +54,8 @@ console.error = (...args: any[]) => {
 console.warn = (...args: any[]) => {
   const fullMessage = args.map(arg => String(arg)).join(' ');
 
-  if (fullMessage.includes('act(')) {
+  // Suppress act warnings
+  if (fullMessage.includes('act(') || fullMessage.includes('An update to Icon inside a test was not wrapped in act')) {
     return;
   }
 

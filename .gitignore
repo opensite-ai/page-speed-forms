@@ -17,6 +17,7 @@ dist/
 
 # Testing
 coverage/
+multistep-docs/
 
 # Environment
 .env

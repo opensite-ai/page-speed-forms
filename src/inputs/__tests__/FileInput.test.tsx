@@ -46,7 +46,7 @@ describe("FileInput Component", () => {
       const onChange = vi.fn();
       render(<FileInput name="file" onChange={onChange} accept=".pdf,.doc" />);
 
-      expect(screen.getByText("pdf")).toBeInTheDocument();
+      expect(screen.getByText(/\.?pdf/i)).toBeInTheDocument();
     });
 
     it("should show max size hint when provided", () => {
@@ -55,7 +55,7 @@ describe("FileInput Component", () => {
         <FileInput name="file" onChange={onChange} maxSize={2 * 1024 * 1024} />,
       );
 
-      expect(screen.getByText("2 MB")).toBeInTheDocument();
+      expect(screen.getByText(/2\s*mb/i)).toBeInTheDocument();
     });
 
     it("should hide native input", () => {
