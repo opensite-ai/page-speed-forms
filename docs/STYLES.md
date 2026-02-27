@@ -6,7 +6,7 @@ This package now ships with **Tailwind utility classes** and semantic color toke
 
 Components are styled with Tailwind class names such as:
 - `bg-transparent`, `border-input`, `text-foreground`
-- `ring-ring`, `bg-muted`, `bg-primary`, `text-primary-foreground`
+- `ring-primary`, `bg-muted`, `bg-primary`, `text-primary-foreground`
 - `bg-popover`, `text-popover-foreground`, `border-border`
 
 The package relies on your app's theme tokens (usually via CSS variables mapped to Tailwind semantic tokens).
@@ -40,16 +40,16 @@ If your design system already uses ShadCN-style token variables, no additional s
 
 - `border border-input`
 - `bg-transparent`
-- focus state: `focus-visible:ring-1 focus-visible:ring-ring`
+- focus state: `focus-visible:ring-1 focus-visible:ring-primary`
 - disabled state: `disabled:opacity-50 disabled:cursor-not-allowed`
 
 ### Value-present indicator
 For the controls above, when a field has a value and no error:
-- `ring-2 ring-ring`
+- `ring-2 ring-primary`
 
 ### Error state
 When `error` is true:
-- `border-destructive ring-1 ring-destructive`
+- `ring-2 ring-destructive`
 
 ### Dropdown and calendar selection states
 - Select-like menu options use `bg-muted` for selected rows.
@@ -79,8 +79,8 @@ Use `className` for additive customization, and always merge with `cn(...)` in c
 ```tsx
 className={cn(
   "flex h-9 w-full rounded-md border border-input bg-transparent",
-  hasValue && "ring-2 ring-ring",
-  error && "border-destructive ring-1 ring-destructive",
+  hasValue && "ring-2 ring-primary",
+  error && "border-destructive ring-2 ring-destructive",
   className,
 )}
 ```

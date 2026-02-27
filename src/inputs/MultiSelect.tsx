@@ -232,7 +232,8 @@ export function MultiSelect({
 
   const getEnabledOptions = React.useCallback(() => {
     return filteredOptions.filter(
-      (option) => !option.disabled && (!isMaxReached || value.includes(option.value)),
+      (option) =>
+        !option.disabled && (!isMaxReached || value.includes(option.value)),
     );
   }, [filteredOptions, isMaxReached, value]);
 
@@ -359,7 +360,9 @@ export function MultiSelect({
             currentEnabledIndex === -1
               ? 0
               : (currentEnabledIndex + 1) % enabledOptions.length;
-          setFocusedIndex(filteredOptions.indexOf(enabledOptions[nextEnabledIndex]));
+          setFocusedIndex(
+            filteredOptions.indexOf(enabledOptions[nextEnabledIndex]),
+          );
           break;
         }
 
@@ -492,9 +495,9 @@ export function MultiSelect({
             className={cn(
               "flex min-h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm",
               "cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-              !error && hasValue && "ring-2 ring-ring",
+              !error && hasValue && "ring-2 ring-primary",
               disabled && "cursor-not-allowed opacity-50 pointer-events-none",
-              error && "border-destructive ring-1 ring-destructive",
+              error && "ring-2 ring-destructive",
             )}
             onKeyDown={handleKeyDown}
             onBlur={handleTriggerBlur}
@@ -526,7 +529,9 @@ export function MultiSelect({
                             <button
                               type="button"
                               className="flex h-3.5 w-3.5 items-center justify-center rounded-sm border-none bg-transparent p-0 text-[0.625rem] transition-opacity hover:opacity-70"
-                              onClick={(e) => handleRemoveValue(option.value, e)}
+                              onClick={(e) =>
+                                handleRemoveValue(option.value, e)
+                              }
                               aria-label={`Remove ${optionLabelText(option)}`}
                               tabIndex={-1}
                             >
@@ -617,8 +622,8 @@ export function MultiSelect({
 
               {isMaxReached && (
                 <div className="border-b border-destructive bg-destructive/80 px-2 py-1 text-xs font-medium text-destructive-foreground">
-                  Maximum {maxSelections} selection{maxSelections !== 1 ? "s" : ""}{" "}
-                  reached
+                  Maximum {maxSelections} selection
+                  {maxSelections !== 1 ? "s" : ""} reached
                 </div>
               )}
 

@@ -37,8 +37,8 @@ Do not introduce hard-coded color assumptions that break token-driven theming.
 ### Text-like controls
 For `TextInput`, `TextArea`, `Select`, `MultiSelect`, `DatePicker`, `DateRangePicker`, `TimePicker`, and `RichTextEditor`:
 - Base: transparent background input shell
-- Value present: `ring-2 ring-ring` (when not error)
-- Error: `border-destructive ring-1 ring-destructive`
+- Value present: `ring-2 ring-primary` (when not error)
+- Error: `ring-2 ring-destructive`
 
 ### Dropdown/calendar internals
 - Selected items inside menus commonly use `bg-muted`

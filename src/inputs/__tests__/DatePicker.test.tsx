@@ -14,7 +14,7 @@ describe("DatePicker", () => {
 
       const input = screen.getByRole("textbox");
       expect(input).toBeInTheDocument();
-      expect(input).toHaveAttribute("placeholder", "Select date...");
+      expect(input).toHaveAttribute("placeholder", "Select date");
     });
 
     it("should render with custom placeholder", () => {
@@ -724,7 +724,7 @@ describe("DatePicker", () => {
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("border-destructive");
+      expect(input).toHaveClass("ring-destructive");
     });
 
     it("should apply disabled class when disabled is true", () => {

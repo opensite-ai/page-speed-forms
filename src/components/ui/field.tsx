@@ -16,24 +16,26 @@ interface FieldProps extends React.HTMLAttributes<HTMLDivElement> {
  * inputs, descriptions, and error messages.
  */
 const Field = React.forwardRef<HTMLDivElement, FieldProps>(
-({ className, orientation = "vertical", invalid = false, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      data-slot="field"
-      data-orientation={orientation}
-      data-invalid={invalid || undefined}
-      className={cn(
-        // Use space-y instead of flex to avoid interfering with parent grid layouts
-        orientation === "horizontal"
-          ? "flex items-center gap-2"
-          : "space-y-1.5",
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+  ({ className, orientation = "vertical", invalid = false, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        data-slot="field"
+        data-orientation={orientation}
+        data-invalid={invalid || undefined}
+        className={cn(
+          "relative",
+          // Use space-y instead of flex to avoid interfering with parent grid layouts
+          orientation === "horizontal"
+            ? "flex items-center gap-2"
+            : "space-y-1.5",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 Field.displayName = "Field";
 
 /**
@@ -120,7 +122,10 @@ const FieldError = React.forwardRef<
       data-slot="field-error"
       role="alert"
       aria-live="polite"
-      className={cn("text-sm text-destructive", className)}
+      className={cn(
+        "text-xs text-destructive absolute -bottom-1/2 left-0",
+        className,
+      )}
       {...props}
     />
   );

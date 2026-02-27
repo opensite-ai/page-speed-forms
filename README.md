@@ -227,7 +227,7 @@ It is **not** a BEM-only unstyled package anymore.
 ### Base conventions
 
 - Inputs/triggers are transparent shells with semantic borders/rings
-- Fields with values (text-like controls) use `ring-2 ring-ring`
+- Fields with values (text-like controls) use `ring-2 ring-primary`
 - Error states use destructive border/ring
 - Dropdown selected rows use muted backgrounds
 

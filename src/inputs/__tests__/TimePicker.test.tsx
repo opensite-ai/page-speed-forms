@@ -37,7 +37,10 @@ describe("TimePicker", () => {
         />,
       );
 
-      expect(getTimeInput(container)).toHaveAttribute("placeholder", "Pick a time");
+      expect(getTimeInput(container)).toHaveAttribute(
+        "placeholder",
+        "Pick a time",
+      );
     });
 
     it("should normalize 12-hour value into native input value", () => {
@@ -58,7 +61,11 @@ describe("TimePicker", () => {
 
     it("should render empty value when provided value is invalid", () => {
       const { container } = render(
-        <TimePicker name="appointment" value="not-a-time" onChange={() => {}} />,
+        <TimePicker
+          name="appointment"
+          value="not-a-time"
+          onChange={() => {}}
+        />,
       );
 
       expect(getTimeInput(container)).toHaveValue("");
@@ -255,7 +262,7 @@ describe("TimePicker", () => {
         <TimePicker name="appointment" value="2:30 PM" onChange={() => {}} />,
       );
 
-      expect(getTimeInput(container)).toHaveClass("ring-2", "ring-ring");
+      expect(getTimeInput(container)).toHaveClass("ring-2", "ring-primary");
     });
 
     it("should not apply ring style when no value is present", () => {
@@ -276,11 +283,7 @@ describe("TimePicker", () => {
         />,
       );
 
-      expect(getTimeInput(container)).toHaveClass(
-        "border-destructive",
-        "ring-1",
-        "ring-destructive",
-      );
+      expect(getTimeInput(container)).toHaveClass("ring-2", "ring-destructive");
     });
 
     it("should support custom wrapper className", () => {
@@ -298,12 +301,7 @@ describe("TimePicker", () => {
 
     it("should expose invalid aria state when error is true", () => {
       const { container } = render(
-        <TimePicker
-          name="appointment"
-          value=""
-          onChange={() => {}}
-          error
-        />,
+        <TimePicker name="appointment" value="" onChange={() => {}} error />,
       );
 
       expect(getTimeInput(container)).toHaveAttribute("aria-invalid", "true");

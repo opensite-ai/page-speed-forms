@@ -517,18 +517,18 @@ export function FileInput({
     const metaList: string[] = [];
 
     if (accept) {
-      metaList.push(`Accepted: ${accept}`);
+      metaList.push(`File type: ${accept}`);
     }
 
     if (maxSize) {
-      metaList.push(`Max size: ${formatFileSize(maxSize)}`);
+      metaList.push(`Max file size: ${formatFileSize(maxSize)}`);
     }
 
     if (metaList.length > 0) {
       return (
-        <div className="flex text-center items-center justify-center gap-4">
+        <div className="flex text-center items-center justify-center gap-1 opacity-75 text-xs">
           {metaList.map((str) => (
-            <span key={str} className="font-sm opacity-75">
+            <span key={str} className="relative">
               {str}
             </span>
           ))}

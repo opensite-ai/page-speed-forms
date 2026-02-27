@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DateRangePicker, DateRange } from "../DateRangePicker";
 
@@ -907,7 +913,7 @@ describe("DateRangePicker", () => {
       );
 
       const input = screen.getByRole("textbox");
-      expect(input).toHaveClass("border-destructive");
+      expect(input).toHaveClass("ring-destructive");
     });
 
     it("should apply disabled class when disabled is true", () => {

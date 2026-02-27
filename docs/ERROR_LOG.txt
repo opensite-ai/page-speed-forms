@@ -1,0 +1,226 @@
+ FAIL  src/inputs/__tests__/FileInput.test.tsx > FileInput Component > Basic Rendering > should show accept hint when provided
+TestingLibraryElementError: Unable to find an element with the text: pdf. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="relative flex flex-col gap-2"
+      data-slot="file-upload"
+      dir="ltr"
+    >
+      <div
+        aria-controls=":rl: :rn:"
+        aria-disabled="false"
+        aria-invalid="false"
+        aria-label="Drag & drop file here"
+        class="relative select-none flex-col gap-2 rounded-lg border border-dashed outline-none hover:ring-primary focus-visible:ring-2 focus-visible:ring-primary data-disabled:pointer-events-none data-disabled:opacity-50 data-dragging:ring-2 data-dragging:ring-primary data-invalid:ring-2 data-invalid:ring-destructive flex min-h-32 w-full cursor-pointer items-center justify-center border-input bg-transparent p-6 transition-colors data-[dragging]:ring-2 hover:ring-2"
+        data-slot="file-upload-dropzone"
+        dir="ltr"
+        id=":rm:"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="flex flex-col items-center gap-3 text-center"
+        >
+          <div
+            class="flex items-center justify-center rounded-full border p-2.5"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+            >
+              <path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+              />
+              <polyline
+                points="17 8 12 3 7 8"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="3"
+                y2="15"
+              />
+            </svg>
+          </div>
+          <div
+            class="flex flex-col items-center justify-center gap-1 text-center"
+          >
+            <p
+              class="text-sm font-medium"
+            >
+              Drag & drop file here
+            </p>
+            <div
+              class="flex text-center items-center justify-center gap-1 opacity-75 text-xs"
+            >
+              <span
+                class="relative"
+              >
+                File type: .pdf,.doc
+              </span>
+              <span
+                class="relative"
+              >
+                Max file size: 5 MB
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input
+        accept=".pdf,.doc"
+        aria-labelledby=":ro:"
+        class="sr-only"
+        id=":rl:"
+        name="file"
+        style="display: none;"
+        tabindex="-1"
+        type="file"
+      />
+      <div
+        class="sr-only"
+        id=":ro:"
+      >
+        File upload
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/inputs/__tests__/FileInput.test.tsx:49:21
+     47|       render(<FileInput name="file" onChange={onChange} accept=".pdf,.…
+     48| 
+     49|       expect(screen.getByText("pdf")).toBeInTheDocument();
+       |                     ^
+     50|     });
+     51| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/inputs/__tests__/FileInput.test.tsx > FileInput Component > Basic Rendering > should show max size hint when provided
+TestingLibraryElementError: Unable to find an element with the text: 2 MB. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="relative flex flex-col gap-2"
+      data-slot="file-upload"
+      dir="ltr"
+    >
+      <div
+        aria-controls=":rs: :ru:"
+        aria-disabled="false"
+        aria-invalid="false"
+        aria-label="Drag & drop file here"
+        class="relative select-none flex-col gap-2 rounded-lg border border-dashed outline-none hover:ring-primary focus-visible:ring-2 focus-visible:ring-primary data-disabled:pointer-events-none data-disabled:opacity-50 data-dragging:ring-2 data-dragging:ring-primary data-invalid:ring-2 data-invalid:ring-destructive flex min-h-32 w-full cursor-pointer items-center justify-center border-input bg-transparent p-6 transition-colors data-[dragging]:ring-2 hover:ring-2"
+        data-slot="file-upload-dropzone"
+        dir="ltr"
+        id=":rt:"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="flex flex-col items-center gap-3 text-center"
+        >
+          <div
+            class="flex items-center justify-center rounded-full border p-2.5"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+            >
+              <path
+                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+              />
+              <polyline
+                points="17 8 12 3 7 8"
+              />
+              <line
+                x1="12"
+                x2="12"
+                y1="3"
+                y2="15"
+              />
+            </svg>
+          </div>
+          <div
+            class="flex flex-col items-center justify-center gap-1 text-center"
+          >
+            <p
+              class="text-sm font-medium"
+            >
+              Drag & drop file here
+            </p>
+            <div
+              class="flex text-center items-center justify-center gap-1 opacity-75 text-xs"
+            >
+              <span
+                class="relative"
+              >
+                Max file size: 2 MB
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input
+        aria-labelledby=":rv:"
+        class="sr-only"
+        id=":rs:"
+        name="file"
+        style="display: none;"
+        tabindex="-1"
+        type="file"
+      />
+      <div
+        class="sr-only"
+        id=":rv:"
+      >
+        File upload
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/inputs/__tests__/FileInput.test.tsx:58:21
+     56|       );
+     57| 
+     58|       expect(screen.getByText("2 MB")).toBeInTheDocument();
+       |                     ^
+     59|     });
+     60| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 16 passed | 7 skipped (24)
+      Tests  2 failed | 444 passed | 320 skipped (766)
+   Start at  02:40:49
+   Duration  6.65s (transform 2.43s, setup 2.42s, collect 14.35s, tests 12.81s, environment 15.09s, prepare 199ms)
+
+ ELIFECYCLE  Command failed with exit code 1.
+ ELIFECYCLE  Command failed with exit code 1.

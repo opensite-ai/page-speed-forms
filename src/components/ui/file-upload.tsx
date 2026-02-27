@@ -987,7 +987,13 @@ function FileUploadDropzone(props: FileUploadDropzoneProps) {
       tabIndex={context.disabled ? -1 : 0}
       {...dropzoneProps}
       className={cn(
-        "relative flex select-none flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-6 outline-none transition-colors hover:bg-accent/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20 data-disabled:pointer-events-none data-disabled:opacity-50 data-dragging:border-ring data-dragging:bg-accent/50 data-invalid:border-destructive data-invalid:ring-destructive/20",
+        "relative flex select-none flex-col items-center",
+        "justify-center gap-2 rounded-lg border border-dashed p-6",
+        "outline-none transition-colors hover:ring-2 hover:ring-primary",
+        "focus-visible:ring-2 focus-visible:ring-primary",
+        "data-disabled:pointer-events-none data-disabled:opacity-50 ",
+        "data-dragging:ring-2 data-dragging:ring-primary",
+        "data-invalid:ring-2 data-invalid:ring-destructive",
         className,
       )}
       onClick={onClick}

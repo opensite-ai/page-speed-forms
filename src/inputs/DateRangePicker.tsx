@@ -106,7 +106,11 @@ function formatDate(date: Date | null, format: string): string {
 }
 
 function toDayTimestamp(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  ).getTime();
 }
 
 function isSameDay(date: Date, target: Date | null): boolean {
@@ -114,7 +118,11 @@ function isSameDay(date: Date, target: Date | null): boolean {
   return toDayTimestamp(date) === toDayTimestamp(target);
 }
 
-function isDateInRange(date: Date, start: Date | null, end: Date | null): boolean {
+function isDateInRange(
+  date: Date,
+  start: Date | null,
+  end: Date | null,
+): boolean {
   if (!start || !end) return false;
 
   const value = toDayTimestamp(date);
@@ -296,7 +304,8 @@ export function DateRangePicker({
         !rangeEnd &&
         !!hoverDate &&
         isDateInRange(date, rangeStart, hoverDate);
-      const isRangeHighlight = (isInCommittedRange || isInHoverRange) && !isRangeEndpoint;
+      const isRangeHighlight =
+        (isInCommittedRange || isInHoverRange) && !isRangeEndpoint;
       const isToday = isSameDay(date, new Date());
 
       return (
@@ -306,10 +315,15 @@ export function DateRangePicker({
           className={cn(
             "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
             "hover:bg-accent",
-            isRangeEndpoint && "bg-primary text-primary-foreground font-semibold",
+            isRangeEndpoint &&
+              "bg-primary text-primary-foreground font-semibold",
             isRangeHighlight && "bg-accent",
-            !isRangeEndpoint && !isRangeHighlight && isToday && "border border-primary",
-            modifiers.disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+            !isRangeEndpoint &&
+              !isRangeHighlight &&
+              isToday &&
+              "border border-primary",
+            modifiers.disabled &&
+              "cursor-not-allowed opacity-50 pointer-events-none",
             dayClassName,
           )}
           onClick={(event) => {
@@ -404,8 +418,8 @@ export function DateRangePicker({
                 INPUT_AUTOFILL_RESET_CLASSES,
                 showIcon ? "pl-10" : "pl-3",
                 clearable && (rangeStart || rangeEnd) ? "pr-10" : "pr-3",
-                !error && hasValue && "ring-2 ring-ring",
-                error && "border-destructive ring-1 ring-destructive",
+                !error && hasValue && "ring-2 ring-primary",
+                error && "ring-2 ring-destructive",
               )}
               value={displayValue}
               onClick={handleInputClick}

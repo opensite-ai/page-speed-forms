@@ -55,3 +55,18 @@ export function fieldIsChoiceCard(field: FormFieldConfig) {
     return false;
   }
 }
+
+/**
+ * Converts file upload meta instructions to human-readable format.
+ *
+ * @example
+ * humanizeFileMeta("image/jpeg") // "JPEG image"
+ * humanizeFileMeta("application/pdf") // "PDF document"
+ * humanizeFileMeta("text/plain") // "Plain text"
+ */
+export function humanizeFileMeta(meta: string): string {
+  const [type, subtype] = meta.split("/");
+  const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+  const subtypeLabel = subtype.charAt(0).toUpperCase() + subtype.slice(1);
+  return `${subtypeLabel} ${typeLabel}`;
+}

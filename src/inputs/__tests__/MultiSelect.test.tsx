@@ -707,11 +707,7 @@ describe("MultiSelect", () => {
       );
 
       const trigger = container.querySelector("[role='combobox']");
-      expect(trigger).toHaveClass(
-        "border-destructive",
-        "ring-1",
-        "ring-destructive",
-      );
+      expect(trigger).toHaveClass("ring-2", "ring-destructive");
     });
 
     it("should apply custom className", () => {

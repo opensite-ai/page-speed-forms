@@ -86,7 +86,7 @@ export function DynamicFormField({
 
   const fieldClassName = React.useMemo(() => {
     if (usesChoiceCard) {
-      return "p-4 border rounded rounded-lg bg-muted/20";
+      return "p-4 border rounded rounded-lg";
     } else {
       return "";
     }

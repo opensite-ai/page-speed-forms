@@ -3,10 +3,7 @@
 import * as React from "react";
 import type { InputProps } from "../core/types";
 import { Checkbox as CheckboxPrimitive } from "../components/ui/checkbox";
-import {
-  FieldDescription,
-  FieldLabel,
-} from "../components/ui/field";
+import { FieldDescription, FieldLabel } from "../components/ui/field";
 import { cn } from "../lib/utils";
 
 /**
@@ -146,9 +143,9 @@ export function Checkbox({
         htmlFor={checkboxId}
         className={cn(
           "flex gap-3 p-3 duration-200 select-auto font-normal leading-normal",
-          showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-ring/50",
-          showChoiceCard && value && "ring-2 ring-ring",
-          showChoiceCard && error && "border-destructive",
+          showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-primary",
+          showChoiceCard && value && "ring-2 ring-primary",
+          showChoiceCard && error && "ring-2 ring-destructive",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
           className,
         )}

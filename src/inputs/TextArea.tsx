@@ -112,7 +112,7 @@ export function TextArea({
       required={required}
       className={cn(
         // Valid value indicator - ring-2 when has value and no error
-        !error && hasValue && "ring-2 ring-ring",
+        !error && hasValue && "ring-2 ring-primary",
         // Error state - handled by Textarea component via aria-invalid
         className,
       )}

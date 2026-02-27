@@ -221,8 +221,8 @@ export function TimePicker({
             INPUT_AUTOFILL_RESET_CLASSES,
             showIcon ? "pl-10" : "pl-3",
             clearable && value ? "pr-10" : "pr-3",
-            !error && hasValue && "ring-2 ring-ring",
-            error && "border-destructive ring-1 ring-destructive",
+            !error && hasValue && "ring-2 ring-primary",
+            error && "ring-2 ring-destructive",
           )}
           value={nativeValue}
           onChange={handleChange}

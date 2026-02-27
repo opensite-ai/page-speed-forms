@@ -157,7 +157,7 @@ export function Select({
         <SelectTrigger
           className={cn(
             // Valid value indicator - ring-2 when has value and no error
-            !error && hasValue && "ring-2 ring-ring",
+            !error && hasValue && "ring-2 ring-primary",
             // Error state - handled by SelectTrigger via aria-invalid
             className,
           )}
@@ -167,13 +167,25 @@ export function Select({
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-      <SelectContent>
-        {optionGroups.length > 0 ? (
-          // Render grouped options
-          optionGroups.map((group, groupIndex) => (
-            <SelectGroup key={groupIndex}>
-              <SelectLabel>{group.label}</SelectLabel>
-              {group.options.map((option) => (
+        <SelectContent>
+          {optionGroups.length > 0
+            ? // Render grouped options
+              optionGroups.map((group, groupIndex) => (
+                <SelectGroup key={groupIndex}>
+                  <SelectLabel>{group.label}</SelectLabel>
+                  {group.options.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      disabled={option.disabled}
+                    >
+                      {renderOption ? renderOption(option) : option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              ))
+            : // Render flat options
+              allOptions.map((option) => (
                 <SelectItem
                   key={option.value}
                   value={option.value}
@@ -182,22 +194,8 @@ export function Select({
                   {renderOption ? renderOption(option) : option.label}
                 </SelectItem>
               ))}
-            </SelectGroup>
-          ))
-        ) : (
-          // Render flat options
-          allOptions.map((option) => (
-            <SelectItem
-              key={option.value}
-              value={option.value}
-              disabled={option.disabled}
-            >
-              {renderOption ? renderOption(option) : option.label}
-            </SelectItem>
-          ))
-        )}
-      </SelectContent>
-    </SelectPrimitive>
+        </SelectContent>
+      </SelectPrimitive>
     </>
   );
 }
