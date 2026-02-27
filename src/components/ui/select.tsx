@@ -49,22 +49,25 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        // Core structure - uses CSS variables
+        // Core structure - uses CSS variables (matched to Input component)
         "flex w-full items-center justify-between gap-2 rounded-md border border-input",
-        "bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs",
-        "transition-[color,box-shadow] outline-none",
+        "bg-transparent px-3 py-1 text-base whitespace-nowrap shadow-sm",
+        "transition-colors outline-none md:text-sm",
 
-        // Focus state
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+        // Focus state (matched to Input component)
+        "focus-visible:ring-1 focus-visible:ring-ring",
 
-        // Error state
-        "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
+        // Error state (matched to Input component)
+        "aria-invalid:border-destructive aria-invalid:ring-1 aria-invalid:ring-destructive",
 
         // Disabled state
         "disabled:cursor-not-allowed disabled:opacity-50",
 
         // Size variants
         "data-[size=default]:h-9 data-[size=sm]:h-8",
+
+        // Placeholder styling (match native input ::placeholder appearance)
+        "data-[placeholder]:text-muted-foreground data-[placeholder]:font-normal",
 
         // Value styling
         "*:data-[slot=select-value]:line-clamp-1",

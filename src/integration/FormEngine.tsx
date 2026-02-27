@@ -313,7 +313,7 @@ export function FormEngine(props: FormEngineProps) {
           <>
             <div
               className={cn(
-                "grid grid-cols-12 space-y-8 gap-x-6 md:gap-x-8",
+                "grid grid-cols-12 gap-6 md:gap-10",
                 styleRules?.fieldsContainer,
               )}
             >

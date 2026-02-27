@@ -244,7 +244,7 @@ export function CheckboxGroup({
       "w-full grid grid-cols-1 border-0 m-0 p-0 min-w-0",
       layout === "grid" && "grid grid-cols-1 md:grid-cols-2 ",
       layout === "inline" && "flex flex-wrap",
-      useChoiceCard ? "gap-x-6 space-y-4" : "gap-0",
+      useChoiceCard ? "gap-x-6 gap-y-4" : "gap-0",
       className,
     );
   }, [layout, className, useChoiceCard]);

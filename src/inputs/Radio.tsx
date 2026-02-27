@@ -15,7 +15,6 @@ export interface RadioOption {
    * The value for this radio option
    */
   value: string;
-
   /**
    * Display label for the option (primary text)
    */
@@ -152,7 +151,7 @@ export function Radio({
         className={cn(
           layout === "grid" && "grid grid-cols-1 md:grid-cols-2 ",
           layout === "inline" && "flex flex-wrap",
-          useChoiceCard ? "gap-x-6 space-y-4" : "gap-0",
+          useChoiceCard ? "gap-x-6 gap-y-4" : "gap-0",
         )}
         aria-invalid={error || props["aria-invalid"]}
         aria-describedby={groupDescriptionId || props["aria-describedby"]}
@@ -172,7 +171,7 @@ export function Radio({
                 "flex gap-3 duration-200",
                 "select-auto font-normal leading-normal",
                 useChoiceCard && "hover:ring-2 hover:ring-primary",
-                useChoiceCard && "border rounded-lg p-3",
+                useChoiceCard && "border rounded-lg py-3 pl-3 pr-2",
                 !useChoiceCard && "p-1",
                 useChoiceCard && isSelected && "ring-2 ring-primary",
                 useChoiceCard && error && "border-destructive",
@@ -201,7 +200,7 @@ export function Radio({
                   {option.description && (
                     <FieldDescription
                       id={`${radioId}-description`}
-                      className="leading-snug"
+                      className="leading-snug tracking-tight"
                     >
                       {option.description}
                     </FieldDescription>

@@ -390,7 +390,7 @@ export function DatePicker({
                 DayButton: DatePickerDayButton,
               }}
               classNames={{
-                today: "border border-primary rounded-md bg-transparent",
+                today: "ring-2 ring-primary rounded-md bg-transparent",
               }}
             />
           </PopoverContent>
