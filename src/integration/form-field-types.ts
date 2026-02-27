@@ -228,3 +228,13 @@ export function getColumnSpanClass(span?: number): string {
   const clamped = Math.max(1, Math.min(span, 12));
   return columnSpanClasses[clamped] || "col-span-12";
 }
+
+/**
+ * Self-contained CSS that makes the 12-column form grid work even when
+ * the consuming app's Tailwind build does not generate the col-span-*
+ * and grid-cols-12 utility classes from this library's dist output.
+ *
+ * Uses data-attribute selectors so there is no collision with Tailwind.
+ * When Tailwind IS present the rules are harmless duplicates.
+ */
+export const FORM_GRID_FALLBACK_CSS = `[data-psf-grid]{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1.5rem}@media(min-width:768px){[data-psf-grid]{gap:2.5rem}}[data-psf-col]{grid-column:span 12/span 12;min-width:0}@media(min-width:768px){[data-psf-col="1"]{grid-column:span 1/span 1}[data-psf-col="2"]{grid-column:span 2/span 2}[data-psf-col="3"]{grid-column:span 3/span 3}[data-psf-col="4"]{grid-column:span 4/span 4}[data-psf-col="5"]{grid-column:span 5/span 5}[data-psf-col="6"]{grid-column:span 6/span 6}[data-psf-col="7"]{grid-column:span 7/span 7}[data-psf-col="8"]{grid-column:span 8/span 8}[data-psf-col="9"]{grid-column:span 9/span 9}[data-psf-col="10"]{grid-column:span 10/span 10}[data-psf-col="11"]{grid-column:span 11/span 11}[data-psf-col="12"]{grid-column:span 12/span 12}}`;

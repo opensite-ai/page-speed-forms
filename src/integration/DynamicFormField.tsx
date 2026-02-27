@@ -86,7 +86,7 @@ export function DynamicFormField({
 
   const fieldClassName = React.useMemo(() => {
     if (usesChoiceCard) {
-      return "p-4 border rounded rounded-lg";
+      return "p-4 border rounded-lg";
     } else {
       return "";
     }
@@ -114,17 +114,17 @@ export function DynamicFormField({
             field.type === "search" ||
             field.type === "password" ||
             field.type === "url") && (
-            <TextInput
-              {...formField}
-              id={fieldId}
-              type={field.type}
-              placeholder={field.placeholder}
-              error={meta.touched && !!meta.error}
-              disabled={field.disabled}
-              aria-label={field.label}
-              iconStart={getDefaultIconStart(field)}
-            />
-          )}
+              <TextInput
+                {...formField}
+                id={fieldId}
+                type={field.type}
+                placeholder={field.placeholder}
+                error={meta.touched && !!meta.error}
+                disabled={field.disabled}
+                aria-label={field.label}
+                iconStart={getDefaultIconStart(field)}
+              />
+            )}
 
           {field.type === "number" && (
             <TextInput

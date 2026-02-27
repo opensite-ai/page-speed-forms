@@ -5,7 +5,10 @@ import { cn } from "../lib/utils";
 import { Button } from "../components/ui/button";
 import { Form } from "../core/Form";
 import { DynamicFormField } from "./DynamicFormField";
-import { getColumnSpanClass } from "./form-field-types";
+import {
+  getColumnSpanClass,
+  FORM_GRID_FALLBACK_CSS,
+} from "./form-field-types";
 import type { FormFieldConfig } from "./form-field-types";
 import type { FormRenderConfig } from "../core/types";
 import type { PageSpeedFormConfig } from "./form-submit";
@@ -36,12 +39,12 @@ export interface ButtonGroupFormSetup {
   size?: "xs" | "sm" | "default" | "lg";
   submitLabel?: React.ReactNode;
   submitVariant?:
-    | "link"
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost";
+  | "link"
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
   submitIconName?: string;
   submitIconComponent?: React.ReactNode;
 }
@@ -49,12 +52,12 @@ export interface ButtonGroupFormSetup {
 export interface FormEngineSubmitButtonSetup {
   submitLabel?: React.ReactNode;
   submitVariant?:
-    | "link"
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost";
+  | "link"
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost";
   submitIconName?: string;
   submitIconComponent?: React.ReactNode;
 }
@@ -311,30 +314,40 @@ export function FormEngine(props: FormEngineProps) {
       >
         {!isButtonGroup && (
           <>
+            {/* Fallback CSS ensures grid works even when consuming app's
+                Tailwind build doesn't generate the col-span-* utilities */}
+            <style
+              dangerouslySetInnerHTML={{ __html: FORM_GRID_FALLBACK_CSS }}
+            />
             <div
+              data-psf-grid=""
               className={cn(
                 "grid grid-cols-12 gap-6 md:gap-10",
                 styleRules?.fieldsContainer,
               )}
             >
-              {formFields.map((field) => (
-                <div
-                  key={field.name}
-                  className={cn(
-                    getColumnSpanClass(field.columnSpan ?? 12),
-                    "min-w-0",
-                  )}
-                >
-                  <DynamicFormField
-                    field={field}
-                    className={field.className ?? styleRules?.fieldClassName}
-                    uploadProgress={uploadProgress}
-                    onFileUpload={onFileUpload}
-                    onFileRemove={onFileRemove}
-                    isUploading={isUploading}
-                  />
-                </div>
-              ))}
+              {formFields.map((field) => {
+                const span = field.columnSpan ?? 12;
+                return (
+                  <div
+                    key={field.name}
+                    data-psf-col={String(span)}
+                    className={cn(
+                      getColumnSpanClass(span),
+                      "min-w-0",
+                    )}
+                  >
+                    <DynamicFormField
+                      field={field}
+                      className={field.className ?? styleRules?.fieldClassName}
+                      uploadProgress={uploadProgress}
+                      onFileUpload={onFileUpload}
+                      onFileRemove={onFileRemove}
+                      isUploading={isUploading}
+                    />
+                  </div>
+                );
+              })}
             </div>
             <Button
               type="submit"
