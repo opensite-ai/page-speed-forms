@@ -65,10 +65,10 @@ describe("DatePicker", () => {
         />,
       );
 
-      const icon = screen
+      const iconWrapper = screen
         .getByRole("textbox")
-        .parentElement?.querySelector("svg");
-      expect(icon).toBeInTheDocument();
+        .parentElement?.querySelector('span[aria-hidden="true"]');
+      expect(iconWrapper).toBeInTheDocument();
     });
 
     it("should not render calendar icon when showIcon is false", () => {
@@ -81,10 +81,10 @@ describe("DatePicker", () => {
         />,
       );
 
-      const icon = screen
+      const iconWrapper = screen
         .getByRole("textbox")
-        .parentElement?.querySelector("svg");
-      expect(icon).not.toBeInTheDocument();
+        .parentElement?.querySelector('span[aria-hidden="true"]');
+      expect(iconWrapper).not.toBeInTheDocument();
     });
 
     it("should render clear button when value is present and clearable is true", () => {

@@ -150,8 +150,9 @@ export function Radio({
         disabled={disabled}
         required={required}
         className={cn(
-          layout === "grid" && "grid grid-cols-1 md:grid-cols-2 gap-3",
-          layout === "inline" && "flex flex-wrap gap-0",
+          layout === "grid" && "grid grid-cols-1 md:grid-cols-2",
+          layout === "inline" && "flex flex-wrap",
+          useChoiceCard ? "gap-3" : "gap-0",
         )}
         aria-invalid={error || props["aria-invalid"]}
         aria-describedby={groupDescriptionId || props["aria-describedby"]}
@@ -168,10 +169,11 @@ export function Radio({
               key={option.value}
               htmlFor={radioId}
               className={cn(
-                "flex gap-3 p-3 duration-200",
+                "flex gap-3 duration-200",
                 "select-auto font-normal leading-normal",
-                useChoiceCard &&
-                  "border rounded-lg hover:ring-2 hover:ring-ring/50",
+                useChoiceCard && "hover:ring-2 hover:ring-ring",
+                useChoiceCard && "border rounded-lg p-3",
+                !useChoiceCard && "p-1",
                 useChoiceCard && isSelected && "ring-2 ring-ring",
                 useChoiceCard && error && "border-destructive",
                 isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",

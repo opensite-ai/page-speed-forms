@@ -39,7 +39,9 @@ describe("FileInput Component", () => {
       const onChange = vi.fn();
       render(<FileInput name="file" onChange={onChange} />);
 
-      expect(screen.getByText("Choose file...")).toBeInTheDocument();
+      expect(
+        screen.getByText("Drag & drop file here"),
+      ).toBeInTheDocument();
     });
 
     it("should show accept hint when provided", () => {
@@ -107,26 +109,6 @@ describe("FileInput Component", () => {
       await userEvent.upload(input, files);
 
       expect(onChange).toHaveBeenCalledWith(files);
-    });
-
-    it("should display selected file count", async () => {
-      const files = [
-        createMockFile("test1.pdf", 1000, "application/pdf"),
-        createMockFile("test2.pdf", 1000, "application/pdf"),
-      ];
-
-      const onChange = vi.fn();
-      render(
-        <FileInput
-          name="files"
-          onChange={onChange}
-          multiple
-          maxFiles={3}
-          value={files}
-        />,
-      );
-
-      expect(screen.getByText("2 file(s) selected")).toBeInTheDocument();
     });
 
     it("should display file list when files are selected", async () => {

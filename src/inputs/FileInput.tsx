@@ -514,17 +514,17 @@ export function FileInput({
   }, [multiple, placeholder]);
 
   const metadataElement = React.useMemo(() => {
-    let metaList: string[] = [];
+    const metaList: string[] = [];
 
     if (accept) {
-      metaList.concat(`File types: ${accept}`);
+      metaList.push(`Accepted: ${accept}`);
     }
 
     if (maxSize) {
-      metaList.concat(`Max size: ${maxSize}`);
+      metaList.push(`Max size: ${formatFileSize(maxSize)}`);
     }
 
-    if (metaList?.length > 0) {
+    if (metaList.length > 0) {
       return (
         <div className="flex text-center items-center justify-center gap-4">
           {metaList.map((str) => (
@@ -628,7 +628,7 @@ export function FileInput({
                   {hasProgress && progressValue < 100 ? (
                     <div className="mt-1 flex items-center gap-2">
                       <div
-                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-primary"
+                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-accent/40"
                         role="progressbar"
                         aria-valuenow={progressValue}
                         aria-valuemin={0}
@@ -642,7 +642,9 @@ export function FileInput({
                       </div>
                       <span className="text-xs">{progressValue}%</span>
                     </div>
-                  ) : null}
+                  ) : (
+                    <span className="text-xs">{formatFileSize(file.size)}</span>
+                  )}
                 </div>
 
                 {enableCropping && file.type.startsWith("image/") ? (
