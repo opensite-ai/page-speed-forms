@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",

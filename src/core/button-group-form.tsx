@@ -191,6 +191,7 @@ export function ButtonGroupForm({
           id={inputId}
           suppressValueRing
           aria-describedby={hasError ? errorId : undefined}
+          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
           className={cn(
             INPUT_SIZE_CLASSES[size],
             "border-r-0 !rounded-r-none focus-visible:z-10",
@@ -202,6 +203,7 @@ export function ButtonGroupForm({
           type="submit"
           variant={submitVariant}
           disabled={isSubmitting}
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
           className={cn(
             "relative !rounded-l-none ring-0",
             // 'sm' button variant is h-8; override to h-9 to align with input
