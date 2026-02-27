@@ -1,6 +1,6 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
 /**
  * Textarea component - Optimized for dynamic theming across thousands of client brands
@@ -14,7 +14,7 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
       data-slot="textarea"
       className={cn(
         // Core structure - uses CSS variables only
-        "flex field-sizing-content min-h-16 w-full rounded-md border border-input",
+        "flex field-sizing-content min-h-32 w-full rounded-md border border-input",
         "bg-transparent px-3 py-2 text-base shadow-xs",
         "transition-[color,box-shadow] outline-none md:text-sm",
 
@@ -27,11 +27,11 @@ function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
         // Disabled state
         "disabled:cursor-not-allowed disabled:opacity-50",
 
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Textarea }
+export { Textarea };

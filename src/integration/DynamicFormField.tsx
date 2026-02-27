@@ -16,6 +16,8 @@ import {
   TimePicker,
 } from "../inputs";
 import type { FormFieldConfig } from "./form-field-types";
+import { cn, fieldIsChoiceCard } from "../lib/utils";
+import { DEFAULT_ICON_API_BASE_URL, Icon } from "@page-speed/icon";
 
 export interface DynamicFormFieldProps {
   field: FormFieldConfig;
@@ -32,6 +34,39 @@ export interface DynamicFormFieldProps {
   renderLabel?: boolean;
 }
 
+/** Icon name mapping for field types that get an automatic start icon. */
+const FIELD_TYPE_ICON_MAP: Record<string, string> = {
+  email: "material-symbols/mark-email-unread-outline-rounded",
+  tel: "material-symbols/phone-iphone-outline",
+  url: "flowbite/link-solid",
+};
+
+/** Returns a default iconStart element for supported field types, or undefined. */
+function getDefaultIconStart(
+  field: FormFieldConfig,
+): React.ReactNode | undefined {
+  // Check explicit type mapping first
+  const iconName = FIELD_TYPE_ICON_MAP[field.type];
+  if (iconName) {
+    return (
+      <Icon name={iconName} apiKey={DEFAULT_ICON_API_BASE_URL} size={18} />
+    );
+  }
+
+  // Special case: text field named "table_server_name"
+  if (field.type === "text" && field.name === "table_server_name") {
+    return (
+      <Icon
+        name="majesticons/user-box-line"
+        apiKey={DEFAULT_ICON_API_BASE_URL}
+        size={18}
+      />
+    );
+  }
+
+  return undefined;
+}
+
 /**
  * Dynamic renderer for form field schema configuration.
  */
@@ -45,6 +80,18 @@ export function DynamicFormField({
   renderLabel = true,
 }: DynamicFormFieldProps): React.JSX.Element {
   const fieldId = field.name;
+  const usesChoiceCard = React.useMemo(() => {
+    return fieldIsChoiceCard(field);
+  }, [field.type, field.options]);
+
+  const fieldClassName = React.useMemo(() => {
+    if (usesChoiceCard) {
+      return "p-4 border rounded rounded-lg bg-muted/20";
+    } else {
+      return "";
+    }
+  }, [usesChoiceCard]);
+
   const usesGroupLegend =
     field.type === "radio" || field.type === "checkbox-group";
   const usesInlineCheckboxLabel = field.type === "checkbox";
@@ -57,7 +104,7 @@ export function DynamicFormField({
       label={shouldRenderFieldLabel ? field.label : undefined}
       description={shouldRenderFieldLabel ? field.description : undefined}
       required={field.required}
-      className={className}
+      className={cn(fieldClassName, className)}
     >
       {({ field: formField, meta }) => (
         <div>
@@ -75,6 +122,7 @@ export function DynamicFormField({
               error={meta.touched && !!meta.error}
               disabled={field.disabled}
               aria-label={field.label}
+              iconStart={getDefaultIconStart(field)}
             />
           )}
 

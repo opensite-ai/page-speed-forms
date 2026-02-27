@@ -13,6 +13,7 @@ import { cn } from "../lib/utils";
  * - Valid value indicator (ring-2)
  * - Form integration (onChange, onBlur)
  * - Full accessibility support
+ * - Optional start/end icon support with automatic padding
  *
  * @example
  * ```tsx
@@ -43,6 +44,8 @@ export function TextInput({
   type = "text",
   id = "text",
   suppressValueRing = false,
+  iconStart,
+  iconEnd,
   ...props
 }: InputProps<string> & {
   type?: "text" | "email" | "password" | "url" | "tel" | "search";
@@ -52,6 +55,16 @@ export function TextInput({
    * ButtonGroupForm) that renders its own unified ring.
    */
   suppressValueRing?: boolean;
+  /**
+   * Optional icon rendered at the start (left) of the input.
+   * Automatically adjusts input padding when provided.
+   */
+  iconStart?: React.ReactNode;
+  /**
+   * Optional icon rendered at the end (right) of the input.
+   * Automatically adjusts input padding when provided.
+   */
+  iconEnd?: React.ReactNode;
 }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -62,6 +75,52 @@ export function TextInput({
   };
 
   const hasValue = String(value ?? "").trim().length > 0;
+  const hasIconStart = Boolean(iconStart);
+  const hasIconEnd = Boolean(iconEnd);
+
+  if (hasIconStart || hasIconEnd) {
+    return (
+      <div className="relative">
+        {hasIconStart && (
+          <span
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
+            {iconStart}
+          </span>
+        )}
+        <Input
+          type={type}
+          id={id}
+          name={name}
+          value={value ?? ""}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          disabled={disabled}
+          required={required}
+          className={cn(
+            !suppressValueRing && !error && hasValue && "ring-2 ring-ring",
+            hasIconStart && "pl-10",
+            hasIconEnd && "pr-10",
+            className,
+          )}
+          aria-invalid={error || props["aria-invalid"]}
+          aria-describedby={props["aria-describedby"]}
+          aria-required={required || props["aria-required"]}
+          {...props}
+        />
+        {hasIconEnd && (
+          <span
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
+            {iconEnd}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Input

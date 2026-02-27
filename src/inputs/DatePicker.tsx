@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "../components/ui/popover";
 import { cn, INPUT_AUTOFILL_RESET_CLASSES } from "../lib/utils";
+import { DEFAULT_ICON_API_BASE_URL, Icon } from "@page-speed/icon";
 
 /**
  * DatePicker props interface
@@ -105,9 +106,11 @@ function DatePickerDayButton({
       className={cn(
         "flex items-center justify-center h-8 w-8 rounded-md border-none bg-transparent cursor-pointer text-sm transition-colors",
         "hover:bg-accent",
-        modifiers.selected && "bg-primary text-primary-foreground font-semibold",
+        modifiers.selected &&
+          "bg-primary text-primary-foreground font-semibold",
         !modifiers.selected && modifiers.today && "border border-primary",
-        modifiers.disabled && "cursor-not-allowed opacity-50 pointer-events-none",
+        modifiers.disabled &&
+          "cursor-not-allowed opacity-50 pointer-events-none",
         className,
       )}
       {...props}
@@ -305,19 +308,11 @@ export function DatePicker({
               className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
               aria-hidden="true"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              >
-                <path d="M8 2v4m8-4v4m5 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8M3 10h18m-5 10l2 2l4-4" />
-              </svg>
+              <Icon
+                name="material-symbols/edit-calendar-outline"
+                apiKey={DEFAULT_ICON_API_BASE_URL}
+                size={18}
+              />
             </span>
           )}
           <PopoverTrigger asChild>
@@ -326,9 +321,13 @@ export function DatePicker({
               id={props.id}
               type="text"
               className={cn(
-                "flex h-9 w-full rounded-md border border-input bg-transparent py-1 text-base shadow-sm transition-colors",
-                "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                "flex h-9 w-full rounded-md border",
+                "border-input bg-transparent py-1 text-base",
+                "shadow-sm transition-colors",
+                "focus-visible:outline-none focus-visible:ring-1",
+                "focus-visible:ring-ring",
+                "disabled:cursor-not-allowed",
+                "disabled:opacity-50 md:text-sm",
                 INPUT_AUTOFILL_RESET_CLASSES,
                 showIcon ? "pl-10" : "pl-3",
                 clearable && value ? "pr-10" : "pr-3",

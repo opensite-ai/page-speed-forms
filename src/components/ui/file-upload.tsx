@@ -1,8 +1,8 @@
 "use client";
 
+import * as React from "react";
 import { useDirection } from "@radix-ui/react-direction";
 import { Slot } from "@radix-ui/react-slot";
-import * as React from "react";
 import { cn } from "../../lib/utils";
 import { useAsRef } from "../../hooks/use-as-ref";
 import { useLazyRef } from "../../hooks/use-lazy-ref";

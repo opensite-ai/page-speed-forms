@@ -5,6 +5,7 @@ import type { InputProps } from "../core/types";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { FieldDescription, FieldLabel } from "../components/ui/field";
 import { cn } from "../lib/utils";
+import { LabelGroup } from "../core/label-group";
 
 /**
  * Radio option type
@@ -132,18 +133,14 @@ export function Radio({
   return (
     <div className={cn("w-full", className)} data-invalid={error || undefined}>
       {/* Group-level label and description */}
-      {(label || description) && (
-        <div className="mb-3 space-y-1">
-          {label && (
-            <div className="text-base font-medium leading-none">{label}</div>
-          )}
-          {description && (
-            <FieldDescription id={groupDescriptionId} className="leading-snug">
-              {description}
-            </FieldDescription>
-          )}
-        </div>
-      )}
+      <LabelGroup
+        labelHtmlFor={name}
+        required={required}
+        variant="legend"
+        secondaryId={groupDescriptionId}
+        secondary={description}
+        primary={label}
+      />
 
       <RadioGroup
         name={name}
@@ -171,7 +168,8 @@ export function Radio({
               key={option.value}
               htmlFor={radioId}
               className={cn(
-                "flex gap-3 p-3 duration-200 select-auto font-normal leading-normal",
+                "flex gap-3 p-3 duration-200",
+                "select-auto font-normal leading-normal",
                 useChoiceCard &&
                   "border rounded-lg hover:ring-2 hover:ring-ring/50",
                 useChoiceCard && isSelected && "ring-2 ring-ring",

@@ -28,7 +28,7 @@ const LabelGroup = ({
 }: LabelGroupProps) => {
   const primaryClasses = cn(
     "text-sm font-medium leading-snug",
-    variant === "legend" ? "mb-1.5" : "mb-1 block",
+    variant === "legend" ? "mb-2.5" : "mb-1 block",
     primaryClassName,
   );
 

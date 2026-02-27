@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Checkbox as CheckboxPrimitive } from "radix-ui"
+import * as React from "react";
+import { Checkbox as CheckboxPrimitive } from "radix-ui";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
 /**
  * Checkbox component - Optimized for dynamic theming across thousands of client brands
@@ -36,7 +36,9 @@ function Checkbox({
         // Disabled state
         "disabled:cursor-not-allowed disabled:opacity-50",
 
-        className
+        " mt-1",
+
+        className,
       )}
       {...props}
     >
@@ -58,7 +60,7 @@ function Checkbox({
         </svg>
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
-  )
+  );
 }
 
-export { Checkbox }
+export { Checkbox };

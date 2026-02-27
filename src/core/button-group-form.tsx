@@ -11,7 +11,6 @@ import type { InputProps } from "./types";
 import { Icon } from "@page-speed/icon";
 
 const DEFAULT_ICON_API_KEY = "au382bi7fsh96w9h9xlrnat2jglx";
-
 export type ButtonGroupFormSize = "xs" | "sm" | "default" | "lg";
 
 // Size-specific classes for input — height overrides ensure the input matches
@@ -182,8 +181,9 @@ export function ButtonGroupForm({
       )}
       <ButtonGroup
         className={cn(
-          !hasError && hasValue && "ring-2 ring-ring",
-          hasError && "ring-1 ring-destructive",
+          "rounded-md",
+          !hasError && hasValue && "ring-2 ring-primary",
+          hasError && "ring-2 ring-destructive",
         )}
       >
         <TextInput
@@ -191,10 +191,14 @@ export function ButtonGroupForm({
           id={inputId}
           suppressValueRing
           aria-describedby={hasError ? errorId : undefined}
-          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+          style={{
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+            boxShadow: "none",
+          }}
           className={cn(
             INPUT_SIZE_CLASSES[size],
-            "border-r-0 !rounded-r-none focus-visible:z-10",
+            "focus-visible:z-10",
             inputProps.className,
           )}
         />
@@ -203,9 +207,13 @@ export function ButtonGroupForm({
           type="submit"
           variant={submitVariant}
           disabled={isSubmitting}
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          style={{
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            boxShadow: "none",
+          }}
           className={cn(
-            "relative !rounded-l-none ring-0",
+            "relative ring-0",
             // 'sm' button variant is h-8; override to h-9 to align with input
             size === "sm" && "h-9",
           )}

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { FormFieldConfig } from "../integration";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,3 +39,19 @@ export const INPUT_AUTOFILL_RESET_CLASSES =
   "[&:-webkit-autofill:hover]:[box-shadow:0_0_0px_1000px_hsl(var(--background))_inset] " +
   "[&:-webkit-autofill:focus]:[box-shadow:0_0_0px_1000px_hsl(var(--background))_inset] " +
   "[&:-webkit-autofill]:[transition:background-color_9999s_ease-out,color_9999s_ease-out]";
+
+/**
+ * Converts a field name (snake_case or camelCase) to a human-readable label.
+ *
+ * @example
+ * fieldIsChoiceCard(field) // false
+ */
+export function fieldIsChoiceCard(field: FormFieldConfig) {
+  if (["radio", "checkbox-group"].includes(field.type)) {
+    return field?.options
+      ? field?.options?.some((opt) => opt.description)
+      : false;
+  } else {
+    return false;
+  }
+}

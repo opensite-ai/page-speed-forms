@@ -150,7 +150,7 @@ export function FileInput({
   value = [],
   onChange,
   onBlur,
-  placeholder,
+  placeholder = "Choose file...",
   disabled = false,
   required = false,
   error = false,
@@ -292,9 +292,7 @@ export function FileInput({
       const nextFiles = multiple ? incomingFiles : incomingFiles.slice(-1);
 
       if (onFileRemove && nextFiles.length < normalizedValue.length) {
-        const nextFileIds = new Set(
-          nextFiles.map((file) => fileIdentity(file)),
-        );
+        const nextFileIds = new Set(nextFiles.map((file) => fileIdentity(file)));
         normalizedValue.forEach((file, index) => {
           if (!nextFileIds.has(fileIdentity(file))) {
             onFileRemove(file, index);
@@ -307,8 +305,8 @@ export function FileInput({
         const previousFile = normalizedValue[0];
         const isNewSingleImage = Boolean(
           nextImageFile &&
-          nextImageFile.type.startsWith("image/") &&
-          nextImageFile !== previousFile,
+            nextImageFile.type.startsWith("image/") &&
+            nextImageFile !== previousFile,
         );
 
         if (isNewSingleImage) {
@@ -467,12 +465,9 @@ export function FileInput({
     setCropperOpen(true);
   }, []);
 
-  const onCropChange = React.useCallback(
-    (nextCrop: { x: number; y: number }) => {
-      setCrop(nextCrop);
-    },
-    [],
-  );
+  const onCropChange = React.useCallback((nextCrop: { x: number; y: number }) => {
+    setCrop(nextCrop);
+  }, []);
 
   const onZoomChange = React.useCallback((nextZoom: number) => {
     setZoom(nextZoom);
@@ -490,11 +485,7 @@ export function FileInput({
     const unit = 1024;
     const units = ["Bytes", "KB", "MB", "GB"];
     const index = Math.floor(Math.log(bytes) / Math.log(unit));
-    return (
-      Math.round((bytes / Math.pow(unit, index)) * 100) / 100 +
-      " " +
-      units[index]
-    );
+    return Math.round((bytes / Math.pow(unit, index)) * 100) / 100 + " " + units[index];
   }, []);
 
   React.useEffect(() => {
@@ -505,39 +496,10 @@ export function FileInput({
     };
   }, [imageToCrop]);
 
-  const dynamicPlaceholder = React.useMemo(() => {
-    if (placeholder) {
-      return placeholder;
-    }
-
-    return `Drag & drop file${multiple ? "s" : ""} here`;
-  }, [multiple, placeholder]);
-
-  const metadataElement = React.useMemo(() => {
-    let metaList: string[] = [];
-
-    if (accept) {
-      metaList.concat(`File types: ${accept}`);
-    }
-
-    if (maxSize) {
-      metaList.concat(`Max size: ${maxSize}`);
-    }
-
-    if (metaList?.length > 0) {
-      return (
-        <div className="flex text-center items-center justify-center gap-4">
-          {metaList.map((str) => (
-            <span key={str} className="font-sm opacity-75">
-              {str}
-            </span>
-          ))}
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }, [accept, maxSize]);
+  const fileCountLabel =
+    normalizedValue.length > 0
+      ? `${normalizedValue.length} file(s) selected`
+      : placeholder;
 
   return (
     <>
@@ -567,39 +529,35 @@ export function FileInput({
       >
         <FileUploadDropzone
           role="button"
-          aria-label={dynamicPlaceholder}
+          aria-label={placeholder}
           className={cn(
-            "flex min-h-32 w-full cursor-pointer",
-            "items-center justify-center border-input",
-            "bg-transparent p-6 transition-colors",
-            "data-[dragging]:ring-2 hover:ring-2",
+            "flex min-h-32 w-full cursor-pointer items-center justify-center border-input bg-transparent p-6 transition-colors",
+            "hover:bg-accent/50 hover:border-ring",
+            "data-[dragging]:bg-accent data-[dragging]:border-ring",
             disabled && "cursor-not-allowed opacity-50",
             error && "border-destructive",
           )}
         >
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex items-center justify-center rounded-full border p-2.5">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-            </div>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
 
-            <div className="flex flex-col items-center justify-center gap-1 text-center">
-              <p className="text-sm font-medium">{dynamicPlaceholder}</p>
-              {metadataElement}
-            </div>
+            <p className="text-sm font-medium">{fileCountLabel}</p>
+            {accept && <p className="text-xs">Accepted: {accept}</p>}
+            <p className="text-xs">Max size: {formatFileSize(maxSize)}</p>
           </div>
         </FileUploadDropzone>
 
@@ -613,22 +571,20 @@ export function FileInput({
               <FileUploadItem
                 key={`${file.name}-${index}`}
                 value={file}
-                className={cn(
-                  "flex items-center gap-3",
-                  "border-border bg-card text-card-foreground",
-                )}
+                className="flex items-center gap-3 border-border bg-card text-card-foreground hover:bg-primary/50 transition-colors"
               >
                 {showPreview ? (
-                  <FileUploadItemPreview className="size-12 rounded [&>img]:h-full [&>img]:w-full [&>img]:object-cover [&>svg]:size-6" />
+                  <FileUploadItemPreview className="h-12 w-12 rounded [&>img]:h-full [&>img]:w-full [&>img]:object-cover [&>svg]:size-6" />
                 ) : null}
 
                 <div className="flex min-w-0 flex-1 flex-col">
                   <FileUploadItemMetadata className="min-w-0" />
+                  <span className="text-xs">{formatFileSize(file.size)}</span>
 
-                  {hasProgress && progressValue < 100 ? (
+                  {hasProgress ? (
                     <div className="mt-1 flex items-center gap-2">
                       <div
-                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-primary"
+                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-accent/40"
                         role="progressbar"
                         aria-valuenow={progressValue}
                         aria-valuemin={0}
@@ -655,7 +611,7 @@ export function FileInput({
                       handleCrop(file);
                     }}
                     disabled={disabled}
-                    className="size-8 p-0"
+                    className="h-8 w-8 p-0"
                     aria-label={`Crop ${file.name}`}
                   >
                     <svg
@@ -678,10 +634,10 @@ export function FileInput({
                 <FileUploadItemDelete asChild>
                   <Button
                     type="button"
-                    variant="outline"
-                    size="icon-sm"
+                    variant="ghost"
+                    size="icon"
                     disabled={disabled}
-                    className="size-8 p-0"
+                    className="h-8 w-8 p-0"
                     aria-label={`Remove ${file.name}`}
                   >
                     <svg
@@ -750,7 +706,7 @@ export function FileInput({
 
             <div className="p-4">
               <div
-                className="relative h-96 w-full overflow-hidden rounded-md"
+                className="relative h-96 w-full overflow-hidden rounded-md bg-accent/40"
                 onMouseDown={(event) => {
                   event.preventDefault();
                   const startX = event.clientX - crop.x;
@@ -852,21 +808,15 @@ export function FileInput({
                   max="3"
                   step="0.1"
                   value={zoom}
-                  onChange={(event) =>
-                    onZoomChange(parseFloat(event.target.value))
-                  }
-                  className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-primary"
+                  onChange={(event) => onZoomChange(parseFloat(event.target.value))}
+                  className="h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-accent/60"
                   aria-label="Zoom level"
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 border-t border-border p-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCropCancel}
-              >
+              <Button type="button" variant="outline" onClick={handleCropCancel}>
                 Cancel
               </Button>
               <Button type="button" onClick={handleCropSave}>
