@@ -12,8 +12,8 @@ importers:
         specifier: 2.1.0
         version: 2.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@page-speed/icon':
-        specifier: file:../page-speed-icon
-        version: file:../page-speed-icon(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.1.1
+        version: 0.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-direction':
         specifier: ^1.1.1
         version: 1.1.1(@types/react@18.3.27)(react@18.3.1)
@@ -618,8 +618,8 @@ packages:
       react: '>=17.0.0'
       react-dom: '>=17.0.0'
 
-  '@page-speed/icon@file:../page-speed-icon':
-    resolution: {directory: ../page-speed-icon, type: directory}
+  '@page-speed/icon@0.1.1':
+    resolution: {integrity: sha512-SesHU3BZRh+CqqSWNC+QikWZQx7RP/dFurD5WiviwQ06yONNXQB5eY7o28kfAxZnHmHwLGlGQBRakq/PPEf8xg==}
     engines: {node: '>=18.0.0', pnpm: '>=9.0.0'}
     peerDependencies:
       react: '>=18.0.0'
@@ -2926,7 +2926,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@page-speed/icon@file:../page-speed-icon(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@page-speed/icon@0.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
