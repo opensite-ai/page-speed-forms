@@ -168,11 +168,11 @@ export function Radio({
               key={option.value}
               htmlFor={radioId}
               className={cn(
-                "flex gap-3 duration-200",
-                "select-auto font-normal leading-normal",
+                "flex duration-200 select-auto font-normal",
+                "tracking-tight leading-snug",
+                useChoiceCard ? "py-3 pl-3 pr-2" : "p1",
                 useChoiceCard && "hover:ring-2 hover:ring-primary",
                 useChoiceCard && "border rounded-lg py-3 pl-3 pr-2",
-                !useChoiceCard && "p-1",
                 useChoiceCard && isSelected && "ring-2 ring-primary",
                 useChoiceCard && error && "border-destructive",
                 isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",

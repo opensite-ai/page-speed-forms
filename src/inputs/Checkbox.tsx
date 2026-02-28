@@ -98,7 +98,7 @@ export function Checkbox({
         type="checkbox"
         name={name}
         checked={value}
-        onChange={() => {}} // Controlled by CheckboxPrimitive
+        onChange={() => { }} // Controlled by CheckboxPrimitive
         disabled={disabled}
         required={required}
         tabIndex={-1}
@@ -142,7 +142,9 @@ export function Checkbox({
       <FieldLabel
         htmlFor={checkboxId}
         className={cn(
-          "flex gap-3 p-3 duration-200 select-auto font-normal leading-normal",
+          "flex duration-200 select-auto font-normal",
+          "tracking-tight leading-snug",
+          showChoiceCard ? "py-3 pl-3 pr-2" : "p1",
           showChoiceCard && "border rounded-lg hover:ring-2 hover:ring-primary",
           showChoiceCard && value && "ring-2 ring-primary",
           showChoiceCard && error && "ring-2 ring-destructive",
