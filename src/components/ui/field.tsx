@@ -25,7 +25,6 @@ const Field = React.forwardRef<HTMLDivElement, FieldProps>(
         data-invalid={invalid || undefined}
         className={cn(
           "relative",
-          "relative space-y-1.5 px-4 py-5 border rounded-lg",
           // Use space-y instead of flex to avoid interfering with parent grid layouts
           orientation === "horizontal"
             ? "flex items-center gap-2"
@@ -124,7 +123,7 @@ const FieldError = React.forwardRef<
       role="alert"
       aria-live="polite"
       className={cn(
-        "text-xs text-destructive absolute -bottom-1/2 left-0",
+        "text-xs text-destructive absolute top-full left-0 mt-0.5",
         className,
       )}
       {...props}

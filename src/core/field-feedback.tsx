@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FieldMeta } from "./types";
 import { FieldError } from "../components/ui/field";
+import { cn } from "../lib/utils";
 
 type Props = {
   errorId?: string;
@@ -17,11 +18,15 @@ const FieldFeedback = ({
   shouldRenderError,
 }: Props) => {
   const errorText = Array.isArray(error) ? error.join(", ") : error;
-  if (!errorText || !shouldRenderError) return null;
+  const showError = Boolean(errorText && shouldRenderError);
 
   return (
-    <FieldError id={errorId} className={errorClassName}>
-      {errorText}
+    <FieldError
+      id={errorId}
+      className={cn(errorClassName, !showError && "invisible")}
+      aria-hidden={!showError || undefined}
+    >
+      {showError ? errorText : "\u00A0"}
     </FieldError>
   );
 };
