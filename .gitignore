@@ -25,6 +25,7 @@ multistep-docs/
 
 # IDE
 .vscode/
+.qoder/
 .idea/
 *.swp
 *.swo
