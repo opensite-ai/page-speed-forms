@@ -1,8 +1,8 @@
-![Page Speed React Forms](https://octane.cdn.ing/api/v1/images/transform?url=https://cdn.ing/assets/i/r/286339/nwqgw37pigfluhcmmjmpql3yj9y4/github.png&q=90)
+# ⌨️ `@page-speed/forms`
 
-# `@page-speed/forms`
+![Page Speed React Forms](https://octane.cdn.ing/api/v1/images/transform?url=https://cdn.ing/assets/i/r/286339/nwqgw37pigfluhcmmjmpql3yj9y4/github.png&f=webp&q=90)
 
-Type-safe, high-performance React form state and input components for OpenSite/DashTrack workloads.
+> Type-safe, high-performance React form state and input components for OpenSite/DashTrack workloads.
 
 [![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
 [![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
@@ -10,8 +10,8 @@ Type-safe, high-performance React form state and input components for OpenSite/D
 
 ## Highlights
 
+- **`FormEngine`** — declarative form component with built-in API integration
 - Field-level reactivity via `@legendapp/state/react`
-- Typed `useForm` and `useField` APIs
 - Built-in input library (text, select, date, time, upload, rich text)
 - Tree-shakable subpath exports (`/core`, `/inputs`, `/validation`, `/upload`, `/integration`)
 - Validation rules and utilities (sync + async)
@@ -30,112 +30,151 @@ Peer dependencies:
 - `react >= 16.8.0`
 - `react-dom >= 16.8.0`
 
-## Quick Start
+## Quick Start with FormEngine
+
+`FormEngine` is the recommended entry point for most use cases. It provides a declarative API for rendering forms with built-in API integration, validation, file uploads, and styling.
 
 ```tsx
 import * as React from "react";
-import { Form, Field, useForm } from "@page-speed/forms";
-import { TextInput, Select } from "@page-speed/forms/inputs";
-import { required, email } from "@page-speed/forms/validation/rules";
+import {
+  FormEngine,
+  type FormFieldConfig,
+} from "@page-speed/forms/integration";
+
+const fields: FormFieldConfig[] = [
+  {
+    name: "fullName",
+    type: "text",
+    label: "Full Name",
+    required: true,
+    placeholder: "Your name",
+    columnSpan: 12,
+  },
+  {
+    name: "email",
+    type: "email",
+    label: "Email",
+    required: true,
+    placeholder: "you@example.com",
+    columnSpan: 6,
+  },
+  {
+    name: "phone",
+    type: "tel",
+    label: "Phone",
+    columnSpan: 6,
+  },
+  {
+    name: "message",
+    type: "textarea",
+    label: "Message",
+    required: true,
+    columnSpan: 12,
+  },
+];
 
 export function ContactForm() {
-  const form = useForm({
-    initialValues: {
-      fullName: "",
-      email: "",
-      inquiryType: "",
-    },
-    validationSchema: {
-      fullName: required(),
-      email: [required(), email()],
-      inquiryType: required(),
-    },
-    onSubmit: async (values) => {
-      console.log(values);
-    },
-  });
-
   return (
-    <Form form={form}>
-      <Field name="fullName" label="Full Name" required>
-        {({ field, meta }) => (
-          <TextInput
-            {...field}
-            placeholder="Your name"
-            error={Boolean(meta.touched && meta.error)}
-          />
-        )}
-      </Field>
-
-      <Field name="email" label="Email" required>
-        {({ field, meta }) => (
-          <TextInput
-            {...field}
-            type="email"
-            placeholder="you@example.com"
-            error={Boolean(meta.touched && meta.error)}
-          />
-        )}
-      </Field>
-
-      <Field name="inquiryType" label="Inquiry Type" required>
-        {({ field, meta }) => (
-          <Select
-            {...field}
-            options={[
-              { label: "General", value: "general" },
-              { label: "Sales", value: "sales" },
-              { label: "Support", value: "support" },
-            ]}
-            error={Boolean(meta.touched && meta.error)}
-          />
-        )}
-      </Field>
-
-      <button type="submit" disabled={form.isSubmitting}>
-        Submit
-      </button>
-    </Form>
+    <FormEngine
+      api={{
+        endpoint: "/api/contact",
+        method: "post",
+        submissionConfig: { behavior: "showConfirmation" },
+      }}
+      fields={fields}
+      successMessage="Thanks for reaching out!"
+      formLayoutSettings={{
+        submitButtonSetup: {
+          submitLabel: "Send Message",
+        },
+      }}
+    />
   );
 }
 ```
 
-### Grouped Form Configuration
+### FormEngine Props
 
-`Form` supports both classic props and grouped config objects for cleaner callsites.
+| Prop | Type | Description |
+|------|------|-------------|
+| `api` | `PageSpeedFormConfig` | API endpoint and submission configuration |
+| `fields` | `FormFieldConfig[]` | Array of field definitions |
+| `formLayoutSettings` | `FormEngineLayoutSettings` | Layout, style, and submit button settings |
+| `successMessage` | `ReactNode` | Message shown after successful submission |
+| `onSubmit` | `(values) => void \| Promise<void>` | Custom submit handler |
+| `onSuccess` | `(data) => void` | Called after successful submission |
+| `onError` | `(error) => void` | Called when submission fails |
+| `resetOnSuccess` | `boolean` | Reset form after success (default: `true`) |
+
+### Field Configuration
+
+Each field in the `fields` array supports:
 
 ```tsx
-import * as React from "react";
-import { Form } from "@page-speed/forms";
-
-<Form
-  form={form}
-  notificationConfig={{
-    successMessage: "Thanks, submission received.",
-    submissionError,
-  }}
-  styleConfig={{
-    formClassName: "space-y-6",
-    successMessageClassName: "bg-emerald-600 text-white",
-    errorMessageClassName: "bg-red-600 text-white",
-  }}
-  formConfig={{
-    endpoint: "/api/contact",
-    method: "post",
-    submissionConfig: {
-      behavior: "showConfirmation",
-    },
-  }}
-/>;
+interface FormFieldConfig {
+  name: string;
+  type: "text" | "email" | "tel" | "textarea" | "select" | "multiselect" | 
+        "date" | "daterange" | "time" | "file" | "checkbox" | "radio";
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  columnSpan?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  className?: string;
+  options?: { label: string; value: string }[]; // For select/multiselect/radio
+  // File-specific props
+  accept?: string;
+  maxFiles?: number;
+  maxFileSize?: number;
+}
 ```
 
-### `FormEngine` Defaults + Wrapper Setup
+### Layout Options
 
-`FormEngine` supports both direct props and a wrapper setup object. This is useful
-for block/component libraries that want to provide local default fields and styles.
+#### Standard Layout (default)
+
+Multi-column grid with a submit button below the fields:
 
 ```tsx
-import * as React from "react";
+<FormEngine
+  fields={fields}
+  formLayoutSettings={{
+    formLayout: "standard",
+    submitButtonSetup: {
+      submitLabel: "Submit",
+      submitVariant: "default", // | "destructive" | "outline" | "secondary" | "ghost" | "link"
+    },
+    styleRules: {
+      formContainer: "max-w-2xl mx-auto",
+      fieldsContainer: "gap-6",
+      formClassName: "space-y-4",
+    },
+  }}
+/>
+```
+
+#### Button-Group Layout
+
+Inline input with submit button (e.g., newsletter signup):
+
+```tsx
+<FormEngine
+  fields={[{ name: "email", type: "email", label: "Email", required: true }]}
+  formLayoutSettings={{
+    formLayout: "button-group",
+    buttonGroupSetup: {
+      size: "lg", // | "xs" | "sm" | "default"
+      submitLabel: "Subscribe",
+      submitVariant: "default",
+    },
+  }}
+/>
+```
+
+### Using formEngineSetup Wrapper
+
+For block/component libraries that provide default configurations:
+
+```tsx
 import {
   FormEngine,
   type FormEngineSetup,
@@ -151,16 +190,16 @@ const defaultStyleRules: FormEngineStyleRules = {
   formClassName: "space-y-6",
 };
 
-const setup: FormEngineSetup = {
-  api: { endpoint: "/api/contact", method: "post" },
-  formLayoutSettings: { formLayout: "standard" },
-};
-
-<FormEngine
-  formEngineSetup={setup}
-  defaultFields={defaultFields}
-  defaultStyleRules={defaultStyleRules}
-/>;
+// Consumer passes setup, component provides defaults
+function ContactBlock({ formEngineSetup }: { formEngineSetup?: FormEngineSetup }) {
+  return (
+    <FormEngine
+      formEngineSetup={formEngineSetup}
+      defaultFields={defaultFields}
+      defaultStyleRules={defaultStyleRules}
+    />
+  );
+}
 ```
 
 ## Package Entry Points
@@ -170,22 +209,22 @@ const setup: FormEngineSetup = {
 
 Exports:
 - `useForm`, `useField`, `Form`, `Field`, `FormContext`
-- core form/types interfaces
+- Core form/types interfaces
+
+### Integration (Recommended)
+- `@page-speed/forms/integration`
+
+Exports:
+- `FormEngine`, `FormEngineSetup`, `FormEngineProps`
+- `FormFieldConfig`, `FormEngineStyleRules`, `FormEngineLayoutSettings`
+- `DynamicFormField`, `useContactForm`, `useFileUpload`
 
 ### Inputs
 - `@page-speed/forms/inputs`
 
 Exports:
-- `TextInput`
-- `TextArea`
-- `Checkbox`
-- `CheckboxGroup`
-- `Radio`
-- `Select`
-- `MultiSelect`
-- `DatePicker`
-- `DateRangePicker`
-- `TimePicker`
+- `TextInput`, `TextArea`, `Checkbox`, `CheckboxGroup`, `Radio`
+- `Select`, `MultiSelect`, `DatePicker`, `DateRangePicker`, `TimePicker`
 - `FileInput`
 
 ### Validation
@@ -194,14 +233,13 @@ Exports:
 - `@page-speed/forms/validation/utils`
 - `@page-speed/forms/validation/valibot`
 
-### Upload and Integration
+### Upload
 - `@page-speed/forms/upload`
-- `@page-speed/forms/integration`
 
 ## Input Notes
 
 ### `TimePicker`
-`TimePicker` now uses a native `input[type="time"]` UX internally.
+`TimePicker` uses a native `input[type="time"]` UX internally.
 
 - Accepts controlled values in `HH:mm` (24-hour) or `h:mm AM/PM` (12-hour)
 - Emits `HH:mm` when `use24Hour` is `true`
@@ -222,14 +260,25 @@ Exports:
 
 This library ships with Tailwind utility classes and semantic token class names.
 
-It is **not** a BEM-only unstyled package anymore.
-
 ### Base conventions
 
 - Inputs/triggers are transparent shells with semantic borders/rings
 - Fields with values (text-like controls) use `ring-2 ring-primary`
 - Error states use destructive border/ring
 - Dropdown selected rows use muted backgrounds
+
+### FormEngine Style Rules
+
+```tsx
+interface FormEngineStyleRules {
+  formContainer?: string;       // Wrapper around <form>
+  fieldsContainer?: string;     // Grid wrapper for fields
+  fieldClassName?: string;      // Fallback className for fields
+  formClassName?: string;       // Applied to <form> element
+  successMessageClassName?: string;
+  errorMessageClassName?: string;
+}
+```
 
 ### Autofill normalization
 
@@ -249,6 +298,41 @@ Ensure your app defines semantic tokens used in classes such as:
 
 For complete styling guidance, see [`docs/STYLES.md`](./docs/STYLES.md).
 
+## Advanced: Low-Level APIs
+
+For custom form implementations, the lower-level `useForm`, `Form`, and `Field` APIs are available:
+
+```tsx
+import { Form, Field, useForm } from "@page-speed/forms";
+import { TextInput } from "@page-speed/forms/inputs";
+
+function CustomForm() {
+  const form = useForm({
+    initialValues: { email: "" },
+    validationSchema: {
+      email: (value) => (!value ? "Required" : undefined),
+    },
+    onSubmit: async (values) => {
+      console.log(values);
+    },
+  });
+
+  return (
+    <Form form={form}>
+      <Field name="email" label="Email">
+        {({ field, meta }) => (
+          <TextInput
+            {...field}
+            error={Boolean(meta.touched && meta.error)}
+          />
+        )}
+      </Field>
+      <button type="submit">Submit</button>
+    </Form>
+  );
+}
+```
+
 ## Validation Utilities
 
 Use built-in rules:
@@ -264,7 +348,7 @@ Use utilities from `/validation/utils`:
 
 ## File Uploads
 
-`FileInput` supports validation, drag/drop, preview, and crop workflows.
+`FileInput` and `FormEngine` support validation, drag/drop, preview, and crop workflows.
 
 For full two-phase upload patterns and serializer usage, see:
 - [`docs/FILE_UPLOADS.md`](./docs/FILE_UPLOADS.md)

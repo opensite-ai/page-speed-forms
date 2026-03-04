@@ -2,406 +2,374 @@
  * @page-speed/forms - Basic Usage Examples
  *
  * This file demonstrates common usage patterns for the form library.
+ * The recommended approach is to use `FormEngine` for declarative form rendering.
  */
 
-import { useForm, Form, Field } from '@page-speed/forms';
-import { TextInput } from '@page-speed/forms/inputs';
-import { createValibotSchema } from '@page-speed/forms/validation/valibot';
-import * as v from 'valibot';
+import * as React from "react";
+import {
+  FormEngine,
+  type FormEngineSetup,
+  type FormFieldConfig,
+  type FormEngineStyleRules,
+} from "@page-speed/forms/integration";
 
 // ============================================================================
-// Example 1: Basic Form with Inline Validation
+// Example 1: Basic Contact Form with FormEngine
 // ============================================================================
 
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
+const contactFields: FormFieldConfig[] = [
+  {
+    name: "fullName",
+    type: "text",
+    label: "Full Name",
+    required: true,
+    placeholder: "Your name",
+    columnSpan: 12,
+  },
+  {
+    name: "email",
+    type: "email",
+    label: "Email",
+    required: true,
+    placeholder: "you@example.com",
+    columnSpan: 6,
+  },
+  {
+    name: "phone",
+    type: "tel",
+    label: "Phone",
+    placeholder: "(555) 123-4567",
+    columnSpan: 6,
+  },
+  {
+    name: "message",
+    type: "textarea",
+    label: "Message",
+    required: true,
+    placeholder: "How can we help?",
+    columnSpan: 12,
+  },
+];
 
-function BasicLoginForm() {
-  const form = useForm<LoginFormValues>({
-    initialValues: {
-      email: '',
-      password: '',
-    },
-    validationSchema: {
-      email: (value) => {
-        if (!value) return 'Email is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return 'Invalid email format';
-        }
-        return undefined;
-      },
-      password: (value) => {
-        if (!value) return 'Password is required';
-        if (value.length < 8) return 'Password must be at least 8 characters';
-        return undefined;
-      },
-    },
-    onSubmit: async (values) => {
-      console.log('Form submitted:', values);
-      // Call your API here
-      await fetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
-    },
-  });
-
+function BasicContactForm() {
   return (
-    <Form form={form}>
-      <Field name="email" label="Email">
-        {({ field, meta }) => (
-          <div>
-            <TextInput
-              {...field}
-              type="email"
-              placeholder="you@example.com"
-              error={meta.touched && !!meta.error}
-            />
-            {meta.touched && meta.error && (
-              <span style={{ color: 'red' }}>{meta.error}</span>
-            )}
-          </div>
-        )}
-      </Field>
-
-      <Field name="password" label="Password">
-        {({ field, meta }) => (
-          <div>
-            <TextInput
-              {...field}
-              type="password"
-              placeholder="••••••••"
-              error={meta.touched && !!meta.error}
-            />
-            {meta.touched && meta.error && (
-              <span style={{ color: 'red' }}>{meta.error}</span>
-            )}
-          </div>
-        )}
-      </Field>
-
-      <button type="submit" disabled={form.isSubmitting}>
-        {form.isSubmitting ? 'Logging in...' : 'Login'}
-      </button>
-    </Form>
+    <FormEngine
+      api={{
+        endpoint: "/api/contact",
+        method: "post",
+        submissionConfig: { behavior: "showConfirmation" },
+      }}
+      fields={contactFields}
+      successMessage="Thanks for reaching out! We'll be in touch soon."
+      formLayoutSettings={{
+        submitButtonSetup: {
+          submitLabel: "Send Message",
+          submitVariant: "default",
+        },
+        styleRules: {
+          formContainer: "max-w-2xl mx-auto",
+          fieldsContainer: "gap-4",
+        },
+      }}
+    />
   );
 }
 
 // ============================================================================
-// Example 2: Form with Valibot Schema Validation
+// Example 2: Newsletter Signup (Button-Group Layout)
 // ============================================================================
 
-const RegistrationSchema = v.object({
-  username: v.pipe(
-    v.string(),
-    v.minLength(3, 'Username must be at least 3 characters'),
-    v.maxLength(20, 'Username must be less than 20 characters')
-  ),
-  email: v.pipe(
-    v.string(),
-    v.email('Invalid email address')
-  ),
-  password: v.pipe(
-    v.string(),
-    v.minLength(8, 'Password must be at least 8 characters')
-  ),
-  confirmPassword: v.pipe(
-    v.string(),
-    v.minLength(8, 'Password must be at least 8 characters')
-  ),
-});
+const newsletterFields: FormFieldConfig[] = [
+  {
+    name: "email",
+    type: "email",
+    label: "Email",
+    required: true,
+    placeholder: "Enter your email",
+  },
+];
 
-type RegistrationFormValues = v.InferInput<typeof RegistrationSchema>;
+function NewsletterSignup() {
+  return (
+    <FormEngine
+      api={{ endpoint: "/api/newsletter", method: "post" }}
+      fields={newsletterFields}
+      successMessage="You're subscribed!"
+      formLayoutSettings={{
+        formLayout: "button-group",
+        buttonGroupSetup: {
+          size: "lg",
+          submitLabel: "Subscribe",
+          submitVariant: "default",
+        },
+      }}
+    />
+  );
+}
+
+// ============================================================================
+// Example 3: Multi-Column Registration Form
+// ============================================================================
+
+const registrationFields: FormFieldConfig[] = [
+  {
+    name: "firstName",
+    type: "text",
+    label: "First Name",
+    required: true,
+    columnSpan: 6,
+  },
+  {
+    name: "lastName",
+    type: "text",
+    label: "Last Name",
+    required: true,
+    columnSpan: 6,
+  },
+  {
+    name: "email",
+    type: "email",
+    label: "Email Address",
+    required: true,
+    columnSpan: 12,
+  },
+  {
+    name: "company",
+    type: "text",
+    label: "Company",
+    columnSpan: 6,
+  },
+  {
+    name: "role",
+    type: "select",
+    label: "Role",
+    columnSpan: 6,
+    options: [
+      { label: "Developer", value: "developer" },
+      { label: "Designer", value: "designer" },
+      { label: "Manager", value: "manager" },
+      { label: "Other", value: "other" },
+    ],
+  },
+  {
+    name: "interests",
+    type: "multiselect",
+    label: "Interests",
+    columnSpan: 12,
+    options: [
+      { label: "Product Updates", value: "updates" },
+      { label: "Technical Content", value: "technical" },
+      { label: "Community Events", value: "events" },
+    ],
+  },
+];
 
 function RegistrationForm() {
-  const form = useForm<RegistrationFormValues>({
-    initialValues: {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-    validationSchema: createValibotSchema(RegistrationSchema),
-    onSubmit: async (values, helpers) => {
-      // Validate passwords match
-      if (values.password !== values.confirmPassword) {
-        helpers.setFieldError('confirmPassword', 'Passwords do not match');
-        return;
-      }
-
-      console.log('Registration submitted:', values);
-
-      try {
-        await fetch('/api/register', {
-          method: 'POST',
-          body: JSON.stringify(values),
-        });
-        helpers.resetForm();
-      } catch (error) {
-        helpers.setFieldError('email', 'Email already exists');
-      }
-    },
-  });
-
   return (
-    <Form form={form}>
-      <Field name="username" label="Username">
-        {({ field, meta }) => (
-          <>
-            <TextInput {...field} error={meta.touched && !!meta.error} />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <Field name="email" label="Email">
-        {({ field, meta }) => (
-          <>
-            <TextInput {...field} type="email" error={meta.touched && !!meta.error} />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <Field name="password" label="Password">
-        {({ field, meta }) => (
-          <>
-            <TextInput {...field} type="password" error={meta.touched && !!meta.error} />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <Field name="confirmPassword" label="Confirm Password">
-        {({ field, meta }) => (
-          <>
-            <TextInput {...field} type="password" error={meta.touched && !!meta.error} />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <button type="submit" disabled={!form.isValid || form.isSubmitting}>
-        {form.isSubmitting ? 'Creating account...' : 'Sign Up'}
-      </button>
-    </Form>
+    <FormEngine
+      api={{
+        endpoint: "/api/register",
+        method: "post",
+        submissionConfig: {
+          behavior: "redirect",
+          redirectUrl: "/welcome",
+        },
+      }}
+      fields={registrationFields}
+      formLayoutSettings={{
+        submitButtonSetup: {
+          submitLabel: "Create Account",
+        },
+        styleRules: {
+          formContainer: "max-w-3xl mx-auto p-6",
+          fieldsContainer: "gap-6",
+        },
+      }}
+      onSuccess={(data) => {
+        console.log("Registration successful:", data);
+      }}
+      onError={(error) => {
+        console.error("Registration failed:", error);
+      }}
+    />
   );
 }
 
 // ============================================================================
-// Example 3: Dynamic Form with Conditional Validation
+// Example 4: Form with File Upload
 // ============================================================================
 
-interface ContactFormValues {
-  name: string;
-  email: string;
-  phone?: string;
-  contactMethod: 'email' | 'phone';
-  message: string;
-}
+const applicationFields: FormFieldConfig[] = [
+  {
+    name: "name",
+    type: "text",
+    label: "Full Name",
+    required: true,
+    columnSpan: 12,
+  },
+  {
+    name: "email",
+    type: "email",
+    label: "Email",
+    required: true,
+    columnSpan: 6,
+  },
+  {
+    name: "phone",
+    type: "tel",
+    label: "Phone",
+    columnSpan: 6,
+  },
+  {
+    name: "resume",
+    type: "file",
+    label: "Resume",
+    required: true,
+    columnSpan: 12,
+    accept: ".pdf,.doc,.docx",
+    maxFiles: 1,
+    maxFileSize: 5 * 1024 * 1024, // 5MB
+  },
+  {
+    name: "coverLetter",
+    type: "textarea",
+    label: "Cover Letter",
+    placeholder: "Tell us why you're a great fit...",
+    columnSpan: 12,
+  },
+];
 
-function ContactForm() {
-  const form = useForm<ContactFormValues>({
-    initialValues: {
-      name: '',
-      email: '',
-      phone: '',
-      contactMethod: 'email',
-      message: '',
-    },
-    validationSchema: {
-      name: (value) => !value ? 'Name is required' : undefined,
-      email: (value, allValues) => {
-        if (allValues.contactMethod === 'email' && !value) {
-          return 'Email is required when email is selected as contact method';
-        }
-        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return 'Invalid email format';
-        }
-        return undefined;
-      },
-      phone: (value, allValues) => {
-        if (allValues.contactMethod === 'phone' && !value) {
-          return 'Phone is required when phone is selected as contact method';
-        }
-        return undefined;
-      },
-      message: (value) => {
-        if (!value) return 'Message is required';
-        if (value.length < 10) return 'Message must be at least 10 characters';
-        return undefined;
-      },
-    },
-    validateOn: 'onBlur',
-    revalidateOn: 'onChange',
-    onSubmit: async (values) => {
-      console.log('Contact form submitted:', values);
-      await fetch('/api/contact', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
-    },
-  });
-
+function JobApplicationForm() {
   return (
-    <Form form={form}>
-      <Field name="name" label="Name">
-        {({ field, meta }) => (
-          <>
-            <TextInput {...field} error={meta.touched && !!meta.error} />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <Field name="contactMethod" label="Preferred Contact Method">
-        {({ field }) => (
-          <div>
-            <label>
-              <input
-                type="radio"
-                name={field.name}
-                value="email"
-                checked={field.value === 'email'}
-                onChange={(e) => field.onChange(e.target.value as 'email' | 'phone')}
-              />
-              Email
-            </label>
-            <label>
-              <input
-                type="radio"
-                name={field.name}
-                value="phone"
-                checked={field.value === 'phone'}
-                onChange={(e) => field.onChange(e.target.value as 'email' | 'phone')}
-              />
-              Phone
-            </label>
-          </div>
-        )}
-      </Field>
-
-      {form.values.contactMethod === 'email' && (
-        <Field name="email" label="Email">
-          {({ field, meta }) => (
-            <>
-              <TextInput {...field} type="email" error={meta.touched && !!meta.error} />
-              {meta.touched && meta.error && <span>{meta.error}</span>}
-            </>
-          )}
-        </Field>
-      )}
-
-      {form.values.contactMethod === 'phone' && (
-        <Field name="phone" label="Phone">
-          {({ field, meta }) => (
-            <>
-              <TextInput {...field} type="tel" error={meta.touched && !!meta.error} />
-              {meta.touched && meta.error && <span>{meta.error}</span>}
-            </>
-          )}
-        </Field>
-      )}
-
-      <Field name="message" label="Message">
-        {({ field, meta }) => (
-          <>
-            <textarea
-              {...field}
-              rows={5}
-              style={{ borderColor: meta.touched && meta.error ? 'red' : undefined }}
-            />
-            {meta.touched && meta.error && <span>{meta.error}</span>}
-          </>
-        )}
-      </Field>
-
-      <button type="submit" disabled={form.isSubmitting}>
-        {form.isSubmitting ? 'Sending...' : 'Send Message'}
-      </button>
-    </Form>
+    <FormEngine
+      api={{
+        endpoint: "/api/applications",
+        method: "post",
+        submissionConfig: { behavior: "showConfirmation" },
+      }}
+      fields={applicationFields}
+      successMessage="Application submitted successfully!"
+      formLayoutSettings={{
+        submitButtonSetup: {
+          submitLabel: "Submit Application",
+        },
+      }}
+    />
   );
 }
 
 // ============================================================================
-// Example 4: Using getFieldProps for Direct Input Binding
+// Example 5: Using formEngineSetup Wrapper (Block Library Pattern)
 // ============================================================================
 
-function SimpleForm() {
-  const form = useForm({
-    initialValues: {
-      firstName: '',
-      lastName: '',
-    },
-    onSubmit: async (values) => {
-      console.log('Submitted:', values);
-    },
-  });
+/**
+ * This pattern is useful for component/block libraries that want to provide
+ * default fields and styles while allowing consumers to override via setup.
+ */
 
+const defaultContactFields: FormFieldConfig[] = [
+  { name: "email", type: "email", label: "Email", required: true },
+  { name: "message", type: "textarea", label: "Message", required: true },
+];
+
+const defaultStyleRules: FormEngineStyleRules = {
+  formContainer: "bg-card p-6 rounded-lg shadow",
+  formClassName: "space-y-4",
+  successMessageClassName: "bg-primary text-primary-foreground p-4 rounded",
+};
+
+interface ContactBlockProps {
+  formEngineSetup?: FormEngineSetup;
+}
+
+function ContactBlock({ formEngineSetup }: ContactBlockProps) {
   return (
-    <form onSubmit={form.handleSubmit}>
-      <div>
-        <label htmlFor="firstName">First Name</label>
-        <input id="firstName" {...form.getFieldProps('firstName')} />
-        {form.errors.firstName && <span>{form.errors.firstName}</span>}
-      </div>
+    <FormEngine
+      formEngineSetup={formEngineSetup}
+      defaultFields={defaultContactFields}
+      defaultStyleRules={defaultStyleRules}
+    />
+  );
+}
 
-      <div>
-        <label htmlFor="lastName">Last Name</label>
-        <input id="lastName" {...form.getFieldProps('lastName')} />
-        {form.errors.lastName && <span>{form.errors.lastName}</span>}
-      </div>
+// Usage of ContactBlock:
+function ContactBlockExample() {
+  const setup: FormEngineSetup = {
+    api: { endpoint: "/api/contact", method: "post" },
+    fields: [
+      { name: "name", type: "text", label: "Name", required: true },
+      { name: "email", type: "email", label: "Email", required: true },
+      { name: "subject", type: "text", label: "Subject" },
+      { name: "message", type: "textarea", label: "Message", required: true },
+    ],
+    formLayoutSettings: {
+      submitButtonSetup: { submitLabel: "Get in Touch" },
+    },
+    successMessage: "Message sent!",
+  };
 
-      <button type="submit">Submit</button>
-    </form>
+  return <ContactBlock formEngineSetup={setup} />;
+}
+
+// ============================================================================
+// Example 6: Date and Time Fields
+// ============================================================================
+
+const appointmentFields: FormFieldConfig[] = [
+  {
+    name: "name",
+    type: "text",
+    label: "Your Name",
+    required: true,
+    columnSpan: 12,
+  },
+  {
+    name: "date",
+    type: "date",
+    label: "Preferred Date",
+    required: true,
+    columnSpan: 6,
+  },
+  {
+    name: "time",
+    type: "time",
+    label: "Preferred Time",
+    required: true,
+    columnSpan: 6,
+  },
+  {
+    name: "notes",
+    type: "textarea",
+    label: "Additional Notes",
+    columnSpan: 12,
+  },
+];
+
+function AppointmentForm() {
+  return (
+    <FormEngine
+      api={{ endpoint: "/api/appointments", method: "post" }}
+      fields={appointmentFields}
+      successMessage="Appointment request submitted!"
+      formLayoutSettings={{
+        submitButtonSetup: {
+          submitLabel: "Request Appointment",
+        },
+      }}
+    />
   );
 }
 
 // ============================================================================
-// Example 5: Progressive Enhancement (Works Without JavaScript)
+// Exports
 // ============================================================================
-
-function ProgressiveEnhancementForm() {
-  const form = useForm({
-    initialValues: {
-      email: '',
-      feedback: '',
-    },
-    onSubmit: async (values) => {
-      // This runs client-side with JavaScript
-      console.log('Client-side submission:', values);
-      await fetch('/api/feedback', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
-    },
-  });
-
-  return (
-    <Form
-      form={form}
-      action="/api/feedback"  // Fallback for no-JS
-      method="post"           // Fallback for no-JS
-    >
-      <Field name="email" label="Email">
-        {({ field }) => <TextInput {...field} type="email" required />}
-      </Field>
-
-      <Field name="feedback" label="Feedback">
-        {({ field }) => <textarea {...field} required rows={5} />}
-      </Field>
-
-      <button type="submit">Send Feedback</button>
-    </Form>
-  );
-}
 
 export {
-  BasicLoginForm,
+  BasicContactForm,
+  NewsletterSignup,
   RegistrationForm,
-  ContactForm,
-  SimpleForm,
-  ProgressiveEnhancementForm,
+  JobApplicationForm,
+  ContactBlock,
+  ContactBlockExample,
+  AppointmentForm,
 };
