@@ -1,8 +1,10 @@
-# ⌨️ `@page-speed/forms`
+# @page-speed/forms
+
+## Type-safe, high-performance React form state and input components for OpenSite/DashTrack workloads
 
 ![Page Speed React Forms](https://octane.cdn.ing/api/v1/images/transform?url=https://cdn.ing/assets/i/r/286339/nwqgw37pigfluhcmmjmpql3yj9y4/github.png&f=webp&q=90)
 
-> Type-safe, high-performance React form state and input components for OpenSite/DashTrack workloads.
+<br />
 
 [![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
 [![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
@@ -43,7 +45,7 @@ import {
 
 const fields: FormFieldConfig[] = [
   {
-    name: "fullName",
+    name: "full_name",
     type: "text",
     label: "Full Name",
     required: true,
@@ -65,7 +67,7 @@ const fields: FormFieldConfig[] = [
     columnSpan: 6,
   },
   {
-    name: "message",
+    name: "content",
     type: "textarea",
     label: "Message",
     required: true,
@@ -205,40 +207,49 @@ function ContactBlock({ formEngineSetup }: { formEngineSetup?: FormEngineSetup }
 ## Package Entry Points
 
 ### Main
+
 - `@page-speed/forms`
 
-Exports:
+#### Exports:
+
 - `useForm`, `useField`, `Form`, `Field`, `FormContext`
 - Core form/types interfaces
 
 ### Integration (Recommended)
+
 - `@page-speed/forms/integration`
 
-Exports:
+#### Exports:
+
 - `FormEngine`, `FormEngineSetup`, `FormEngineProps`
 - `FormFieldConfig`, `FormEngineStyleRules`, `FormEngineLayoutSettings`
 - `DynamicFormField`, `useContactForm`, `useFileUpload`
 
 ### Inputs
+
 - `@page-speed/forms/inputs`
 
-Exports:
+#### Exports:
+
 - `TextInput`, `TextArea`, `Checkbox`, `CheckboxGroup`, `Radio`
 - `Select`, `MultiSelect`, `DatePicker`, `DateRangePicker`, `TimePicker`
 - `FileInput`
 
 ### Validation
+
 - `@page-speed/forms/validation`
 - `@page-speed/forms/validation/rules`
 - `@page-speed/forms/validation/utils`
 - `@page-speed/forms/validation/valibot`
 
 ### Upload
+
 - `@page-speed/forms/upload`
 
 ## Input Notes
 
 ### `TimePicker`
+
 `TimePicker` uses a native `input[type="time"]` UX internally.
 
 - Accepts controlled values in `HH:mm` (24-hour) or `h:mm AM/PM` (12-hour)
@@ -246,11 +257,13 @@ Exports:
 - Emits `h:mm AM/PM` when `use24Hour` is `false`
 
 ### `DatePicker` and `DateRangePicker`
+
 - Calendar popovers close on outside click
 - Compact month/day layout using tokenized Tailwind classes
 - `DateRangePicker` renders two months and highlights endpoints + in-range dates
 
 ### `Select` and `MultiSelect`
+
 - Close on outside click
 - Search support
 - Option groups
@@ -289,6 +302,7 @@ See `INPUT_AUTOFILL_RESET_CLASSES` in `src/utils.ts`.
 ### Token requirements
 
 Ensure your app defines semantic tokens used in classes such as:
+
 - `background`, `foreground`, `border`, `input`, `ring`
 - `primary`, `primary-foreground`
 - `muted`, `muted-foreground`
@@ -336,6 +350,7 @@ function CustomForm() {
 ## Validation Utilities
 
 Use built-in rules:
+
 - `required`, `email`, `url`, `phone`
 - `minLength`, `maxLength`, `min`, `max`
 - `pattern`, `matches`, `oneOf`
@@ -343,6 +358,7 @@ Use built-in rules:
 - `compose`
 
 Use utilities from `/validation/utils`:
+
 - `debounce`, `asyncValidator`, `crossFieldValidator`, `when`
 - `setErrorMessages`, `getErrorMessage`, `resetErrorMessages`
 
@@ -351,6 +367,7 @@ Use utilities from `/validation/utils`:
 `FileInput` and `FormEngine` support validation, drag/drop, preview, and crop workflows.
 
 For full two-phase upload patterns and serializer usage, see:
+
 - [`docs/FILE_UPLOADS.md`](./docs/FILE_UPLOADS.md)
 - `@page-speed/forms/integration`
 

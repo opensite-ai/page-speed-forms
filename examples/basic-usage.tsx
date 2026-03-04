@@ -19,7 +19,7 @@ import {
 
 const contactFields: FormFieldConfig[] = [
   {
-    name: "fullName",
+    name: "full_name",
     type: "text",
     label: "Full Name",
     required: true,
@@ -42,7 +42,7 @@ const contactFields: FormFieldConfig[] = [
     columnSpan: 6,
   },
   {
-    name: "message",
+    name: "content",
     type: "textarea",
     label: "Message",
     required: true,
@@ -153,7 +153,7 @@ const registrationFields: FormFieldConfig[] = [
   },
   {
     name: "interests",
-    type: "multiselect",
+    type: "multi-select",
     label: "Interests",
     columnSpan: 12,
     options: [
@@ -228,10 +228,10 @@ const applicationFields: FormFieldConfig[] = [
     columnSpan: 12,
     accept: ".pdf,.doc,.docx",
     maxFiles: 1,
-    maxFileSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 5 * 1024 * 1024, // 5MB
   },
   {
-    name: "coverLetter",
+    name: "content",
     type: "textarea",
     label: "Cover Letter",
     placeholder: "Tell us why you're a great fit...",
@@ -300,7 +300,7 @@ function ContactBlockExample() {
       { name: "name", type: "text", label: "Name", required: true },
       { name: "email", type: "email", label: "Email", required: true },
       { name: "subject", type: "text", label: "Subject" },
-      { name: "message", type: "textarea", label: "Message", required: true },
+      { name: "content", type: "textarea", label: "Message", required: true },
     ],
     formLayoutSettings: {
       submitButtonSetup: { submitLabel: "Get in Touch" },
@@ -338,7 +338,7 @@ const appointmentFields: FormFieldConfig[] = [
     columnSpan: 6,
   },
   {
-    name: "notes",
+    name: "content",
     type: "textarea",
     label: "Additional Notes",
     columnSpan: 12,
