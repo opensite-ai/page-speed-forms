@@ -1,6 +1,6 @@
 {
   "name": "@page-speed/forms",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Ultra-high-performance React form library with field-level reactivity and tree-shakable architecture",
   "keywords": [
     "react",
@@ -22,7 +22,7 @@
     "url": "https://github.com/opensite-ai/page-speed-forms/issues"
   },
   "author": "OpenSite AI (https://opensite.ai)",
-  "license": "MIT",
+  "license": "BSD-3-Clause",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

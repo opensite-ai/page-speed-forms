@@ -6,9 +6,11 @@
 
 <br />
 
-[![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
-[![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=flat-square)](https://www.npmjs.com/package/@page-speed/forms)
-[![License](https://img.shields.io/npm/l/@page-speed/forms?style=flat-square)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@page-speed/forms?style=for-the-badge)](https://www.npmjs.com/package/@page-speed/forms)
+[![npm downloads](https://img.shields.io/npm/dm/@page-speed/forms?style=for-the-badge)](https://www.npmjs.com/package/@page-speed/forms)
+[![License](https://img.shields.io/npm/l/@page-speed/forms?style=for-the-badge)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=for-the-badge)](./tsconfig.json)
+[![Tree-Shakeable](https://img.shields.io/badge/Tree%20Shakeable-Yes-brightgreen?style=for-the-badge)](#tree-shaking)
 
 ## Highlights
 
@@ -28,7 +30,8 @@ pnpm add @page-speed/forms
 npm install @page-speed/forms
 ```
 
-Peer dependencies:
+### Peer dependencies:
+
 - `react >= 16.8.0`
 - `react-dom >= 16.8.0`
 
